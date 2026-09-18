@@ -1,0 +1,2247 @@
+<style>
+/* PDE-PREMIUM-PRE-V1 · primeira coisa que o navegador lê.
+   Reserva a área e segura o conteúdo até a folha do fim ser lida, para não
+   aparecer o lampejo de tela sem estilo em arquivo grande. */
+#pde-painel{display:block;height:clamp(320px,70vh,640px);overflow:hidden;
+  background:#F7F8FA;border:1px solid #E6EAF0;border-radius:18px;margin:0 auto;max-width:1280px}
+#pde-painel > *{visibility:hidden}
+</style>
+<!-- ============================================================
+     PENSAMENTO COMPUTACIONAL IA · Portal do Educador
+     O estúdio da BNCC Computação (Resolução CNE/CEB nº 1/2022):
+     eixos Pensamento Computacional, Mundo Digital, Cultura Digital.
+     6 modos: 1 Desplugado · 2 Algoritmos e Sequências
+     3 Padrões e Decomposição · 4 Plugado (Chromebooks/laboratório)
+     5 Jogos de Lógica · 6 Projetos e Cidadania Digital
+     • EIXO ESTRATÉGICO: desplugado primeiro (funciona em qualquer
+       escola), plugado onde há máquina (campo "equipamentos da
+       escola" adapta tudo)
+     • BNCC Computação REAL (códigos EF..CO.., nunca inventados;
+       na dúvida, citar o eixo)
+     • PRECISÃO: algoritmos executados mentalmente antes de
+       entregar, labirintos com caminho conferido, binário correto
+     • Cultura do BUG: errar é achar o bug, sem drama (debugging)
+     • Ferramentas apenas gratuitas; sem marcas comerciais
+     • Padrão v3 completo · Regras 1-9
+     ============================================================ -->
+<div id="pde-painel">
+<script>
+/* PDE-DECLARA-IA-V1 · declaração de uso de IA
+   Princípio adotado da Portaria CNPq 2.664/2026: declarar QUAL ferramenta de IA
+   generativa foi usada e PARA QUÊ, e nomear o responsável humano pela revisão.
+   O campo fica na fase de identificação e a linha viaja dentro do prompt. */
+(function(){
+  var P=document.getElementById('pde-painel')||document.getElementById('peg');
+  if(!P) return;
+
+  var FERRAMENTAS=['ChatGPT','Gemini','Claude','Copilot','Outra ferramenta de IA'];
+
+  /* 0. a identificação passa a ser compartilhada entre TODAS as ferramentas:
+        quem digita o nome numa, encontra preenchido nas outras */
+  function sincIdent(){
+    [['pde-id-prof','pde_professor'],['pde-id-escola','pde_escola'],['pde-id-municipio','pde_municipio']]
+    .forEach(function(par){
+      var el=P.querySelector('#'+par[0]);
+      if(!el||el.dataset.pdeSinc) return;
+      el.dataset.pdeSinc='1';
+      try{
+        var s=localStorage.getItem(par[1]);
+        if(s && !el.value) el.value=s;
+      }catch(e){}
+      el.addEventListener('input',function(){
+        try{ localStorage.setItem(par[1], el.value); }catch(e){}
+      });
+    });
+  }
+
+  function campoIdent(){
+    return P.querySelector('#pde-id-municipio') || P.querySelector('#pde-id-escola') || P.querySelector('#pde-id-prof');
+  }
+
+  /* 1. o campo nasce ao lado da identificação, que é onde o professor já se identifica */
+  function montar(){
+    if(P.querySelector('#pde-ia-usada')) return;
+    var ref=campoIdent(); if(!ref) return;
+    var cx=ref.closest('.pde-f, .pde-campo, div'); if(!cx) return;
+
+    var bloco=document.createElement('div');
+    bloco.className=cx.className||'pde-f';
+    bloco.innerHTML=
+      '<label for="pde-ia-usada">Onde você vai gerar este material</label>'+
+      '<select id="pde-ia-usada">'+
+        FERRAMENTAS.map(function(f){return '<option>'+f+'</option>';}).join('')+
+      '</select>'+
+      '<div class="pde-help pde-campo-hint" style="font-size:11px;color:#64748b;margin-top:5px;line-height:1.45">'+
+        'O material sai declarando a ferramenta usada e quem revisou. É o que separa material com autoria de texto anônimo de internet.'+
+      '</div>';
+    if(cx.parentNode) cx.parentNode.insertBefore(bloco, cx.nextSibling);
+
+    try{
+      var s=localStorage.getItem('pde_ia_usada');
+      if(s) P.querySelector('#pde-ia-usada').value=s;
+    }catch(e){}
+    P.querySelector('#pde-ia-usada').addEventListener('change',function(e){
+      try{ localStorage.setItem('pde_ia_usada', e.target.value); }catch(x){}
+    });
+  }
+
+  /* 2. a linha que vai para o rodapé do material */
+  window.declaraIA=function(){
+    var sel=P.querySelector('#pde-ia-usada');
+    var ferr=sel?sel.value:'ferramenta de IA generativa';
+    var prof=P.querySelector('#pde-id-prof');
+    var nome=(prof&&prof.value.trim())?prof.value.trim():'';
+    var txt='DECLARAÇÃO DE USO DE IA: material produzido com '+ferr+
+            ' para geração de texto, estrutura e elementos visuais, a partir de comando elaborado pelo professor no Portal do Educador. ';
+    txt+= nome
+      ? 'Revisão, validação pedagógica e responsabilidade pelo conteúdo final: '+nome+'.'
+      : 'A revisão, a validação pedagógica e a responsabilidade pelo conteúdo final são do professor que aplica o material.';
+    return txt;
+  };
+
+  /* 3. garante a declaração no prompt mesmo onde o rodapé é montado de outro jeito */
+  function vigiar(){
+    sincIdent();
+    montar();
+    ['p-uni','prompt-saida','prompt-gpt','peg-prompt-box','out-prompt','saida'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el||el.__declIA) return;
+      el.__declIA=1;
+      var obs=new MutationObserver(function(){
+        var t=el.textContent;
+        if(typeof t!=='string'||t.length<400) return;
+        if(t.indexOf('DECLARAÇÃO DE USO DE IA')>=0) return;
+        obs.disconnect();
+        el.textContent=t+'\n\n'+window.declaraIA()+
+          '\nEscreva essa declaração no rodapé do material, em fonte pequena, logo abaixo do quadro IA RESPONSÁVEL, sem alterar o texto.';
+        obs.observe(el,{childList:true,characterData:true,subtree:true});
+      });
+      obs.observe(el,{childList:true,characterData:true,subtree:true});
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',vigiar);
+  else vigiar();
+  setTimeout(vigiar,400); setTimeout(vigiar,1200);
+})();
+</script>
+
+
+
+
+
+  
+
+  <div class="pde-head">
+    <div class="pde-eyebrow">Jogos, descobertas e tecnologia</div>
+    <h1>Computação e <b>Programação</b></h1>
+    <p>A Computação da BNCC em qualquer escola: desplugado onde não há máquina, plugado onde há, e a lógica que forma cidadãos do mundo digital.</p>
+  </div>
+
+  <div class="wz-steps" id="wz-steps">
+    <div class="wz-step on" data-step="1" role="button" tabindex="0"><span class="dot">1</span><span class="nm">O que você vai criar</span></div>
+    <div class="wz-step" data-step="2" role="button" tabindex="0"><span class="dot">2</span><span class="nm">Tema</span></div>
+    <div class="wz-step" data-step="3" role="button" tabindex="0"><span class="dot">3</span><span class="nm">A turma</span></div>
+    <div class="wz-step" data-step="4" role="button" tabindex="0"><span class="dot">4</span><span class="nm">Acabamento</span></div>
+    <div class="wz-step" data-step="5" role="button" tabindex="0"><span class="dot">5</span><span class="nm">Ficha Visual</span></div>
+  </div>
+
+
+  <div class="pde-panel">
+    <!-- FASE 1 -->
+    <div class="wz-phase on" data-phase="1">
+      <div class="wz-phase-title">O que você vai criar</div>
+      <div class="wz-phase-sub">Escolha o que criar, e a ferramenta avança sozinha.</div>
+      <div class="sec-t">Modelos prontos, em um clique</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px" id="presets">
+        <button class="pde-chip" data-preset="robo">Robô humano · 3º ano</button>
+        <button class="pde-chip" data-preset="labirinto">Labirinto de comandos</button>
+        <button class="pde-chip" data-preset="pixel">Pixel art por coordenadas</button>
+        <button class="pde-chip" data-preset="chromebook">Aula plugada com Chromebooks</button>
+      </div>
+      <div class="sec-t">Ou monte do zero</div>
+      <div class="md-grid" id="md-grid">
+        <button class="md-card on" data-modo="desplugado"><span class="md-ic">🧩</span><span><span class="md-n">Computação Desplugada</span><span class="md-t">Lógica de programação sem nenhum computador</span></span></button>
+        <button class="md-card" data-modo="algoritmos"><span class="md-ic">➡️</span><span><span class="md-n">Algoritmos e Sequências</span><span class="md-t">Comandos, setas e o passo a passo exato</span></span></button>
+        <button class="md-card" data-modo="pilares"><span class="md-ic">🔍</span><span><span class="md-n">Padrões e Decomposição</span><span class="md-t">Quebrar o problema e enxergar o que repete</span></span></button>
+        <button class="md-card" data-modo="plugado"><span class="md-ic">💻</span><span><span class="md-n">Aula Plugada</span><span class="md-t">Roteiros para Chromebooks e laboratório</span></span></button>
+        <button class="md-card" data-modo="jogos"><span class="md-ic">🎲</span><span><span class="md-n">Jogos de Lógica</span><span class="md-t">Binário, pixel art, caça ao bug</span></span></button>
+        <button class="md-card" data-modo="cidadania"><span class="md-ic">🌐</span><span><span class="md-n">Cidadania Digital</span><span class="md-t">Segurança, respeito e consciência na internet</span></span></button>
+      </div>
+    </div>
+
+    <div class="wz-phase" data-phase="2">
+      <div class="wz-phase-title">Conteúdo</div>
+      <div class="wz-phase-sub" id="modo-sub">Configure a ferramenta escolhida.</div>
+
+      <!-- DESPLUGADO -->
+      <div class="mf show" data-mf="desplugado">
+        <div class="pde-f"><label for="de-tema">Atividade</label>
+          <select id="de-tema">
+            <option selected>O robô humano (um aluno programa, o outro executa)</option>
+            <option>O algoritmo do dia a dia (escovar os dentes, fazer o lanche)</option>
+            <option>A dança dos comandos (sequências com o corpo)</option>
+            <option>O carteiro da rede (como a mensagem viaja em pedaços)</option>
+            <option>Ordenação humana (a fila que se organiza sozinha)</option>
+            <option>O jogo do computador de papel (entrada, processamento, saída)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ALGORITMOS -->
+      <div class="mf" data-mf="algoritmos">
+        <div class="pde-f"><label for="al-tema">Atividade</label>
+          <select id="al-tema">
+            <option selected>Labirinto de comandos em grade (setas até o objetivo)</option>
+            <option>Programe o colega (cartões de comando)</option>
+            <option>Sequência, repetição e o laço (faça 3 vezes)</option>
+            <option>Condicionais (SE chover, ENTÃO leve guarda-chuva)</option>
+            <option>O algoritmo com erro (encontre e conserte o bug)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- PILARES -->
+      <div class="mf" data-mf="pilares">
+        <div class="pde-f"><label for="pi-tema">Pilar do pensamento computacional</label>
+          <select id="pi-tema">
+            <option selected>Decomposição (quebrar o problema grande em pedaços)</option>
+            <option>Reconhecimento de padrões (o que se repete?)</option>
+            <option>Abstração (o que importa e o que pode ser ignorado?)</option>
+            <option>Algoritmos (o passo a passo que resolve)</option>
+            <option>Os 4 pilares juntos (painel ou atividade integradora)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- PLUGADO -->
+      <div class="mf" data-mf="plugado">
+        <div class="pde-f"><label for="pl-tema">Roteiro de aula</label>
+          <select id="pl-tema">
+            <option selected>Primeira aula de programação em blocos (do zero)</option>
+            <option>Meu primeiro jogo em blocos (projeto guiado)</option>
+            <option>Animação e história programada</option>
+            <option>Pesquisa esperta na internet (fontes e confiabilidade)</option>
+            <option>Criando apresentações e documentos (produtividade)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- JOGOS -->
+      <div class="mf" data-mf="jogos">
+        <div class="pde-f"><label for="jo-tipo">Tipo de jogo</label>
+          <select id="jo-tipo">
+            <option selected>Pixel art por coordenadas (desenhe seguindo o código)</option>
+            <option>O código binário com cartas (0 e 1 viram letras)</option>
+            <option>Caça ao bug (encontre o erro na sequência)</option>
+            <option>Batalha de algoritmos (quem resolve com menos passos)</option>
+            <option>Jogo da memória da computação (pares recortáveis)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- CIDADANIA -->
+      <div class="mf" data-mf="cidadania">
+        <div class="pde-f"><label for="ci-tema">Tema</label>
+          <select id="ci-tema">
+            <option selected>Segurança na internet (senhas, estranhos, dados pessoais)</option>
+            <option>Respeito na rede (o que eu não digo pessoalmente, não digo online)</option>
+            <option>Fake news e checagem (será que é verdade?)</option>
+            <option>Tempo de tela com equilíbrio</option>
+            <option>Pegada digital (o que eu publico fica)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sec-t div">Ou escreva o seu</div>
+      <div class="pde-f"><label for="tema-livre">Tema livre (opcional)</label><input type="text" id="tema-livre" placeholder="ex.: a água na nossa cidade, festa junina da escola..."></div>
+      <div class="pde-help">Preenchendo aqui, este tema substitui o escolhido acima.</div>
+
+      </div>
+
+    <div class="wz-phase" data-phase="3">      <div class="wz-phase-title">Turma e escola</div>
+      <div class="wz-phase-sub">Para quem é o material, e com que recursos a escola conta.</div>
+
+      <div class="pde-grid2">
+        <div class="pde-f"><label for="i-serie">Série</label>
+          <select id="i-serie">
+            <option>1º Ano</option><option>2º Ano</option><option>3º Ano</option>
+            <option selected>4º Ano</option><option>5º Ano</option><option>6º Ano</option>
+            <option>7º Ano</option><option>8º Ano</option><option>9º Ano</option>
+          </select>
+        </div>
+        <div class="pde-f"><label for="i-equip">Equipamentos da escola</label>
+          <select id="i-equip">
+            <option selected>Nenhum computador (tudo desplugado)</option>
+            <option>Chromebooks ou laboratório de informática</option>
+            <option>Apenas o celular do professor e a TV da sala</option>
+          </select>
+        </div>
+      </div>
+      <div class="pde-secao"><div class="sec-t div">Formato</div>
+      <div class="pde-secao-sub">O que sai da impressora, e em que tamanho.</div>
+      <div class="pde-grid2">
+        <div class="pde-f"><label for="i-formato">Formato do material</label>
+          <select id="i-formato">
+            <option selected>Ficha da atividade (padrão)</option>
+            <option>Painel de parede (cartaz da sala)</option>
+            <option>Guia do professor (detalhado)</option>
+            <option>Sequência de 4 aulas progressivas</option>
+            <option>Kit da aula (ficha + cartaz + avaliação)</option>
+          </select>
+        </div>
+        <div class="pde-f"><label for="i-tamanho">Tamanho e uso</label>
+          <select id="i-tamanho">
+            <option selected>A4 vertical (impressão retrato)</option>
+            <option>A4 horizontal (impressão paisagem)</option>
+            <option>Cartaz A3 vertical (impressão grande)</option>
+            <option>Story digital 1080x1920 (celular)</option>
+            <option>Tela 1920x1080 (projetor e TV)</option>
+          </select>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <div class="wz-phase" data-phase="4">      <div class="wz-phase-title">Acabamento</div>
+      <div class="wz-phase-sub">Cores, estilo, nível de detalhamento e adaptações da turma.</div>
+
+      <div class="pde-grid2">
+        <div class="pde-f"><label for="i-cor">Cores</label>
+          <select id="i-cor"><option selected>Colorido</option><option>Preto e branco (para copiadora)</option><option>Economia de tinta (fundos claros)</option></select>
+        </div>
+        <div class="pde-f"><label for="i-estilo">Estilo visual</label>
+          <select id="i-estilo">
+            <option selected>Tecnológico amigável</option>
+            <option>Livro didático moderno</option>
+            <option>Infográfico</option>
+            <option>Lúdico infantil</option>
+            <option>Minimalista elegante</option>
+          </select>
+        </div>
+        <div class="pde-f"><label for="i-detalhe">Nível de detalhamento</label>
+          <select id="i-detalhe">
+            <option>Essencial (direto ao ponto)</option>
+            <option selected>Completo (padrão)</option>
+            <option>Aprofundado (com contexto extra)</option>
+          </select>
+        </div>
+        <div class="pde-f"><label for="i-roteiro">Plano de aula do professor</label>
+          <select id="i-roteiro"><option selected>Não incluir</option><option>Sim</option></select>
+        </div>
+      </div>
+      <div class="pde-f"><label>Adaptação inclusiva (toque em todas que a turma precisa)</label>
+        <div class="pde-chips" id="g-incl" data-group="incl">
+          <span class="pde-chip" data-val="tea">TEA (autismo)</span>
+          <span class="pde-chip" data-val="tdah">TDAH</span>
+          <span class="pde-chip" data-val="baixavisao">Baixa visão</span>
+          <span class="pde-chip" data-val="surdez">Surdez</span>
+          <span class="pde-chip" data-val="di">Deficiência intelectual</span>
+          <span class="pde-chip" data-val="motora">Deficiência motora</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wz-phase" data-phase="5">
+      <div class="wz-phase-title">Gerar</div>
+      <div class="wz-phase-sub">Identificação e o comando pronto para colar na IA.</div>
+      <div class="res-box">
+        <div class="rt">Sua ficha visual terá</div>
+        <div class="rg">
+          <span>✔ BNCC Computação (2022)</span><span>✔ Funciona sem computador</span>
+          <span>✔ Algoritmos conferidos</span><span>✔ O bug sem drama</span>
+          <span>✔ Pilar nomeado por atividade</span><span>✔ Só ferramentas gratuitas</span>
+          <span>✔ Adaptação inclusiva</span><span>✔ Rodapé institucional</span>
+        </div>
+      </div>
+          <div style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--muted,#64748b);margin:18px 0 8px">Identificação do material (opcional)</div>
+    <div class="pde-f"><label for="pde-id-prof">Professor(a)</label>
+      <input type="text" id="pde-id-prof" placeholder="ex.: Profª Maria Silva" autocomplete="off"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="pde-f"><label for="pde-id-escola">Escola</label>
+        <input type="text" id="pde-id-escola" placeholder="ex.: EM João Pedro dos Santos" autocomplete="off"></div>
+      <div class="pde-f"><label for="pde-id-municipio">Município e UF</label>
+        <input type="text" id="pde-id-municipio" placeholder="ex.: Campo Grande/MS" autocomplete="off"></div>
+    </div>
+    <div style="font-size:11px;color:var(--muted,#64748b);margin:-4px 0 14px;line-height:1.4">Aparece no rodapé do material, logo depois da data. Você preenche uma vez e todas as ferramentas do Portal já sabem.</div>
+    <button class="pde-btn" data-action="gerar">Gerar Ficha Visual Inteligente</button>
+      <div class="pde-out" id="out">
+        <button class="go-btn" data-action="copiar"><span class="gi">⧉</span><span><b>Copiar novamente</b><small>Cole no ChatGPT ou no Gemini com Ctrl+V</small></span>
+        </button>
+        <span class="go-status" id="go-status" role="status" aria-live="polite"></span>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button data-action="abrir-chatgpt">Copiar e abrir ChatGPT</button>
+          <button data-action="abrir-gemini">Copiar e abrir Gemini</button>
+        </div>
+        <button data-action="variacao">Gerar uma variação do mesmo material</button>
+        <button class="go-see" data-action="vp">Ver o comando</button>
+        <div class="pde-reveal" id="reveal"><div class="pde-prompt" id="p-uni"></div></div>
+      </div>
+    </div>
+
+    <div class="wz-nav">
+      <button class="wz-back" id="wz-back" hidden>Voltar</button>
+      <button class="wz-next" id="wz-next">Continuar</button>
+    </div>
+  </div>
+
+
+
+  <script>
+  (function(){
+
+/* PDE-INCL-V1 · inclusão operacional da suíte */
+var REGRAS_INCLUSAO_PDE = '\n\nACESSIBILIDADE DO MATERIAL (regras práticas, sempre aplicadas)\n'+
+'LEGIBILIDADE BASE: fonte sem serifa em todo o material. Corpo de texto nunca abaixo de 14 pontos, e nunca abaixo de 18 pontos quando houver pedido de baixa visão. Texto SEMPRE alinhado à esquerda, nunca justificado, porque o texto justificado cria rios de espaço em branco que atrapalham a leitura. Nada de texto em itálico em bloco inteiro nem de frase inteira em maiúsculas.\n'+
+'CONTRASTE: texto escuro sobre fundo claro, com contraste alto. NUNCA escreva por cima de foto ou de textura. Se o fundo for colorido, use uma tarja sólida atrás do texto.\n'+
+'NUNCA SÓ COR: nenhuma informação pode depender apenas da cor para ser entendida. Toda distinção feita por cor precisa vir acompanhada de rótulo escrito, ícone, número ou tipo de traço, para funcionar também impressa em preto e branco e para quem não distingue cores.\n'+
+'UMA IDEIA POR LINHA: instruções em frases curtas, uma ação por linha, numeradas quando houver ordem. Nada de parágrafo com três comandos dentro.\n'+
+'ESPAÇO PARA RESPONDER: quando houver campo de resposta escrita, deixe linhas largas e espaço generoso, porque letra grande e coordenação em desenvolvimento precisam de mais espaço do que o adulto imagina.\n'+
+'ESTRUTURA PREVISÍVEL: mesma ordem de blocos, mesmos lugares na página, mesmos ícones para as mesmas funções. Previsibilidade ajuda todo mundo e é essencial para estudantes autistas.\n'+
+'LINGUAGEM LITERAL: no enunciado, evite ironia, metáfora e expressão idiomática. Se uma expressão figurada for o próprio conteúdo da aula, explique-a.\n'+
+'SEM POLUIÇÃO VISUAL: margens limpas, sem enfeite decorativo competindo com o conteúdo, sem fundo estampado atrás de texto.\n'+
+'\nLIBRAS E BRAILLE (limite técnico que precisa ser respeitado)\n'+
+'É PROIBIDO desenhar sinais de Libras. Um sinal depende de configuração de mão, ponto de articulação, movimento, orientação e expressão facial, e uma imagem gerada erra esses parâmetros, ensinando o sinal ERRADO. Em vez de desenhar, reserve um quadrado VAZIO de 3,5 cm com a legenda "Vídeo em Libras" para o professor colar o QR do vídeo, e oriente a buscar o sinal em dicionário oficial de Libras.\n'+
+'É PROIBIDO desenhar Braille. A célula Braille tem posição exata de pontos, e a imagem gerada produz padrão inválido. Além disso, Braille impresso em papel comum não tem relevo e não serve para leitura tátil: precisa de impressora Braille ou de reglete. Quando o material citar Braille, apresente-o como informação, e não como algo para o aluno ler ali.\n'+
+'PARA ESTUDANTES SURDOS: a Libras é a primeira língua e o português escrito é a segunda. Portanto, aumente o apoio visual, reduza a quantidade de texto, use frases diretas na ordem sujeito, verbo e complemento, e traga glossário visual dos termos novos. Nada que dependa exclusivamente de som (áudio, ritmo, entonação) pode ser a única via de acesso ao conteúdo.\n';
+
+    var P=document.getElementById('pde-painel');
+    function resize(){try{parent.postMessage({type:'pde-resize',height:document.body.scrollHeight},'*');}catch(e){}}
+    window.addEventListener('load',resize);
+    function $(id){return P.querySelector('#'+id);}
+    function v(id){var el=$(id);return el?(el.value||'').trim():'';}
+
+    var cur=1, total=5;
+    var back=$('wz-back'), next=$('wz-next');
+    function showPhase(n){
+      cur=n;
+      P.querySelectorAll('.wz-phase').forEach(function(ph){ph.classList.toggle('on',+ph.dataset.phase===n);});
+      P.querySelectorAll('.wz-step').forEach(function(st){
+        var s=+st.dataset.step;
+        st.classList.toggle('on',s===n); st.classList.toggle('done',s<n);
+      });
+      back.hidden=(n===1); next.hidden=(n===total);
+      resize();
+    }
+    next.addEventListener('click',function(){if(cur<total)showPhase(cur+1);});
+    back.addEventListener('click',function(){if(cur>1)showPhase(cur-1);});
+    P.querySelectorAll('.wz-step').forEach(function(st){
+      st.addEventListener('click',function(){showPhase(+st.dataset.step);});
+      st.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();showPhase(+st.dataset.step);}});
+    });
+
+    var PRESETS={
+      robo:{modo:'desplugado',set:{'de-tema':'O robô humano (um aluno programa, o outro executa)','i-serie':'3º Ano'}},
+      labirinto:{modo:'algoritmos',set:{'al-tema':'Labirinto de comandos em grade (setas até o objetivo)'}},
+      pixel:{modo:'jogos',set:{'jo-tipo':'Pixel art por coordenadas (desenhe seguindo o código)'}},
+      chromebook:{modo:'plugado',set:{'pl-tema':'Primeira aula de programação em blocos (do zero)','i-equip':'Chromebooks ou laboratório de informática'}}
+    };
+    var pr=$('presets');
+    if(pr) pr.addEventListener('click',function(e){
+      var b=e.target.closest('[data-preset]'); if(!b)return;
+      var cfg=PRESETS[b.dataset.preset]; if(!cfg)return;
+      var card=P.querySelector('.md-card[data-modo="'+cfg.modo+'"]');
+      P.querySelectorAll('.md-card').forEach(function(x){x.classList.remove('on')});
+      card.classList.add('on');
+      P.querySelectorAll('.mf').forEach(function(f){f.classList.toggle('show',f.dataset.mf===cfg.modo);});
+      Object.keys(cfg.set).forEach(function(id){ var el=$(id); if(el) el.value=cfg.set[id]; });
+      showPhase(5);
+    });
+
+    var SUBS={desplugado:'Programar começa sem tomada.',algoritmos:'O passo a passo exato que resolve.',pilares:'Os 4 superpoderes de quem resolve problemas.',plugado:'A máquina a serviço da criação.',jogos:'A lógica que se aprende rindo.',cidadania:'Cidadão do mundo digital se forma na escola.'};
+    function modoSel(){var c=P.querySelector('.md-card.on');return c?c.dataset.modo:'desplugado';}
+    $('md-grid').addEventListener('click',function(e){
+      var c=e.target.closest('.md-card'); if(!c)return;
+      P.querySelectorAll('.md-card').forEach(function(x){x.classList.remove('on')});
+      c.classList.add('on');
+      P.querySelectorAll('.mf').forEach(function(f){f.classList.toggle('show',f.dataset.mf===c.dataset.modo);});
+      $('modo-sub').textContent=SUBS[c.dataset.modo];
+      if(c.dataset.modo==='plugado'&&v('i-equip').indexOf('Nenhum')===0){$('i-equip').value='Chromebooks ou laboratório de informática';}
+      showPhase(2);
+    });
+
+    P.querySelectorAll('[data-group="incl"] .pde-chip').forEach(function(c){
+      c.addEventListener('click',function(){c.classList.toggle('on');});
+    });
+
+    // ===== regras do pensamento computacional =====
+    var REGRAS_PC='REGRAS DO PENSAMENTO COMPUTACIONAL ESCOLAR (inegociáveis)\n1) BNCC COMPUTAÇÃO REAL: o material se referencia no complemento de Computação da BNCC (Resolução CNE/CEB nº 1/2022), eixos Pensamento Computacional, Mundo Digital e Cultura Digital; cite o código de habilidade REAL do componente para o ano (formato EF..CO..), nunca inventado; se não tiver certeza absoluta do código exato, cite apenas o EIXO e o ano (sempre preferível a um código errado).\n2) DESPLUGADO PRIMEIRO: pensamento computacional NÃO exige computador; toda atividade desplugada usa apenas materiais de qualquer escola (papel, lápis, giz, corda, o próprio corpo); quando a escola informar que não tem equipamento, NADA no material pode depender de máquina, internet ou tomada.\n3) PRECISÃO DO ALGORITMO: antes de entregar, EXECUTE mentalmente cada algoritmo, sequência, labirinto e código passo a passo e confira que funciona (o labirinto tem caminho até o objetivo, a sequência de setas chega ao destino, o pixel art por coordenadas forma o desenho anunciado, o binário converte correto); um material de lógica com erro de lógica é inaceitável.\n4) O PILAR NOMEADO: cada atividade nomeia em linguagem de criança qual superpoder do pensamento computacional está treinando (decomposição: quebrar em pedaços; padrões: achar o que repete; abstração: focar no que importa; algoritmo: o passo a passo exato), criando vocabulário na turma.\n5) A CULTURA DO BUG: errar é encontrar um bug, e encontrar bug é trabalho de programador de verdade; o erro se conserta com naturalidade e até com comemoração ("achou o bug!"); PROIBIDO qualquer tom de fracasso, vergonha ou eliminação por erro.\n6) FERRAMENTAS APENAS GRATUITAS: quando o material plugado citar plataformas, apenas recursos educacionais gratuitos e consagrados (como programação em blocos no Scratch ou plataformas educacionais abertas), sempre como sugestão com alternativa; PROIBIDO citar marcas comerciais pagas, exigir cadastro dos alunos com dados pessoais ou depender de produto específico.\n7) CIDADANIA DIGITAL SEM TERRORISMO: segurança e consciência online ensinadas com orientação prática e serena (o que fazer), nunca com pânico, ameaça ou demonização da tecnologia; jamais envergonhar aluno ou família pelo uso de telas; em situações de risco (contato de estranhos, conteúdo impróprio), a orientação é sempre "conte a um adulto de confiança".\n8) SEM DADOS REAIS DE CRIANÇA: nenhuma atividade pede que o aluno escreva ou exponha senha real, dados pessoais reais ou perfis reais; exemplos sempre fictícios.\n9) INCLUSÃO NA LÓGICA: computação é para todos; atividades com alternativas de participação (quem não pode se mover no robô humano pode ser o programador; comandos com apoio visual).\n10) Sem marcas de produtos ou empresas comerciais.';
+    var COMUM_VISUAL='\n\nÁREA DO PROFESSOR (obrigatória e compacta)\nLogo abaixo do título ou do cabeçalho, inclua uma faixa discreta de fundo claro intitulada "ÁREA DO PROFESSOR", em fonte pequena e 3 colunas compactas: 🎯 Objetivo: 1 frase objetiva do que o material desenvolve | ⏱ Tempo estimado: em minutos ou aulas | ✂️ Materiais necessários: lista mínima. A faixa ocupa o mínimo de espaço e não rouba o foco do conteúdo. EXCEÇÃO: em PAINEL ou CARTAZ DE PAREDE essa faixa NÃO entra na arte (atrapalharia a leitura a distância): entregue as 3 informações na seção "PARA O PROFESSOR (não imprimir)".\n\nCABEÇALHO ESCOLAR (para fichas e avaliações)\nQuando o material for uma FICHA DE ATIVIDADE ou uma AVALIAÇÃO que o aluno responde no papel, inclua no topo o CABEÇALHO ESCOLAR COMPLETO com linhas para preencher: Escola, Professor(a), Aluno(a), Turma e Data, e um quadrinho discreto de Nota/Conceito no canto superior direito (na Educação Infantil o quadrinho de nota NÃO existe; em turmas de EJA escreva Estudante no lugar de Aluno(a)).\n\nRODAPÉ OBRIGATÓRIO (PRIORIDADE MÁXIMA: se faltar espaço na folha, REDUZA O CONTEÚDO do material, nunca o rodapé; é PROIBIDO entregar o material sem ele, e é PROIBIDO encolher a ponto de ficar ilegível), em TRÊS partes discretas que ocupam o MÍNIMO de espaço:\n1) QUADRO "IA RESPONSÁVEL": retângulo fino de borda discreta, com um pequeno ícone de robô à esquerda, o título pequeno "IA RESPONSÁVEL" e o texto: "Material elaborado com apoio de Inteligência Artificial para fins educacionais. Recomenda-se revisão pelo professor antes da aplicação." Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: '+(window.declaraIA?window.declaraIA():"")+' Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: '+(window.declaraIA?window.declaraIA():"")+' Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: [[PDE_DECLARACAO_IA]]  \n2) LINHA DE CONFORMIDADE, em fonte bem pequena, tudo em uma única linha (quebre em duas apenas se faltar espaço): ✓ Alinhado à BNCC · ✓ Uso educacional · ✓ Revisão docente recomendada · ID: {{ID_MAT}} · Versão: 1.0 · Gerado em: {{DATA_GER}}\n3) Barra final em azul-marinho #0F2C4A, com os três canais em UMA única linha horizontal separados por barras verticais: 🌐 portaldoeducador.com.br | ▶️ YouTube: @PortaldoEducador | 📷 Instagram: @portal._do_educador\nIMPORTANTE: o rodapé é somente texto (mais o pequeno ícone de robô). NÃO crie logotipo, símbolo, brasão ou qualquer marca gráfica para o Portal do Educador. Reproduza o ID, a versão e a data EXATAMENTE como informados acima, sem inventar outros números.\n\nESTILO DE ESCRITA\nEscreva como um redator humano profissional. PROIBIDO usar travessão (—) ou hífen (-) como conector de frase ou para criar pausas (marca típica de texto gerado por IA): use vírgula, dois-pontos, parênteses ou reescreva. Hífen apenas em palavras compostas legítimas.\n\nACABAMENTO EDITORIAL\nProduza o material com acabamento editorial comercial de alto padrão: composição equilibrada, excelente hierarquia visual, tipografia moderna, ícones consistentes, ilustrações profissionais, paleta harmoniosa, excelente aproveitamento do espaço e aparência de material vendido por grandes editoras educacionais, preparado para impressão em alta resolução.\n\nPROTOCOLO DE CHECAGEM FINAL (obrigatório antes de entregar)\nAntes de gerar a imagem final, faça esta auto-auditoria e corrija o que falhar: 1) Cada algoritmo, labirinto, código e sequência foi EXECUTADO mentalmente e funciona de ponta a ponta? 2) A ortografia foi revisada DUAS vezes? 3) O material respeita os equipamentos informados da escola (nada de máquina se a escola não tem)? 4) O código BNCC de Computação é real (ou apenas o eixo, se havia dúvida) e o pilar está nomeado? 5) O erro é tratado como bug sem drama, e a adaptação inclusiva pedida está presente? 6) O rodapé institucional está completo e sem logotipo inventado? 7) Se o material é ficha ou avaliação, o cabeçalho escolar completo está presente (Escola, Professor(a), Aluno(a) ou Estudante, Turma, Data e o campo de nota quando couber)? 8) A ÁREA DO PROFESSOR está presente (na arte, ou na seção do professor no caso de painel) e o rodapé traz o quadro IA RESPONSÁVEL, o checklist de conformidade e o ID, a versão e a data EXATAMENTE como informados? Só entregue depois de aprovar os 8 itens.\n\nREGRAS CRÍTICAS\nTodo texto perfeitamente legível em português do Brasil; indique a referência "Computação na BNCC (Resolução CNE/CEB nº 1/2022)" com o eixo e, quando houver certeza, o código real; revise a ortografia DUAS vezes; se faltar espaço, reduza a decoração, NUNCA o conteúdo.';
+    function cvDin(){
+      var ag=new Date(),gdd=('0'+ag.getDate()).slice(-2),gmm=('0'+(ag.getMonth()+1)).slice(-2),gaa=ag.getFullYear();
+      var el=document.getElementById('tema-livre'), tl=el?el.value.trim():'';
+      var extra=tl?'\\n\\nTEMA ESCRITO PELO PROFESSOR (PRIORITÁRIO)\\nO professor escreveu o tema com as próprias palavras: "'+tl+'". Desenvolva o material sobre ESTE tema, mantendo a série, o formato e todas as regras da casa; use o tema do seletor apenas se for compatível e complementar.':'';
+      return extra+REGRAS_INCLUSAO_PDE+COMUM_VISUAL.split('{{ID_MAT}}').join('PDE-COMPUT-'+gaa+gmm+gdd).split('{{DATA_GER}}').join(gdd+'/'+gmm+'/'+gaa+(typeof _pdeAss==='function'?_pdeAss():''));
+    }
+    var INCL={tea:'ADAPTAÇÃO INCLUSIVA (TEA/AUTISMO): comandos literais e sem ambiguidade (perfeitos para algoritmos!), rotina previsível da atividade anunciada antes, apoio visual para cada comando, permissão de papéis com menos exposição.',tdah:'ADAPTAÇÃO INCLUSIVA (TDAH): atividades em rodadas curtas com movimento (o robô humano é aliado), comandos numerados e visuais, papéis ativos rotativos.',baixavisao:'ADAPTAÇÃO INCLUSIVA (BAIXA VISÃO): grades e setas muito grandes e de altíssimo contraste, células do pixel art amplas, comandos também falados em voz alta, texturas táteis quando possível (grade com barbante colado).',surdez:'ADAPTAÇÃO INCLUSIVA (SURDEZ): todos os comandos com cartão visual (seta, ícone), demonstração antes da execução, sinal combinado para iniciar e parar; nada que dependa só de comando de voz.',di:'ADAPTAÇÃO INCLUSIVA (DEFICIÊNCIA INTELECTUAL): sequências mais curtas com progressão gradual, demonstração concreta passo a passo, repetição acolhedora, parceria de apoio, celebração de cada acerto.',motora:'ADAPTAÇÃO INCLUSIVA (DEFICIÊNCIA MOTORA): no robô humano e nas atividades de movimento, o aluno pode ser o PROGRAMADOR (o papel mais importante), comandos executáveis por qualquer via possível (apontar, falar, tabuleiro), materiais manipuláveis adaptados ao alcance.'};
+    function incl(){
+      var sel=[].map.call(P.querySelectorAll('[data-group="incl"] .pde-chip.on'),function(c){return c.dataset.val;});
+      if(!sel.length) return '';
+      var out='\n';
+      sel.forEach(function(k){ if(INCL[k]) out+='\n'+INCL[k]; });
+      if(sel.length>1) out+='\nATENÇÃO: a turma tem MAIS DE UMA necessidade ao mesmo tempo; concilie as adaptações acima em um único material coerente (as exigências se somam, nunca se anulam).';
+      return out;
+    }
+    function equip(){
+      var eq=v('i-equip');
+      if(eq.indexOf('Chromebooks')===0) return 'EQUIPAMENTOS DA ESCOLA: a escola TEM Chromebooks ou laboratório; atividades plugadas são bem-vindas (sempre com plano B desplugado para o dia em que a internet cair).';
+      if(eq.indexOf('Apenas o celular')===0) return 'EQUIPAMENTOS DA ESCOLA: apenas o celular do professor e a TV da sala; o material pode usar projeção coletiva conduzida pelo professor, mas NADA de atividade individual em máquina (os alunos trabalham desplugados).';
+      return 'EQUIPAMENTOS DA ESCOLA: NENHUM computador; o material inteiro é DESPLUGADO (papel, lápis, corpo, giz), sem nenhuma dependência de máquina, internet ou tomada.';
+    }
+    function folha(){
+      var t=v('i-tamanho');
+      if(t.indexOf('A4 horizontal')===0) return 'página horizontal A4 (3508x2480 px)';
+      if(t.indexOf('Cartaz A3')===0) return 'cartaz vertical A3 (3508x4961 px), com elementos proporcionalmente maiores para leitura a distância';
+      if(t.indexOf('Story')===0) return 'imagem vertical 1080x1920 px (formato de story para celular), com composição em coluna única e textos grandes para tela pequena';
+      if(t.indexOf('Tela')===0) return 'imagem horizontal 1920x1080 px (formato de tela para projetor e TV), com composição ampla e fontes legíveis de longe';
+      return 'página vertical A4 (2480x3508 px)';
+    }
+    function estilo(){
+      var e=v('i-estilo');
+      if(e==='Infográfico') return 'ESTILO VISUAL: infográfico moderno, fluxos e blocos conectados, ícones protagonistas.';
+      if(e==='Livro didático moderno') return 'ESTILO VISUAL: livro didático moderno de alta qualidade, organização clara.';
+      if(e==='Lúdico infantil') return 'ESTILO VISUAL: lúdico infantil, formas arredondadas, robôs simpáticos, cores alegres (sem infantilizar o conteúdo).';
+      if(e==='Minimalista elegante') return 'ESTILO VISUAL: minimalista elegante, muito respiro, tipografia refinada.';
+      return 'ESTILO VISUAL: tecnológico amigável, robôs e elementos digitais simpáticos, blocos de comando coloridos, atmosfera de descoberta (nunca fria ou intimidadora).';
+    }
+    function detalhe(){
+      var dd=v('i-detalhe');
+      if(dd.indexOf('Essencial')===0) return 'NÍVEL DE DETALHAMENTO: essencial, apenas o núcleo, máximo apoio visual.';
+      if(dd.indexOf('Aprofundado')===0) return 'NÍVEL DE DETALHAMENTO: aprofundado, contexto extra e conexões com o cotidiano, sem poluir o layout.';
+      return 'NÍVEL DE DETALHAMENTO: completo, equilíbrio entre profundidade e clareza.';
+    }
+    function roteiro(){return v('i-roteiro')==='Sim'?'\n\nPLANO DE AULA DO PROFESSOR (entregar como TEXTO após o material)\nPlano de 50 minutos para '+v('i-serie')+': 1) LIGANDO O SISTEMA: a pergunta-gancho que conecta a atividade com a vida digital ou cotidiana da turma (5 min); 2) O CONCEITO: o pilar do dia apresentado com exemplo concreto (10 min); 3) MÃO NO CÓDIGO: a atividade principal com todos participando (25 min); 4) DEBUG COLETIVO: a roda final em que a turma conta os bugs que achou e como consertou (10 min). Detalhe o que o professor faz e fala, lembrando que ele pode não ter formação em computação: escreva para ele aplicar com segurança.':'';}
+    function formato(){
+      var f=v('i-formato');
+      if(f.indexOf('Painel')===0) return '\n\nFORMATO DO MATERIAL: PAINEL DE PAREDE (cartaz da sala)\nO material ficará fixado na parede e será lido a distância: título gigante, pouquíssimo texto, ilustrações e ícones GRANDES como protagonistas, contraste altíssimo, apenas o essencial.';
+      if(f.indexOf('Guia')===0) return '\n\nFORMATO DO MATERIAL: GUIA DO PROFESSOR (detalhado)\nO material é para o PROFESSOR (que provavelmente NÃO tem formação em computação: escreva para ele aplicar com total segurança): além da estrutura pedida, inclua "O CONCEITO EM 1 MINUTO" (o que o professor precisa entender antes, em linguagem simples), "COMO CONDUZIR" (a mediação passo a passo com as falas prontas), "AS DÚVIDAS QUE VÃO SURGIR" (3 perguntas típicas dos alunos com as respostas), "SE A ATIVIDADE TRAVAR" (2 recursos de retomada) e "PARA AMPLIAR" (1 variação um passo além). Texto pode ser mais denso, mantendo a organização visual.';
+      if(f.indexOf('Sequência')===0) return '\n\nFORMATO DO MATERIAL: SEQUÊNCIA DE 4 AULAS PROGRESSIVAS\nOrganize o material como uma sequência de 4 aulas sobre o tema, em 4 blocos visuais numerados (AULA 1 a 4), cada um com foco, atividade principal resumida e progressão clara (conhecer o conceito, praticar guiado, criar com autonomia, compartilhar e depurar juntos).';
+      if(f.indexOf('Kit')===0) return '\n\nFORMATO DO MATERIAL: KIT DA AULA (3 entregas em sequência)\nEntregue TRÊS materiais do mesmo tema, um após o outro, mantendo identidade visual entre eles: 1) A FICHA DA ATIVIDADE completa conforme a estrutura pedida; 2) UM CARTAZ DE PAREDE do mesmo tema (título gigante, ícones grandes, lido a distância); 3) UMA AVALIAÇÃO LEVE de meia página (3 questões adequadas à série sobre o conceito, com gabarito na seção do professor). Gere as três imagens em sequência na mesma resposta.';
+      return '';
+    }
+    function intro(){return 'INTRODUÇÃO\nVocê é um especialista em ensino de Computação na Educação Básica, profundo conhecedor do complemento de Computação da BNCC, da computação desplugada e da programação educacional, e designer de materiais pedagógicos premium.\n\n';}
+    function base(){
+      var c=v('i-cor'), corTxt=c.indexOf('Preto')===0?'PRETO E BRANCO com bom contraste (para copiadora escolar)':(c.indexOf('Economia')===0?'ECONOMIA DE TINTA: fundos brancos ou muito claros, cores apenas em detalhes e ícones, traços finos':'colorido com paleta harmoniosa');
+      return 'Série: '+v('i-serie')+'\n'+equip()+'\nCores: '+corTxt+'\n'+estilo()+'\n'+detalhe()+'\n';
+    }
+
+    function montarPrompt(){
+      var m=modoSel();
+
+      if(m==='desplugado'){
+        var det=v('de-tema');
+        return intro()+
+'OBJETIVO\nCriar o material de COMPUTAÇÃO DESPLUGADA "'+det+'" como IMAGEM em '+folha()+', a lógica de programação sem nenhum computador, com acabamento comercial.\n\nDADOS\nAtividade: '+det+'\n'+base()+'\n'+REGRAS_PC+'\n\nESTRUTURA DO MATERIAL\n1) Título empolgante + a referência da BNCC Computação + o PILAR do dia nomeado como superpoder.\n2) O CONTEÚDO CENTRAL visual da atividade escolhida: o robô humano com os cartões de comando recortáveis (andar 1 passo, virar à direita, pegar) e o percurso de exemplo EXECUTADO e conferido; ou o algoritmo do cotidiano com a sequência ilustrada em cartões para ordenar (com a pegadinha pedagógica da ordem errada para discutir); ou a dança dos comandos com a coreografia em símbolos; ou o carteiro da rede com a mensagem dividida em pedaços numerados viajando por caminhos diferentes; ou a ordenação humana com as regras da fila que se organiza comparando; ou o computador de papel com entrada, processamento e saída em quadros, conforme a atividade.\n3) COMO APLICAR em 3 ou 4 passos numerados com os comandos que o professor fala.\n4) Caixa "ACHOU O BUG!": o que fazer quando a sequência der errado (consertar juntos com naturalidade e comemorar a descoberta).\n5) Caixa "ONDE ISSO VIVE": 1 frase conectando a atividade com a computação real ("é assim que o aplicativo de mapas escolhe o caminho").\n\nDIREÇÃO DE ARTE\nCrianças diversas em ação com cartões e movimento, robôs simpáticos como mascotes do material, zero telas na cena desplugada.'+formato()+incl()+roteiro()+cvDin();
+      }
+
+      if(m==='algoritmos'){
+        var alt=v('al-tema');
+        return intro()+
+'OBJETIVO\nCriar o material de ALGORITMOS E SEQUÊNCIAS "'+alt+'" como IMAGEM em '+folha()+', com acabamento comercial.\n\nDADOS\nAtividade: '+alt+'\n'+base()+'\n'+REGRAS_PC+'\n\nESTRUTURA DO MATERIAL\n1) Título + a referência da BNCC Computação + o pilar "algoritmo: o passo a passo exato" nomeado.\n2) O CONTEÚDO CENTRAL visual: o labirinto em GRADE (com linhas e colunas visíveis) com personagem, objetivo e obstáculos, mais o espaço para escrever a sequência de setas (CONFIRA: o caminho existe e a solução do gabarito chega ao objetivo passo a passo); ou os cartões de comando recortáveis do "programe o colega" com o desafio de exemplo; ou a repetição apresentada com o laço ("em vez de escrever anda anda anda, escreva REPITA 3 VEZES: anda") com 3 sequências para compactar; ou os condicionais SE/ENTÃO com situações do cotidiano e 3 cartões de decisão; ou o algoritmo com BUG proposital para a turma encontrar e consertar (o bug existe de verdade e o conserto está no gabarito), conforme a atividade.\n3) DESAFIOS em dificuldade crescente (2 ou 3), o último com estrela de desafio.\n4) Caixa "ACHOU O BUG!": errar é achar bug, consertar é programar.\n5) A seção "PARA O PROFESSOR (não imprimir)" como TEXTO após a imagem: as soluções conferidas passo a passo de todos os desafios.\n\nDIREÇÃO DE ARTE\nGrades e setas impecavelmente claras, blocos de comando coloridos estilo programação em blocos, visual tecnológico amigável.'+formato()+incl()+roteiro()+cvDin();
+      }
+
+      if(m==='pilares'){
+        var pit=v('pi-tema');
+        return intro()+
+'OBJETIVO\nCriar o material sobre o pilar "'+pit+'" como IMAGEM em '+folha()+', com acabamento comercial.\n\nDADOS\nPilar: '+pit+'\n'+base()+'\n'+REGRAS_PC+'\n\nESTRUTURA DO MATERIAL\n1) Título + a referência da BNCC Computação + o pilar como SUPERPODER nomeado em linguagem de criança.\n2) O CONTEÚDO CENTRAL visual: para decomposição, um problema grande do cotidiano da série (organizar a festa da turma, arrumar a mochila) quebrado visualmente em pedaços menores num diagrama de árvore + 1 problema para a turma quebrar; para padrões, sequências visuais e do cotidiano para descobrir o que se repete (e a pergunta de ouro "descobriu o padrão? então preveja o próximo!") + padrões da natureza e da música; para abstração, o jogo do "o que importa?" (a mesma situação com detalhes demais, e a turma risca o que não importa para o objetivo, como o mapa do metrô que ignora as ruas); para algoritmos, o passo a passo exato com a brincadeira do comando ambíguo (por que "misture tudo" confunde o robô?); para os 4 juntos, o painel dos superpoderes com cada pilar, seu ícone, sua pergunta-chave e 1 exemplo, conforme a escolha.\n3) A ATIVIDADE PRÁTICA: 1 desafio aplicando o pilar, feito em dupla.\n4) Caixa "ONDE ISSO VIVE": onde esse pilar aparece na tecnologia que a turma usa.\n5) A seção "PARA O PROFESSOR (não imprimir)" com as respostas esperadas.\n\nDIREÇÃO DE ARTE\nDiagramas límpidos, ícone próprio e memorável para cada pilar, visual de superpoderes sem violência.'+formato()+incl()+roteiro()+cvDin();
+      }
+
+      if(m==='plugado'){
+        var plt=v('pl-tema');
+        return intro()+
+'OBJETIVO\nCriar o ROTEIRO DE AULA PLUGADA "'+plt+'" como IMAGEM em '+folha()+', a aula com as máquinas da escola valendo a pena, com acabamento comercial.\n\nDADOS\nRoteiro: '+plt+'\n'+base()+'\n'+REGRAS_PC+'\n\nESTRUTURA DO MATERIAL\n1) Título + a referência da BNCC Computação + o pilar trabalhado.\n2) ANTES DE LIGAR: a preparação (o combinado de uso das máquinas em 3 regras positivas, a dupla por máquina como escolha pedagógica: um pilota, outro navega, e trocam no meio).\n3) O ROTEIRO DA AULA em passos numerados e visuais: para a primeira aula de blocos, os primeiros comandos guiados (mover, girar, repetir) até a primeira sequência que funciona, usando plataforma gratuita de programação em blocos (como o Scratch) sem exigir cadastro com dados dos alunos; para o primeiro jogo ou a animação, as etapas do projeto guiado com marcos visíveis ("agora seu personagem anda!"); para pesquisa esperta, os passos de buscar, comparar 2 fontes e verificar; para produtividade, o documento ou a apresentação construída em etapas, conforme o roteiro.\n4) Caixa "PLANO B SEM INTERNET": a versão desplugada da mesma aula, pronta para o dia em que a conexão cair (obrigatória).\n5) Caixa "DEBUG COLETIVO": o fechamento em roda contando os bugs achados e vencidos.\n6) A seção "PARA O PROFESSOR (não imprimir)": o que pode dar errado tecnicamente (máquina travada, login, som) e as soluções rápidas, escritas para professor sem formação em informática.\n\nDIREÇÃO DE ARTE\nSala com Chromebooks em duplas colaborando, blocos de programação coloridos, energia de criação.'+formato()+incl()+roteiro()+cvDin();
+      }
+
+      if(m==='jogos'){
+        var jot=v('jo-tipo');
+        var corpoJ;
+        if(jot.indexOf('Pixel art')===0){
+          corpoJ='2) O PIXEL ART POR COORDENADAS: a grade numerada (linhas e colunas) e o CÓDIGO de preenchimento (por linha: quais células pintar e de que cor), que ao ser seguido forma um desenho surpresa adequado à série (CONFIRA célula por célula que o código forma exatamente o desenho anunciado); versão 1 guiada e versão 2 desafio; e o convite invertido: "agora crie seu desenho e escreva o código para um colega executar".';
+        } else if(jot.indexOf('binário')>=0||jot.indexOf('O código binário')===0){
+          corpoJ='2) O CÓDIGO BINÁRIO COM CARTAS: as 5 cartas de pontos (1, 2, 4, 8, 16) explicadas visualmente, a tabela de conversão das letras (A=1 até Z=26) e o desafio de escrever o próprio nome em cartas viradas (1) e desviradas (0); TODOS os exemplos de conversão CONFERIDOS (some as cartas viradas e confirme a letra); mensagem secreta de exemplo para decodificar com gabarito conferido.';
+        } else if(jot.indexOf('Caça ao bug')===0){
+          corpoJ='2) A CAÇA AO BUG: 4 ou 5 sequências curtas (algoritmos do cotidiano ou de setas) em que UMA instrução está errada de propósito (o bug existe de verdade: confira executando), a turma encontra, marca e conserta; dificuldade crescente; visual de detetive digital.';
+        } else if(jot.indexOf('Batalha')===0){
+          corpoJ='2) A BATALHA DE ALGORITMOS: os desafios em cartas (levar o personagem ao objetivo na grade), vence quem resolver com MENOS passos usando repetições (a elegância do código curto!); 4 cartas-desafio com as soluções ótimas conferidas no gabarito; modo duplas cooperativo incluído.';
+        } else {
+          corpoJ='2) 16 CARTAS RECORTÁVEIS formando 8 PARES da computação: cada par com o CONCEITO ilustrado e seu SIGNIFICADO em linguagem de criança (algoritmo = passo a passo, bug = erro para consertar, pixel = pontinho da imagem, repetição = fazer de novo sem reescrever), pares conferidos um a um.';
+        }
+        return intro()+
+'OBJETIVO\nCriar o jogo "'+jot+'" como IMAGEM em '+folha()+', pronto para imprimir e jogar, com acabamento comercial.\n\nDADOS\nJogo: '+jot+'\n'+base()+'\n'+REGRAS_PC+'\n\nESTRUTURA DO MATERIAL\n1) Título do jogo + a referência da BNCC Computação + o pilar treinado nomeado.\n'+corpoJ+'\n3) Caixa "COMO JOGAR" em 3 passos claros, com a regra de que ninguém é eliminado por errar (errou, achou bug, conserta e segue).\n4) A seção "PARA O PROFESSOR (não imprimir)" como TEXTO após a imagem: gabaritos e soluções conferidos.\n\nDIREÇÃO DE ARTE\nVisual de jogo digital amigável impresso, grades e células impecáveis, elementos recortáveis bem demarcados.'+formato()+incl()+roteiro()+cvDin();
+      }
+
+      // cidadania
+      var cit=v('ci-tema');
+      return intro()+
+'OBJETIVO\nCriar o material de CIDADANIA DIGITAL "'+cit+'" como IMAGEM em '+folha()+', formando cidadãos do mundo digital com serenidade, com acabamento comercial.\n\nDADOS\nTema: '+cit+'\n'+base()+'\n'+REGRAS_PC+'\n\nESTRUTURA DO MATERIAL\n1) Título acolhedor + a referência da BNCC Computação (eixo Cultura Digital).\n2) O CONTEÚDO CENTRAL visual: para segurança, as 4 regras de ouro ilustradas em cenas (senha é segredo como a chave de casa; dados pessoais só com adulto junto; estranho online é estranho; algo esquisito = conte a um adulto de confiança), com exemplos SEMPRE fictícios; para respeito na rede, as cenas de antes de postar com a pergunta-filtro ("eu diria isso pessoalmente?") e a força de quem defende o colega; para fake news, o detetive da notícia em 3 verificações (quem publicou? outras fontes falam? a foto é dessa história?) com 1 exemplo fictício analisado; para tempo de tela, o equilíbrio SEM demonizar (a tela boa e a tela demais, o combinado da família), jamais envergonhando quem usa; para pegada digital, a trilha do que publicamos com a metáfora da pegada na areia que não apaga, conforme o tema.\n3) A ATIVIDADE: 1 dinâmica de conversa em grupos com cartões de situação fictícia ("o que você faria?"), sem exposição de casos reais da turma.\n4) Caixa "O ADULTO DE CONFIANÇA": em qualquer situação estranha online, contar não é fraqueza, é inteligência.\n5) Caixa "PARA A FAMÍLIA": 2 frases práticas de parceria (sem culpar, sem exigir vigilância técnica que a família não tem).\n\nDIREÇÃO DE ARTE\nCenas de crianças diversas em situações digitais cotidianas, tom acolhedor e seguro, zero estética de medo ou perigo sombrio.'+formato()+incl()+roteiro()+cvDin();
+    }
+
+    function status(msg,err){
+      var s=$('go-status'); s.textContent=msg; s.classList.toggle('err',!!err);
+      if(!err) setTimeout(function(){ if(s.textContent===msg){s.textContent='';} },3500);
+    }
+
+    function copiarTexto(txt,ok){
+      var feito=false;
+      try{
+        var ta=document.createElement('textarea');
+        ta.value=txt; ta.setAttribute('readonly','');
+        ta.style.position='fixed'; ta.style.left='-9999px'; ta.style.top='0'; ta.style.fontSize='16px';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select(); ta.setSelectionRange(0,txt.length);
+        feito=document.execCommand('copy');
+        document.body.removeChild(ta);
+      }catch(e){feito=false;}
+      if(feito){ok();return;}
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(txt).then(ok).catch(manual);
+      } else manual();
+      function manual(){
+        $('reveal').classList.add('show');
+        status('Não foi possível copiar automaticamente. Toque e segure no texto para copiar.',true);
+        resize();
+      }
+    }
+
+    P.addEventListener('click',function(e){
+      var t=e.target.closest('[data-action]'); if(!t)return;
+      var a=t.dataset.action;
+
+      if(a==='gerar'){
+        var prompt=montarPrompt();
+        $('p-uni').textContent=prompt;
+        $('out').classList.add('show');
+        copiarTexto(prompt,function(){status('✅ Sua Ficha Visual Inteligente está pronta e copiada! Cole no ChatGPT, no Gemini ou em outra IA para gerar o material.');});
+        resize();
+      }
+      if(a==='copiar'){
+        copiarTexto($('p-uni').textContent,function(){status('✅ Ficha Visual copiada! Cole na IA com Ctrl+V.');});
+      }
+      if(a==='abrir-chatgpt'||a==='abrir-gemini'){
+        var url=a==='abrir-chatgpt'?'https://chatgpt.com/':'https://gemini.google.com/';
+        copiarTexto($('p-uni').textContent,function(){status('✅ Ficha copiada! Colando na aba que abriu (Ctrl+V).');});
+        window.open(url,'_blank');
+      }
+      if(a==='variacao'){
+        var base2=montarPrompt()+'\n\nVARIAÇÃO: esta é uma SEGUNDA VERSÃO do mesmo material; mantenha o tema, a série, os equipamentos e todas as regras, mas mude a abordagem (desafios novos, grades e códigos diferentes, composição visual nova), para o professor escolher entre as duas.';
+        $('p-uni').textContent=base2;
+        $('out').classList.add('show');
+        copiarTexto(base2,function(){status('🎲 Variação pronta e copiada! Cole na IA para gerar a segunda versão.');});
+        resize();
+      }
+      if(a==='vp'){
+        var rv=$('reveal');
+        rv.classList.toggle('show');
+        t.textContent=rv.classList.contains('show')?'ocultar conteúdo':'ver conteúdo';
+        resize();
+      }
+    });
+  })();
+  </script>
+</div>
+
+<script>
+/* Identificação do material (padrão da suíte): professor, escola e município,
+   guardados no navegador e compartilhados entre todas as ferramentas do Portal. */
+(function(){
+  var _P=document.getElementById('pde-painel'); if(!_P)return;
+  var CAMPOS=[['pde-id-prof','pde_professor'],['pde-id-escola','pde_escola'],['pde-id-municipio','pde_municipio']];
+  CAMPOS.forEach(function(par){
+    var el=_P.querySelector('#'+par[0]); if(!el)return;
+    try{ var s=localStorage.getItem(par[1]); if(s) el.value=s; }catch(e){}
+    el.addEventListener('input',function(){ try{ localStorage.setItem(par[1],el.value); }catch(e){} });
+  });
+  window._pdeAss=function(){
+    var out=[];
+    CAMPOS.forEach(function(par){
+      var el=_P.querySelector('#'+par[0]);
+      if(el&&(el.value||'').trim()) out.push(el.value.trim());
+    });
+    return out.length?' · Elaborado por: '+out.join(' · '):'';
+  };
+})();
+</script>
+
+
+
+<script>
+/* PDE-A11Y-V1 acessibilidade da interface, aplicada no carregamento */
+(function(){
+  function aplicar(){
+    var P=document.getElementById('pde-painel')||document.getElementById('peg');
+    if(!P||P.dataset.a11y) return;
+    P.dataset.a11y='1';
+
+    /* idioma declarado, para o leitor de tela pronunciar em português */
+    try{ if(document.documentElement && !document.documentElement.lang) document.documentElement.lang='pt-BR'; }catch(e){}
+    P.setAttribute('lang','pt-BR');
+
+    /* cada campo precisa de nome acessível: usa o label, o placeholder ou o texto do botão */
+    P.querySelectorAll('input,select,textarea').forEach(function(el){
+      if(el.getAttribute('aria-label')||el.getAttribute('aria-labelledby')) return;
+      var lab = el.id ? P.querySelector('label[for="'+el.id+'"]') : null;
+      if(lab){ if(!lab.id){ lab.id='lb-'+(el.id||Math.random().toString(36).slice(2,7)); } el.setAttribute('aria-labelledby',lab.id); return; }
+      var t=(el.getAttribute('placeholder')||'').trim();
+      if(!t){ var p=el.closest('.pde-f,.peg-f'); var l=p&&p.querySelector('label'); t=l?l.textContent.trim():''; }
+      if(t) el.setAttribute('aria-label',t.replace(/\s+/g,' ').slice(0,90));
+    });
+
+    /* botão sem texto legível (só ícone) ganha nome */
+    P.querySelectorAll('button').forEach(function(b){
+      if(b.getAttribute('aria-label')) return;
+      var t=(b.textContent||'').replace(/[\s\u200d\ufe0f]/g,'');
+      if(t.length<=2){
+        var titulo=b.getAttribute('title')||b.dataset.action||'';
+        if(titulo) b.setAttribute('aria-label',titulo);
+      }
+    });
+
+    /* estado dos chips e cards anunciado, não só colorido */
+    function sincronizar(){
+      P.querySelectorAll('.pde-chip,.md-card,.hub-cat').forEach(function(c){
+        if(!c.hasAttribute('role') && c.tagName!=='BUTTON') c.setAttribute('role','button');
+        if(!c.hasAttribute('tabindex') && c.tagName!=='BUTTON') c.setAttribute('tabindex','0');
+        c.setAttribute('aria-pressed', c.classList.contains('on')?'true':'false');
+      });
+      P.querySelectorAll('.wz-step').forEach(function(s){
+        s.setAttribute('aria-current', s.classList.contains('on')?'step':'false');
+      });
+    }
+    sincronizar();
+    P.addEventListener('click',function(){ setTimeout(sincronizar,0); });
+
+    /* Enter e espaço ativam quem não é <button> */
+    P.addEventListener('keydown',function(e){
+      if(e.key!=='Enter'&&e.key!==' ') return;
+      var alvo=e.target;
+      if(!alvo||alvo.tagName==='BUTTON'||alvo.tagName==='INPUT'||alvo.tagName==='SELECT'||alvo.tagName==='TEXTAREA') return;
+      if(alvo.getAttribute('role')==='button'){ e.preventDefault(); alvo.click(); }
+    });
+
+    /* a área de resultado avisa o leitor de tela quando o prompt fica pronto */
+    var out=P.querySelector('#out,#resultado,#peg-result');
+    if(out && !out.getAttribute('aria-live')){
+      out.setAttribute('aria-live','polite');
+      out.setAttribute('aria-atomic','false');
+    }
+    var st=P.querySelector('#go-status');
+    if(st && !st.getAttribute('aria-live')) st.setAttribute('aria-live','polite');
+
+    /* atalho para pular direto ao conteúdo */
+    if(!P.querySelector('.pde-pular')){
+      var painel=P.querySelector('.pde-panel,.peg-card');
+      if(painel){
+        if(!painel.id) painel.id='pde-conteudo';
+        var a=document.createElement('a');
+        a.className='pde-pular'; a.href='#'+painel.id;
+        a.textContent='Pular para o conteúdo';
+        P.insertBefore(a,P.firstChild);
+      }
+    }
+
+    /* imagem decorativa não é lida pelo leitor de tela */
+    P.querySelectorAll('img:not([alt])').forEach(function(i){ i.setAttribute('alt',''); });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',aplicar);
+  else aplicar();
+  setTimeout(aplicar,300);
+})();
+</script>
+
+
+
+
+
+<script>
+/* PDE-AVISO-VALIDA-V1 · aviso de validação logo abaixo do título
+   Princípio: quem responde pelo material é o professor, e ele precisa
+   saber disso ANTES de gerar, não só no rodapé do que foi gerado. */
+(function(){
+  var P=document.getElementById('pde-painel')||document.getElementById('peg');
+  if(!P) return;
+
+  function criar(){
+    if(P.querySelector('.pde-aviso-valida')) return;
+    /* acha o cabeçalho da ferramenta, qualquer que seja a estrutura */
+    var cab = P.querySelector('.pde-head, .cf-head, .pde-header-v4, header');
+    if(!cab){
+      var h1=P.querySelector('h1');
+      cab = h1 ? (h1.parentElement||h1) : null;
+    }
+    if(!cab) return;
+
+    var faixa=document.createElement('div');
+    faixa.className='pde-aviso-valida';
+    faixa.setAttribute('role','note');
+    faixa.innerHTML='<span class="av-ic" aria-hidden="true">👤</span>'+
+      '<span class="av-tx"><b>Você continua no comando.</b> '+
+      'Todo material gerado por inteligência artificial precisa da sua revisão antes de chegar à turma.<br>'+
+      '<b class="av-foco">Confira principalmente os números</b>, as medidas, as datas e os nomes científicos: '+
+      'é onde a IA mais erra, sobretudo quando resume o conteúdo. Depois ajuste ao seu planejamento e assine o que for usar.</span>';
+
+    cab.parentNode.insertBefore(faixa, cab.nextSibling);
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',criar);
+  else criar();
+  setTimeout(criar,300); setTimeout(criar,1000);
+})();
+</script>
+
+
+
+
+<script>
+/* PDE-CONTRATO-A4-V1 · contrato visual A4 no topo do prompt
+   Motivo: na validação real, só a ferramenta que tinha contrato com
+   geometria entregou o rodapé completo. Instrução no fim do prompt é
+   ignorada; instrução como GEOMETRIA, antes do conteúdo, é obedecida. */
+(function(){
+  var P=document.getElementById('pde-painel')||document.getElementById('peg');
+  if(!P) return;
+
+  var CONTRATO="\n\n####################################################################\nCONTRATO VISUAL INEGOCIÁVEL — FORMATO A4 E RODAPÉ OBRIGATÓRIO\n####################################################################\nESTA SEÇÃO TEM PRIORIDADE SUPERIOR A TODO O RESTANTE DO PROMPT.\nANTES DE DESENHAR TÍTULO, IMAGEM, BLOCOS OU QUALQUER CONTEÚDO, RESERVE A ZONA DO RODAPÉ.\n\nFORMATO OBRIGATÓRIO\nEste material vai ser IMPRESSO na impressora da escola ou projetado na lousa, então a geometria informada acima é obrigatória e não pode ser alterada.\n\nMARGEM DE SEGURANÇA DE IMPRESSÃO\nReserve 177 px (15 mm) de margem em TODOS os lados. Impressora escolar não imprime até a borda do papel.\nÉ PROIBIDO qualquer elemento, cor de fundo, moldura ou texto ultrapassar essa margem.\nÉ PROIBIDO conteúdo encostado ou cortado na borda.\n\nZONAS DA PÁGINA\nAs coordenadas exatas estão no FORMATO acima, que muda conforme a folha esteja em pé ou deitada.\nEm qualquer um dos dois: o conteúdo pedagógico ocupa NO MÁXIMO 82% da altura útil, o rodapé fica na zona reservada indicada, e a margem inferior fica sempre limpa.\n\nÉ PROIBIDO colocar conteúdo pedagógico dentro da zona do rodapé.\nÉ PROIBIDO usar toda a altura da página para o conteúdo.\nÉ PROIBIDO entregar a imagem sem o rodapé completo.\nÉ PROIBIDO criar o rodapé em outra página, segunda imagem ou fora do canvas.\nSE O CONTEÚDO NÃO COUBER: reduza o conteúdo, tire uma curiosidade, um exemplo ou uma ilustração. NUNCA reduza nem remova o rodapé.\n\nO RODAPÉ TEM EXATAMENTE 3 PARTES, TODAS VISÍVEIS NA MESMA IMAGEM:\n\nPARTE 1 — QUADRO \"IA RESPONSÁVEL\"\nRetângulo fino de borda discreta, com um pequeno ícone de robô à esquerda. SEM LOGOTIPO, SEM SÍMBOLO, SEM BRASÃO.\nTítulo pequeno: IA RESPONSÁVEL\nTexto exato: \"Material elaborado com apoio de Inteligência Artificial para fins educacionais. Recomenda-se revisão pelo professor antes da aplicação.\"\nLogo abaixo, dentro da MESMA caixa, em fonte menor porém legível, insira integralmente:\n[[PDE_DECLARACAO_IA]]\n\nPARTE 2 — LINHA DE CONFORMIDADE\nUma única linha horizontal, pequena porém legível, SEM quebrar em duas linhas.\nESCREVA EXATAMENTE ESTE TEXTO, CARACTERE POR CARACTERE:\n[[PDE_LINHA_CONFORMIDADE]]\nÉ PROIBIDO alterar, encurtar, traduzir, reformatar ou RECRIAR o código de identificação (o ID), a versão ou a data.\nO ID começa com PDE- seguido da área e da data. Ele identifica de qual ferramenta o material saiu: se você trocar uma letra sequer, o material deixa de ser rastreável e a saída está ERRADA.\nNUNCA reaproveite um ID de outro material, nem invente um código parecido.\n\nPARTE 3 — BARRA FINAL\nBarra horizontal em azul-marinho #0F2C4A, dentro do canvas e dentro da margem, com texto branco em uma única linha:\n🌐 portaldoeducador.com.br | ▶️ YouTube: @PortaldoEducador | 📷 Instagram: @portal._do_educador\n\nREGRA DE LEGIBILIDADE IMPRESSA\nNenhum texto do material abaixo de 9 pontos equivalentes. O rodapé é pequeno, mas precisa ser LEGÍVEL no papel.\n\nREGRA DE ACEITAÇÃO\nSe as 3 partes não estiverem integralmente visíveis dentro da MESMA imagem, dentro das margens, a saída está ERRADA. NÃO ENTREGUE: refaça a composição reduzindo o conteúdo superior.\n####################################################################\n";
+
+  function vigiar(){
+    ['p-uni','prompt-saida','prompt-gpt','peg-prompt-box','out-prompt','saida'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el||el.__contratoA4) return;
+      el.__contratoA4=1;
+      var obs=new MutationObserver(function(){
+        var t=el.textContent;
+        if(typeof t!=='string'||t.length<400) return;
+        if(t.indexOf('CONTRATO VISUAL INEGOCIÁVEL')>=0) return;
+        obs.disconnect();
+        /* a linha de conformidade REAL vive no fim do prompt; trazemos ela
+           para dentro do contrato, senão a IA inventa o ID em vez de copiar */
+        var linha=(t.match(/✓ Alinhado à BNCC[^\n]*/)||[])[0]
+               || (t.match(/ID: PDE-[A-ZÇÃÕÁÉÍÓÚ]+-\d{8}[^\n]*/)||[])[0]
+               || '(use a linha de conformidade escrita adiante neste prompt)';
+        var c=CONTRATO.split('[[PDE_LINHA_CONFORMIDADE]]').join(linha.trim());
+        /* o contrato entra DEPOIS da camada de declaração, então precisa
+           resolver o próprio marcador: senão ele sai cru no prompt */
+        if(c.indexOf('[[PDE_DECLARACAO_IA]]')>=0){
+          var dec = (typeof window.declaraIA==='function') ? window.declaraIA() : '';
+          if(!dec){
+            var k=t.indexOf('DECLARAÇÃO DE USO DE IA:');
+            if(k>=0){ var kf=t.indexOf(String.fromCharCode(10), k); dec=t.slice(k, kf>k?kf:k+400); }
+          }
+          c=c.split('[[PDE_DECLARACAO_IA]]').join(dec);
+        }
+        /* o contrato entra NO TOPO: a IA precisa ler a geometria antes do conteúdo */
+        el.textContent=c+'\n\n'+t;
+        obs.observe(el,{childList:true,characterData:true,subtree:true});
+      });
+      obs.observe(el,{childList:true,characterData:true,subtree:true});
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',vigiar);
+  else vigiar();
+  setTimeout(vigiar,400); setTimeout(vigiar,1200);
+})();
+</script>
+
+<script>
+/* PDE-RESOLVE-MARCADORES-V1 · resolve marcadores que sobraram no prompt
+   As camadas rodam em ordens diferentes; esta passa por último e garante
+   que nenhum [[...]] chegue ao professor. */
+(function(){
+  var P=document.getElementById('pde-painel')||document.getElementById('peg');
+  if(!P) return;
+
+  function declaracao(t){
+    if(typeof window.declaraIA==='function'){
+      try{ var d=window.declaraIA(); if(d) return d; }catch(e){}
+    }
+    var k=t.indexOf('DECLARAÇÃO DE USO DE IA:');
+    if(k>=0){
+      var f=t.indexOf(String.fromCharCode(10), k);
+      return t.slice(k, f>k?f:k+400);
+    }
+    return 'DECLARAÇÃO DE USO DE IA: material produzido com apoio de inteligência artificial, a partir de comando elaborado pelo professor no Portal do Educador. Revisão, validação pedagógica e responsabilidade pelo conteúdo final são do professor que aplica o material.';
+  }
+
+  function conformidade(t){
+    var k=t.indexOf('✓ Alinhado à BNCC');
+    if(k>=0){
+      var f=t.indexOf(String.fromCharCode(10), k);
+      return t.slice(k, f>k?f:k+300);
+    }
+    return '✓ Alinhado à BNCC · ✓ Uso educacional · ✓ Revisão docente recomendada';
+  }
+
+  function resolver(t){
+    if(t.indexOf('[[PDE_DECLARACAO_IA]]')>=0){
+      t=t.split('[[PDE_DECLARACAO_IA]]').join(declaracao(t));
+    }
+    /* alguma camada pode ter resolvido a declaração cedo demais, quando o
+       campo da ferramenta ainda não existia, e gravado o texto genérico:
+       aqui corrigimos para o nome real que o professor escolheu */
+    if(t.indexOf('produzido com ferramenta de IA generativa')>=0 && typeof window.declaraIA==='function'){
+      try{
+        var real=window.declaraIA();
+        var ini=real.indexOf('produzido com ');
+        var fim=real.indexOf(' para geração');
+        if(ini>=0 && fim>ini){
+          var nome=real.slice(ini+14, fim);
+          t=t.split('produzido com ferramenta de IA generativa').join('produzido com '+nome);
+        }
+      }catch(e){}
+    }
+    if(t.indexOf('[[PDE_LINHA_CONFORMIDADE]]')>=0){
+      t=t.split('[[PDE_LINHA_CONFORMIDADE]]').join(conformidade(t));
+    }
+    return t;
+  }
+
+  function vigiar(){
+    ['p-uni','prompt-saida','prompt-gpt','peg-prompt-box','out-prompt','saida'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el||el.__resolveM) return;
+      el.__resolveM=1;
+      var obs=new MutationObserver(function(){
+        var t=el.textContent;
+        if(typeof t!=='string'||t.length<200) return;
+        if(t.indexOf('[[PDE_')<0 && t.indexOf('produzido com ferramenta de IA generativa')<0) return;
+        obs.disconnect();
+        el.textContent=resolver(t);
+        obs.observe(el,{childList:true,characterData:true,subtree:true});
+      });
+      obs.observe(el,{childList:true,characterData:true,subtree:true});
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',vigiar);
+  else vigiar();
+  setTimeout(vigiar,500); setTimeout(vigiar,1400); setTimeout(vigiar,2200);
+})();
+</script>
+<script>
+/* PDE-LATERAL-V1 · fluxo de fases na lateral esquerda
+   O professor vê todas as etapas enquanto preenche, em vez de perdê-las ao rolar. */
+(function(){
+  var P=document.getElementById('pde-painel');
+  if(!P) return;
+
+  function montar(){
+    if(P.querySelector('.pde-lateral-wrap')) return;
+    var steps=P.querySelector('.wz-steps');
+    var painel=P.querySelector('.pde-panel');
+    if(!steps||!painel) return;
+
+    /* a coluna da esquerda: o fluxo, com título */
+    var lado=document.createElement('aside');
+    lado.className='pde-lateral';
+    var tit=document.createElement('div');
+    tit.className='pde-lateral-tit';
+    tit.textContent='FLUXO DE CRIAÇÃO';
+    lado.appendChild(tit);
+    lado.appendChild(steps);          /* move o indicador que já existe */
+
+    /* a coluna da direita: tudo o que vinha depois dos passos */
+    var wrap=document.createElement('div');
+    wrap.className='pde-lateral-wrap';
+    var col=document.createElement('div');
+    col.className='pde-lateral-conteudo';
+
+    painel.parentNode.insertBefore(wrap, painel);
+    wrap.appendChild(lado);
+    wrap.appendChild(col);
+    col.appendChild(painel);
+
+    /* o que vier depois do painel (botão de tela cheia, notas) acompanha */
+    var seg=wrap.nextElementSibling;
+    while(seg){
+      var prox=seg.nextElementSibling;
+      if(seg.tagName==='SCRIPT'||seg.tagName==='STYLE'){ seg=prox; continue; }
+      col.appendChild(seg);
+      seg=prox;
+    }
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',montar);
+  else montar();
+  setTimeout(montar,300); setTimeout(montar,1000);
+})();
+</script>
+<script>
+/* PDE-ORIENTACAO-V1 · duas orientações, as duas em A4 com margem
+   Motivo: o catálogo de formatos (story, quadrado, paisagem livre) não
+   funcionou na prática. A escola imprime em A4 ou projeta na lousa. */
+(function(){
+  var P=document.getElementById('pde-painel')||document.getElementById('peg');
+  if(!P) return;
+
+  var OPCOES=[
+    ['imprimir','🖨️ Imprimir na folha (A4 em pé)'],
+    ['projetar','📺 Projetar na lousa (A4 deitado)']
+  ];
+
+  function campo(){
+    return P.querySelector('#i-orient') || P.querySelector('#i-formato') ||
+           P.querySelector('#formato')  || P.querySelector('#i-saida');
+  }
+
+  function trocar(){
+    var el=campo();
+    if(!el||el.dataset.orientV1) return;
+    if(el.tagName!=='SELECT') return;
+    var antes=(el.value||'').toLowerCase();
+    el.innerHTML='';
+    OPCOES.forEach(function(o){
+      var op=document.createElement('option');
+      op.value=o[1]; op.textContent=o[1];
+      el.appendChild(op);
+    });
+    /* abre SEMPRE em imprimir: é o uso mais comum na escola e o mais seguro.
+       Os rótulos antigos ("horizontal") eram ambíguos, ora tela ora papel,
+       então não servem para herdar a escolha. */
+    el.selectedIndex=0;
+    el.dataset.orientV1='1';
+
+    /* o select some e vira DOIS CARTÕES: é a decisão que define o material
+       inteiro, e num menu suspenso ela passava despercebida */
+    var cx=el.closest('.pde-f, .pde-campo, div');
+    if(!cx || cx.querySelector('.orient-cards')) return;
+    el.style.display='none';
+
+    var cards=document.createElement('div');
+    cards.className='orient-cards';
+    cards.setAttribute('role','group');
+    cards.setAttribute('aria-label','Onde este material vai ser usado');
+
+    var DADOS=[
+      ['🖨️','Imprimir na folha','A4 em pé · sai certo na impressora da escola, sem configurar nada'],
+      ['📺','Projetar na lousa','A4 deitado · ocupa a tela interativa sem sobra nas laterais']
+    ];
+    DADOS.forEach(function(dd,i){
+      var b=document.createElement('button');
+      b.type='button';
+      b.className='orient-card'+(i===el.selectedIndex?' on':'');
+      b.dataset.i=i;
+      b.setAttribute('aria-pressed', i===el.selectedIndex?'true':'false');
+      b.innerHTML='<span class="oc-ic" aria-hidden="true">'+dd[0]+'</span>'+
+        '<span class="oc-tx"><b>'+dd[1]+'</b><small>'+dd[2]+'</small></span>';
+      b.addEventListener('click',function(){
+        el.selectedIndex=i;
+        el.dispatchEvent(new Event('change',{bubbles:true}));
+        cards.querySelectorAll('.orient-card').forEach(function(x,j){
+          x.classList.toggle('on', j===i);
+          x.setAttribute('aria-pressed', j===i?'true':'false');
+        });
+      });
+      cards.appendChild(b);
+    });
+    cx.appendChild(cards);
+
+    /* o rótulo do campo passa a fazer a pergunta */
+    var lab=cx.querySelector('label');
+    if(lab) lab.textContent='Onde este material vai ser usado?';
+  }
+
+  /* o prompt passa a receber a geometria certa da opção escolhida */
+  window.__pdeOrientacao=function(){
+    var el=campo();
+    var v=(el&&el.value||'').toLowerCase();
+    var deitado = v.indexOf('deitado')>=0 || v.indexOf('projetar')>=0 || v.indexOf('lousa')>=0;
+    if(deitado){
+      return {deitado:true,
+        linha:'FORMATO: folha A4 DEITADA (paisagem), 3508 x 2480 pixels, 300 DPI. '+
+              'Serve para PROJETAR na lousa interativa e também para imprimir em A4 paisagem. '+
+              'Zona de conteúdo: de y=177 até y=1990 px. Rodapé: de y=1991 até y=2303 px. Margem inferior até 2480 px.'};
+    }
+    return {deitado:false,
+      linha:'FORMATO: folha A4 EM PÉ (retrato), 2480 x 3508 pixels, 300 DPI. '+
+            'Serve para IMPRIMIR direto na impressora da escola, sem ajustar nada. '+
+            'Zona de conteúdo: de y=177 até y=2876 px. Rodapé: de y=2877 até y=3331 px. Margem inferior até 3508 px.'};
+  };
+
+  function vigiar(){
+    trocar();
+    ['p-uni','prompt-saida','prompt-gpt','peg-prompt-box','out-prompt','saida'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el||el.__orientV1) return;
+      el.__orientV1=1;
+      var obs=new MutationObserver(function(){
+        var t=el.textContent;
+        if(typeof t!=='string'||t.length<400) return;
+        if(t.indexOf('FORMATO: folha A4')>=0) return;
+        var o=window.__pdeOrientacao();
+        obs.disconnect();
+        /* as ferramentas trazem um bloco FORMATO próprio (widescreen, A3, quadrado)
+           que briga com a orientação escolhida: neutraliza antes de inserir a nossa */
+        var marca='A imagem tem EXATAMENTE o formato';
+        var ini=t.indexOf(marca);
+        while(ini>=0){
+          var fim=t.indexOf('.', ini);
+          if(fim<0){ break; }
+          t=t.slice(0,ini)+'O formato da imagem é o definido no CONTRATO acima'+t.slice(fim);
+          ini=t.indexOf(marca, ini+10);
+        }
+        /* a geometria da opção escolhida entra logo após o cabeçalho do contrato */
+        var alvo='FORMATO OBRIGATÓRIO';
+        var i=t.indexOf(alvo);
+        if(i>0){
+          var fim=t.indexOf('\n\n', i);
+          el.textContent=t.slice(0,i)+alvo+'\n'+o.linha+t.slice(fim>i?fim:i+alvo.length);
+        } else {
+          el.textContent=o.linha+'\n\n'+t;
+        }
+        obs.observe(el,{childList:true,characterData:true,subtree:true});
+      });
+      obs.observe(el,{childList:true,characterData:true,subtree:true});
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',vigiar);
+  else vigiar();
+  setTimeout(vigiar,350); setTimeout(vigiar,1100);
+})();
+</script>
+<script>
+/* PDE-A11Y-EXEC-V3 · acessibilidade que a IA consegue desenhar
+   Regra que guiou a reescrita: a IA que gera imagem NÃO controla tipografia.
+   Toda exigência é ELEMENTO VISÍVEL (quantos blocos, que blocos, que tamanho
+   de campo), e sobe para o contrato do topo, porque o fim do prompt é ignorado. */
+(function(){
+  var P=document.getElementById('pde-painel')||document.getElementById('peg');
+  if(!P) return;
+
+  var CHIPS=[["baixavisao", "👁️ Baixa visão", "menos blocos e texto maior"], ["tea", "🧩 Autismo", "mesma estrutura e sem poluição"], ["tdah", "⚡ TDAH", "poucos blocos, numerados"], ["surdez", "🤟 Surdez", "glossário visual e espaço para Libras"], ["di", "💡 Deficiência intelectual", "uma ideia por vez, com exemplo"], ["motora", "✋ Deficiência motora", "campos grandes, sem escrita fina"]];
+  var INSTR={"baixavisao": "BAIXA VISÃO — o texto precisa sair GRANDE, e para isso a página precisa ter MENOS COISA. Use NO MÁXIMO 5 blocos na página inteira. Cada bloco com no máximo 3 linhas de texto. Frases curtas. Se o conteúdo não couber em 5 blocos, CORTE conteúdo. É PROIBIDO escrever texto por cima de foto, ilustração ou fundo colorido. É PROIBIDO usar cinza claro em texto: só preto ou cor escura sobre fundo claro. Ilustrações grandes e simples, com contorno grosso.", "tea": "AUTISMO — a página precisa ser PREVISÍVEL e LIMPA. Todos os blocos do mesmo tamanho, alinhados numa grade regular, cada um com um título curto que diz exatamente o que tem dentro. Nenhuma imagem atrás de texto, nenhum elemento decorativo solto, nenhuma forma cortada pela borda do bloco. Linguagem literal: nada de metáfora, ironia, gíria ou expressão figurada. No topo da página, escreva quantas partes o material tem, para a pessoa saber o que esperar.", "tdah": "TDAH — NO MÁXIMO 4 blocos na página, numerados de 1 a 4, bem separados uns dos outros por espaço em branco largo. Cada bloco começa com a informação mais importante em destaque. Nenhum texto com mais de 2 linhas. Margens completamente limpas: nada de enfeite, moldura decorativa ou ilustração que não ensine algo.", "surdez": "SURDEZ — o português escrito é a SEGUNDA língua de quem usa Libras, então a página muda de verdade e isso PRECISA APARECER. DOIS BLOCOS OBRIGATÓRIOS, desenhados na página: (1) bloco \"PALAVRAS DESTE MATERIAL\", com 4 a 6 termos, cada um com um desenho ao lado e uma linha muito curta de explicação; (2) QUADRADO VAZIO de 3,5 cm por 3,5 cm, com moldura pontilhada e a legenda \"Vídeo em Libras\", para o professor colar o QR. Corte pelo menos um terço do texto do resto da página e transforme em imagem, ícone ou esquema. Todas as frases na ordem direta: sujeito, verbo, complemento. É PROIBIDO desenhar sinais de Libras: a imagem gerada erra os parâmetros do sinal e ensina errado.", "di": "DEFICIÊNCIA INTELECTUAL — uma ideia por frase e um comando por vez, nunca instrução composta. Todo termo técnico aparece DEPOIS da explicação, nunca antes. Todo dado abstrato vem acompanhado de uma comparação concreta do dia a dia, desenhada ao lado. Onde houver alternativas, use 3 em vez de 4. No fim da página, um bloco curto repetindo o essencial. A estética continua adulta e digna: simplificar não é infantilizar.", "motora": "DEFICIÊNCIA MOTORA — toda resposta precisa ser possível SEM escrita fina. Todo campo de marcar é um quadrado de no mínimo 1 cm por 1 cm, bem separado dos vizinhos. Alternativas grandes, com área de toque larga. Onde houver linha para escrever, ela é larga e bem espaçada. É PROIBIDO exigir recortar, colar, ligar com traço fino ou escrever dentro de espaço pequeno. Inclua um espaço para o professor registrar a resposta dada oralmente."};
+  var SELO={"baixavisao": "menos blocos e texto ampliado", "tea": "estrutura previsível e página limpa", "tdah": "quatro blocos numerados", "surdez": "glossário visual e espaço para vídeo em Libras", "di": "uma ideia por vez com exemplo concreto", "motora": "resposta sem escrita fina"};
+
+  function grupo(){
+    return P.querySelector('#g-incl') || P.querySelector('[data-group="incl"]') ||
+      (function(){ var c=P.querySelector('.pde-chip[data-val="tea"],.pde-chip[data-val="baixavisao"],.pde-chip[data-val="surdez"]'); return c?c.parentNode:null; })();
+  }
+
+  /* os botões passam a ser 6: dislexia sai, porque não muda a imagem */
+  function padronizar(){
+    var g=grupo(); if(!g||g.dataset.a11yv3) return;
+    var marcados={};
+    g.querySelectorAll('.pde-chip').forEach(function(c){ if(c.classList.contains('on')&&c.dataset.val) marcados[c.dataset.val]=1; });
+    g.innerHTML='';
+    CHIPS.forEach(function(par){
+      var s=document.createElement('span');
+      s.className='pde-chip'+(marcados[par[0]]?' on':'');
+      s.dataset.val=par[0];
+      s.innerHTML='<b style="font-weight:800">'+par[1]+'</b><br><small style="font-size:10.5px;opacity:.85;font-weight:500">'+par[2]+'</small>';
+      s.setAttribute('role','button'); s.setAttribute('tabindex','0');
+      s.setAttribute('aria-pressed', marcados[par[0]]?'true':'false');
+      s.setAttribute('aria-label', par[1]+': '+par[2]);
+      s.addEventListener('click',function(){
+        s.classList.toggle('on');
+        s.setAttribute('aria-pressed', s.classList.contains('on')?'true':'false');
+      });
+      g.appendChild(s);
+    });
+    g.dataset.a11yv3='1';
+  }
+
+  /* o bloco que vai para o CONTRATO, no topo do prompt */
+  window.__pdeBlocoA11y=function(){
+    var g=grupo(); if(!g) return '';
+    var sel=[].slice.call(g.querySelectorAll('.pde-chip.on')).map(function(c){return c.dataset.val;}).filter(function(k){return INSTR[k];});
+    if(!sel.length) return '';
+    var out='\n\nADAPTAÇÃO OBRIGATÓRIA DA PÁGINA (prioridade igual à do rodapé)\n'+
+      'O professor marcou adaptação para alunos desta turma. O material PRECISA SAIR DIFERENTE por causa disso, e a diferença precisa ser VISÍVEL na página.\n'+
+      'Se ao terminar a página estiver igual à de sempre, a adaptação NÃO foi feita: refaça.\n'+
+      'A adaptação muda o CAMINHO DE ACESSO, nunca o conteúdo ensinado.\n\n'+
+      'COMO REDUZIR SEM ERRAR (regra crítica)\n'+
+      'Para caber em menos blocos, REMOVA BLOCOS INTEIROS. É PROIBIDO encurtar frase que contenha número, medida, unidade, data ou nome científico.\n'+
+      'Todo dado que permanecer na página tem de sair EXATAMENTE como está escrito neste prompt: o número, a unidade e o que ele mede.\n'+
+      'É PROIBIDO trocar a grandeza ao resumir. Comprimento não vira altura, largura não vira profundidade, peso não vira tamanho.\n'+
+      'Se um dado não couber por inteiro e correto, RETIRE o dado da página em vez de escrevê-lo pela metade ou aproximado.\n'+
+      'Antes de entregar, releia cada número da página e confira contra este prompt. Número errado em material de escola é falha grave.';
+    sel.forEach(function(k){ out+='\n\n'+INSTR[k]; });
+    var selos=sel.map(function(k){return SELO[k];}).filter(Boolean);
+    out+='\n\nNO RODAPÉ, ao lado da linha de conformidade, escreva em fonte pequena: "Versão adaptada: '+selos.join(' · ')+'".';
+    return out;
+  };
+
+  function vigiar(){
+    padronizar();
+    ['p-uni','prompt-saida','prompt-gpt','peg-prompt-box','out-prompt','saida'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el||el.__a11yv3) return;
+      el.__a11yv3=1;
+      var obs=new MutationObserver(function(){
+        var t=el.textContent;
+        if(typeof t!=='string'||t.length<400) return;
+        if(t.indexOf('ADAPTAÇÃO OBRIGATÓRIA DA PÁGINA')>=0) return;
+        var b=window.__pdeBlocoA11y(); if(!b) return;
+        obs.disconnect();
+        /* entra logo APÓS o contrato do topo, antes do conteúdo */
+        var marca='####################################################################';
+        var fim=t.indexOf(marca, t.indexOf(marca)+10);
+        fim=t.indexOf(marca, fim+10);
+        if(fim>0){ fim+=marca.length; el.textContent=t.slice(0,fim)+b+t.slice(fim); }
+        else{ el.textContent=b+'\n\n'+t; }
+        obs.observe(el,{childList:true,characterData:true,subtree:true});
+      });
+      obs.observe(el,{childList:true,characterData:true,subtree:true});
+    });
+  }
+  window.__pdeA11yPadronizar=function(){ try{ padronizar(); vigiar(); }catch(e){} };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',vigiar);
+  else vigiar();
+  setTimeout(vigiar,400); setTimeout(vigiar,1200); setTimeout(vigiar,2000);
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   PDE-QUIOSQUE-V2 · modo tela cheia (quiosque)
+   Autocontido: vive só dentro deste arquivo, com prefixo .pdeq- para não
+   colidir com nada do Portal nem da própria ferramenta.
+   ═══════════════════════════════════════════════════════════════════════ */
+#pde-painel.pdeq-on{
+  position:fixed !important;
+  inset:0 !important;
+  top:0 !important; right:0 !important; bottom:0 !important; left:0 !important;
+  width:100vw !important;
+  height:100vh !important;
+  height:100dvh !important;
+  max-width:none !important;
+  margin:0 !important;
+  z-index:2147483000 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding:0 !important;
+  overscroll-behavior:contain !important;
+}
+/* o conteúdo respira até 1600px e fica centralizado; elementos soltos
+   (modais, toasts, overlays da própria ferramenta) ficam de fora da regra */
+#pde-painel.pdeq-on > *:not(.pdeq-barra):not(style):not(script):not([data-pdeq-solto]){
+  max-width:1600px !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+  padding-left:clamp(12px,2.4vw,32px) !important;
+  padding-right:clamp(12px,2.4vw,32px) !important;
+}
+#pde-painel .pdeq-barra{ display:none; }
+#pde-painel.pdeq-on .pdeq-barra{
+  display:flex !important;
+  position:sticky !important; top:0 !important;
+  z-index:5 !important;
+  align-items:center !important; justify-content:space-between !important;
+  gap:12px !important; flex-wrap:wrap !important;
+  padding:10px clamp(12px,2.4vw,32px) !important;
+  margin:0 0 4px !important;
+  background:rgba(255,255,255,.94) !important;
+  backdrop-filter:saturate(140%) blur(8px) !important;
+  border-bottom:1px solid #dde6ee !important;
+  box-shadow:0 2px 10px rgba(15,44,74,.06) !important;
+  max-width:none !important;
+}
+#pde-painel .pdeq-grupo{ display:flex !important; align-items:center !important; gap:8px !important; flex-wrap:wrap !important; }
+#pde-painel .pdeq-sair,
+#pde-painel .pdeq-fechar,
+#pde-painel .pdeq-tela{
+  display:inline-flex !important; align-items:center !important; gap:8px !important;
+  min-height:44px !important; padding:0 16px !important;
+  border-radius:11px !important; cursor:pointer !important;
+  font-weight:800 !important; font-size:13.5px !important;
+  font-family:inherit !important; line-height:1 !important;
+  white-space:nowrap !important;
+}
+#pde-painel .pdeq-sair{ background:#0F2C4A !important; color:#fff !important; border:none !important; }
+#pde-painel .pdeq-sair:hover{ filter:brightness(1.12) !important; }
+#pde-painel .pdeq-fechar,
+#pde-painel .pdeq-tela{ background:#fff !important; color:#0F2C4A !important; border:1.5px solid #dde6ee !important; }
+#pde-painel .pdeq-fechar:hover,
+#pde-painel .pdeq-tela:hover{ border-color:#37B1DA !important; }
+#pde-painel .pdeq-sair:focus-visible,
+#pde-painel .pdeq-fechar:focus-visible,
+#pde-painel .pdeq-tela:focus-visible{ outline:3px solid #0C77A1 !important; outline-offset:2px !important; }
+
+/* o atalho de acessibilidade fica escondido ate receber foco. No Planejador
+   a regra original aponta para #pde-painel e nunca alcancava o #peg. */
+#pde-painel .pde-pular{ position:absolute !important; left:-9999px !important; top:0 !important; z-index:99 !important; }
+#pde-painel .pde-pular:focus{ left:0 !important; }
+
+html.pdeq-travado, body.pdeq-travado{
+  overflow:hidden !important; height:100% !important; overscroll-behavior:none !important;
+}
+/* enquanto o quiosque está ligado, a moldura do Portal em volta some */
+body [data-pdeq-oculto]{ display:none !important; }
+
+@media (max-width:900px){
+  #pde-painel .pdeq-fechar .pdeq-rot, #pde-painel .pdeq-tela .pdeq-rot{ display:none !important; }
+}
+@media (max-width:560px){
+  #pde-painel.pdeq-on .pdeq-barra{ padding:8px 12px !important; flex-wrap:nowrap !important; gap:8px !important; }
+  #pde-painel .pdeq-grupo{ flex:1 1 auto !important; flex-wrap:nowrap !important; min-width:0 !important; }
+  #pde-painel .pdeq-sair{ flex:1 1 auto !important; justify-content:center !important; padding:0 10px !important; font-size:13px !important; }
+  #pde-painel .pdeq-fechar, #pde-painel .pdeq-tela{ flex:0 0 auto !important; padding:0 12px !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PDE-LOGO-V2 · marca do Portal do Educador no cabeçalho da ferramenta
+   ═══════════════════════════════════════════════════════════════════════ */
+#pde-painel .pdel-marca{
+  display:block !important; width:72px !important; height:72px !important;
+  margin:0 auto 8px !important; object-fit:contain !important; border-radius:50% !important;
+  filter:drop-shadow(0 4px 12px rgba(15,44,74,.18));
+}
+#pde-painel .pdel-marca.pdel-viva{ animation:pdel-resp 2.6s ease-in-out 3; transform-origin:center center; }
+@keyframes pdel-resp{
+  0%,100%{ transform:scale(1); filter:drop-shadow(0 4px 12px rgba(15,44,74,.18)); }
+  50%{ transform:scale(1.055); filter:drop-shadow(0 6px 18px rgba(55,177,218,.42)); }
+}
+@media (prefers-reduced-motion:reduce){ #pde-painel .pdel-marca.pdel-viva{ animation:none !important; } }
+@media (max-width:560px){ #pde-painel .pdel-marca{ width:58px !important; height:58px !important; } }
+</style>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   PDE-QUIOSQUE-V2 + PDE-LOGO-V2 · Portal do Educador
+   Mesmo código em todas as ferramentas. Nada aqui depende do hub, da
+   navegação do Portal ou de qualquer componente compartilhado.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+
+  /* ─────────── EDITE AQUI ───────────
+     LOGO_ANIMADA: URL do GIF/WebP animado, ou data:image/gif;base64,...
+                   Vazio = usa a logo estática com respiração em CSS.       */
+  var LOGO_ANIMADA='';
+  var LOGO_ESTATICA='https://2e9d36b373.clvaw-cdnwnd.com/335de600d4513f981d46eaac6920a1f2/200004620-7d1847d187/Logo_Estatico_Circular_Posicao3_002.png?ph=2e9d36b373';
+  var VOLTA_PADRAO='https://www.portaldoeducador.com.br/portal-do-educador-ia-studio/';
+  var ABRIR_EM_QUIOSQUE=true;   /* false = a ferramenta abre normal e o professor liga pelo botão */
+  /* ────────── FIM DA EDIÇÃO ────────── */
+
+  var P=document.getElementById('pde-painel')||document.getElementById('peg');
+  if(!P || P.dataset.pdeqPronto) return;
+  P.dataset.pdeqPronto='1';
+
+  var raiz=document.documentElement, corpo=document.body;
+  var rolagemSalva=0, marcador=null, ocultos=[], soltos=[], vigia=null;
+
+  /* nome da ferramenta: sai do próprio título da página, sem configuração */
+  var tituloEl=P.querySelector('h1,h2');
+  var NOME=(tituloEl?tituloEl.textContent:'').replace(/\s+/g,' ').trim() || 'Portal do Educador';
+
+  /* ---------------- barra de controles ---------------- */
+  var barra=document.createElement('div');
+  barra.className='pdeq-barra';
+  barra.innerHTML=
+    '<span class="pdeq-grupo">'+
+      '<button type="button" class="pdeq-sair" data-pdeq="sair">← Voltar ao Portal</button>'+
+      '<button type="button" class="pdeq-fechar" data-pdeq="fechar">⤢ <span class="pdeq-rot">Sair do modo tela cheia</span></button>'+
+    '</span>'+
+    '<button type="button" class="pdeq-tela" data-pdeq="tela" aria-pressed="false">⛶ <span class="pdeq-rot">Tela cheia</span></button>';
+  P.insertBefore(barra, P.firstChild);
+
+  /* ---------------- quiosque ----------------
+     O Webnode envolve o bloco em seções que podem ter transform, filter ou
+     perspective. Qualquer uma delas cria bloco de contenção e o position:fixed
+     passa a valer sobre a seção, não sobre a janela: o cabeçalho do site
+     continua aparecendo e o topo da aplicação fica cortado. Por isso o painel
+     é movido para filho direto do body enquanto o quiosque estiver ligado. */
+  function moverParaBody(){
+    if(P.parentNode===corpo) return;
+    marcador=document.createComment('pdeq-lugar-original');
+    P.parentNode.insertBefore(marcador,P);
+    corpo.appendChild(P);
+  }
+  function devolverAoLugar(){
+    if(marcador && marcador.parentNode){
+      marcador.parentNode.insertBefore(P,marcador);
+      marcador.parentNode.removeChild(marcador);
+    }
+    marcador=null;
+  }
+  function esconderPortal(){
+    var filhos=corpo.children;
+    for(var i=0;i<filhos.length;i++){
+      var el=filhos[i], t=el.tagName;
+      if(el===P) continue;
+      if(t==='SCRIPT'||t==='STYLE'||t==='LINK'||t==='NOSCRIPT'||t==='TEMPLATE') continue;
+      if(el.contains(P)) continue;
+      if(el.hasAttribute('data-pdeq-oculto')) continue;
+      el.setAttribute('data-pdeq-oculto','1');
+      ocultos.push(el);
+    }
+  }
+  function mostrarPortal(){
+    for(var i=0;i<ocultos.length;i++){ ocultos[i].removeAttribute('data-pdeq-oculto'); }
+    ocultos=[];
+  }
+  /* modais, toasts e overlays da própria ferramenta ficam livres da regra de
+     largura máxima, senão um modal de tela inteira sairia centralizado a 1600px */
+  function marcarSoltos(){
+    var filhos=P.children;
+    for(var i=0;i<filhos.length;i++){
+      var el=filhos[i];
+      if(el===barra) continue;
+      var pos='';
+      try{ pos=getComputedStyle(el).position; }catch(e){}
+      if(pos==='fixed'||pos==='absolute'||pos==='sticky'){
+        el.setAttribute('data-pdeq-solto','1');
+        soltos.push(el);
+      }
+    }
+  }
+  function limparSoltos(){
+    for(var i=0;i<soltos.length;i++){ soltos[i].removeAttribute('data-pdeq-solto'); }
+    soltos=[];
+  }
+  function vigiarPortal(){
+    if(vigia || typeof MutationObserver==='undefined') return;
+    vigia=new MutationObserver(function(){ if(ativo()) esconderPortal(); });
+    vigia.observe(corpo,{childList:true});
+  }
+  function pararVigia(){ if(vigia){ vigia.disconnect(); vigia=null; } }
+  function conferirEncaixe(){
+    try{
+      var r=P.getBoundingClientRect();
+      if(Math.abs(r.top)<1 && Math.abs(r.left)<1){ P.style.transform=''; return; }
+      P.style.transform='translate('+(-r.left)+'px,'+(-r.top)+'px)';
+    }catch(e){}
+  }
+  function ativo(){ return P.classList.contains('pdeq-on'); }
+
+  function entrar(){
+    if(ativo()) return;
+    rolagemSalva=window.pageYOffset||raiz.scrollTop||0;
+    moverParaBody();
+    esconderPortal();
+    vigiarPortal();
+    marcarSoltos();
+    P.classList.add('pdeq-on');
+    raiz.classList.add('pdeq-travado');
+    corpo.classList.add('pdeq-travado');
+    P.setAttribute('role','region');
+    P.setAttribute('aria-label',NOME+' em modo tela cheia');
+    conferirEncaixe();
+  }
+  function sair(){
+    if(!ativo()) return;
+    P.classList.remove('pdeq-on');
+    P.style.transform='';
+    raiz.classList.remove('pdeq-travado');
+    corpo.classList.remove('pdeq-travado');
+    P.removeAttribute('role'); P.removeAttribute('aria-label');
+    pararVigia(); limparSoltos(); mostrarPortal(); devolverAoLugar();
+    try{ window.scrollTo(0,rolagemSalva); }catch(e){}
+    try{ requestAnimationFrame(function(){ window.scrollTo(0,rolagemSalva); }); }catch(e){}
+    telaCheiaNativa(false);
+  }
+  function voltarAoPortal(){
+    sair();
+    var veioDoPortal=false;
+    try{ veioDoPortal=!!document.referrer && document.referrer.indexOf(location.host)>=0; }catch(e){}
+    if(veioDoPortal && window.history.length>1){ window.history.back(); }
+    else{ window.location.href=VOLTA_PADRAO; }
+  }
+
+  /* ---------------- tela cheia nativa (complemento) ---------------- */
+  function telaCheiaNativa(ligar){
+    try{
+      var d=document;
+      if(ligar){
+        var pedir=raiz.requestFullscreen||raiz.webkitRequestFullscreen||raiz.msRequestFullscreen;
+        if(pedir){ var r=pedir.call(raiz); if(r&&r.catch) r.catch(function(){}); }
+      }else{
+        if(!emTelaCheia()) return;
+        var sairFs=d.exitFullscreen||d.webkitExitFullscreen||d.msExitFullscreen;
+        if(sairFs){ var x=sairFs.call(d); if(x&&x.catch) x.catch(function(){}); }
+      }
+    }catch(e){}
+  }
+  function emTelaCheia(){
+    return !!(document.fullscreenElement||document.webkitFullscreenElement||document.msFullscreenElement);
+  }
+  function sincronizarBotaoTela(){
+    var b=barra.querySelector('[data-pdeq="tela"]'); if(!b) return;
+    var r=b.querySelector('.pdeq-rot'), on=emTelaCheia();
+    b.setAttribute('aria-pressed', on?'true':'false');
+    if(r) r.textContent = on ? 'Sair da tela cheia' : 'Tela cheia';
+  }
+
+  barra.addEventListener('click',function(e){
+    var b=e.target.closest('[data-pdeq]'); if(!b) return;
+    e.preventDefault();
+    if(b.dataset.pdeq==='sair'){ voltarAoPortal(); return; }
+    if(b.dataset.pdeq==='fechar'){ sair(); return; }
+    if(b.dataset.pdeq==='tela'){ telaCheiaNativa(!emTelaCheia()); }
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Escape' && e.key!=='Esc') return;
+    if(!ativo()) return;
+    if(emTelaCheia()) return;   /* o navegador trata o primeiro ESC */
+    sair();
+  });
+  ['fullscreenchange','webkitfullscreenchange','msfullscreenchange'].forEach(function(ev){
+    document.addEventListener(ev,function(){ sincronizarBotaoTela(); if(ativo()) conferirEncaixe(); });
+  });
+  ['resize','orientationchange'].forEach(function(ev){
+    window.addEventListener(ev,function(){ if(ativo()) conferirEncaixe(); });
+  });
+
+  /* ---------------- logo no cabeçalho ---------------- */
+  var FONTE=LOGO_ANIMADA||LOGO_ESTATICA, ANIMADA=!!LOGO_ANIMADA;
+  function montarLogo(){
+    if(!FONTE || P.querySelector('.pdel-marca')) return;
+    var img=document.createElement('img');
+    img.className='pdel-marca'+(ANIMADA?'':' pdel-viva');
+    img.alt='Portal do Educador';
+    img.setAttribute('decoding','async');
+    img.addEventListener('error',function(){ if(img.parentNode) img.parentNode.removeChild(img); });
+    img.src=FONTE;
+
+    var t=P.querySelector('h1,h2');
+    if(t && t.parentNode){ t.parentNode.insertBefore(img,t); }
+    else { P.insertBefore(img, barra.nextSibling); }
+
+    /* se o titulo da ferramenta e alinhado a esquerda, a marca acompanha:
+       logo centralizada sobre titulo a esquerda fica desencontrada. */
+    try{
+      var al=t?getComputedStyle(t).textAlign:'center';
+      if(al==='left'||al==='start') img.style.setProperty('margin-left','0','important');
+      if(al==='right'||al==='end') img.style.setProperty('margin-right','0','important');
+    }catch(e){}
+
+    /* conferência de encaixe: a marca precisa ficar ACIMA do título. Se o
+       cabeçalho da ferramenta usar flex e jogar a logo para o lado, ela sobe
+       para o topo do painel, logo abaixo da barra. */
+    try{
+      requestAnimationFrame(function(){
+        if(!t) return;
+        var a=img.getBoundingClientRect(), b=t.getBoundingClientRect();
+        if(a.width===0 && a.height===0) return;
+        if(a.bottom > b.top + 4){
+          img.parentNode.removeChild(img);
+          P.insertBefore(img, barra.nextSibling);
+        }
+      });
+    }catch(e){}
+  }
+
+  /* ---------------- partida ----------------
+     Só depois do documento pronto: durante o parse, o rodapé e os blocos
+     finais do Portal ainda nem existem no DOM para poderem ser escondidos. */
+  function iniciar(){
+    montarLogo();
+    if(ABRIR_EM_QUIOSQUE) entrar();
+    sincronizarBotaoTela();
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',iniciar); }
+  else{ iniciar(); }
+  window.addEventListener('load',function(){ montarLogo(); if(ativo()){ esconderPortal(); conferirEncaixe(); } });
+
+  window.PDEQuiosque={ entrar:entrar, sair:sair, voltar:voltarAoPortal, ativo:ativo, nome:NOME };
+})();
+</script>
+
+<style id="pde-proprias">
+/* PDE-PROPRIAS-V1 · regras da própria ferramenta preservadas */
+#pde-painel .mf{display:none}
+#pde-painel .mf.show{display:block}
+/* o que é legitimamente centralizado no bloco volta a sê-lo */
+    #pde-painel .pde-head,
+    #pde-painel .pde-head *,
+    #pde-painel .wz-step,
+    #pde-painel .wz-step *,
+    #pde-painel .pde-chip,
+    #pde-painel .hub-cat,
+    #pde-painel .pde-btn,
+    #pde-painel .wz-next,
+    #pde-painel .wz-back,
+    #pde-painel .hub-vazio,
+    #pde-painel .hub-limpar,
+    #pde-painel .go-status,
+    #pde-painel #g-incl .pde-chip{
+      text-align:center !important;
+    }
+#pde-painel .ia-hero h1,
+    #pde-painel .ia-sec-t,
+    #pde-painel .hub-card .nome,
+    #pde-painel .ia-passo h3,
+    #pde-painel .ia-p h3,
+    #pde-painel .ia-num .n{
+      font-family:'Plus Jakarta Sans',sans-serif !important;
+    }
+</style>
+
+<style id="pde-premium-folha">
+/* ═══════════════════════════════════════════════════════════════════════
+   PDE-PREMIUM-V5 · sistema visual premium do Portal do Educador
+   Casca de aplicativo: coluna escura à esquerda (marca, etapas, nota de
+   responsabilidade) e área de trabalho clara à direita. Folha única; os
+   scripts e o motor de prompt não mudam.
+   ═══════════════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+#pde-painel{
+  --navy:#0F2C4A; --navy-deep:#0A1D33; --navy-2:#153B63; --cyan:#37B1DA; --cyan-ink:#1B7FA3; --cyan-soft:#EAF6FB;
+  --ink:#141B24; --ink-2:#4B5563; --ink-3:#8A94A6;
+  --line:#E6EAF0; --line-2:#D5DCE5; --bg:#F7F8FA; --surface:#FFFFFF; --tile:#F1F4F8;
+  --ok:#1F7A4D; --warn:#9A5B00; --warn-bg:#FFF7E6; --warn-line:#F2D48A;
+  --r:10px; --r-lg:14px; --r-xl:18px;
+  --sh:0 1px 2px rgba(16,24,40,.04),0 2px 6px rgba(16,24,40,.04);
+  --sh-lift:0 10px 28px rgba(15,44,74,.10);
+  --ring:0 0 0 4px rgba(55,177,218,.22);
+  --display:'Manrope','Inter',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif !important;
+  font-size:14.5px !important; line-height:1.55 !important;
+  color:var(--ink); background:var(--bg);
+  max-width:1280px; margin:0 auto; padding:0; height:auto;
+  border-radius:var(--r-xl); overflow:hidden; border:1px solid var(--line);
+  text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;
+}
+#pde-painel *,#pde-painel *::before,#pde-painel *::after{box-sizing:border-box}
+/* libera o conteúdo: até aqui a camada PRE o mantinha oculto para não haver
+   lampejo de tela sem estilo enquanto o navegador lê o arquivo */
+#pde-painel > *{visibility:visible}
+/* em tela cheia a casca ocupa a janela inteira, sem moldura */
+#pde-painel.pdeq-on{border-radius:0 !important; border:none !important; background:var(--bg) !important}
+#pde-painel.pdeq-on > *:not(.pdeq-barra):not(style):not(script):not([data-pdeq-solto]){max-width:none !important; padding-left:0 !important; padding-right:0 !important; margin:0 !important}
+
+/* ── blindagem contra o tema do site hospedeiro ───────────────────────── */
+#pde-painel,#pde-painel *{text-align:left !important; text-justify:auto !important; hyphens:none !important; -webkit-hyphens:none !important; text-indent:0 !important; font-style:normal; text-transform:none}
+#pde-painel p,#pde-painel h1,#pde-painel h2,#pde-painel h3,#pde-painel h4{margin:0}
+#pde-painel ul,#pde-painel ol{list-style:none;padding-left:0;margin:0}
+#pde-painel img{max-width:100%;height:auto}
+#pde-painel a{text-decoration:none;color:var(--cyan-ink)}
+#pde-painel button,#pde-painel input,#pde-painel select,#pde-painel textarea{font-family:inherit !important;text-transform:none !important;font-size:14.5px}
+#pde-painel [hidden]{display:none !important}
+#pde-painel :focus-visible{outline:none;box-shadow:var(--ring)}
+
+/* ── barra superior (modo tela cheia) ────────────────────────────────── */
+#pde-painel.pdeq-on .pdeq-barra{
+  background:rgba(255,255,255,.92) !important; backdrop-filter:blur(10px) !important;
+  border-bottom:1px solid var(--line) !important; box-shadow:none !important;
+  min-height:52px; padding:8px 20px !important; margin:0 !important;
+}
+#pde-painel .pdeq-sair,#pde-painel .pdeq-fechar,#pde-painel .pdeq-tela{
+  min-height:36px !important; padding:0 12px !important; border-radius:var(--r) !important;
+  font-size:13px !important; font-weight:600 !important; gap:6px !important; line-height:1 !important;
+}
+#pde-painel .pdeq-sair,#pde-painel .pdeq-fechar,#pde-painel .pdeq-tela{background:var(--surface) !important; border:1px solid var(--line-2) !important; color:var(--ink) !important; box-shadow:var(--sh) !important; height:36px !important}
+#pde-painel .pdeq-sair:hover,#pde-painel .pdeq-fechar:hover,#pde-painel .pdeq-tela:hover{border-color:var(--navy) !important; background:var(--surface) !important; filter:none !important}
+#pde-painel .pdeq-sair:focus-visible,#pde-painel .pdeq-fechar:focus-visible,#pde-painel .pdeq-tela:focus-visible{outline:none !important; box-shadow:var(--ring) !important}
+/* alvo de toque: em tela de dedo nada abaixo de 44px, nem na barra do topo */
+@media (pointer:coarse),(max-width:900px){
+  #pde-painel .pdeq-sair,#pde-painel .pdeq-fechar,#pde-painel .pdeq-tela{height:44px !important; min-height:44px !important; padding:0 14px !important}
+  #pde-painel.pdeq-on .pdeq-barra{min-height:60px}
+}
+
+/* ── a casca: coluna escura + área de trabalho ───────────────────────── */
+#pde-painel .pde-lateral-wrap{display:grid; grid-template-columns:300px minmax(0,1fr); gap:0; align-items:stretch; min-height:640px}
+#pde-painel.pdeq-on .pde-lateral-wrap{min-height:calc(100vh - 52px); min-height:calc(100dvh - 52px)}
+#pde-painel .pde-lateral-wrap > *{min-width:0}
+
+#pde-painel .pde-lateral{
+  position:sticky; top:0; align-self:start;
+  display:flex; flex-direction:column; gap:22px;
+  min-height:640px; padding:32px 26px 26px;
+  background:radial-gradient(120% 60% at 0% 0%,rgba(55,177,218,.16) 0%,rgba(55,177,218,0) 60%),linear-gradient(180deg,var(--navy) 0%,var(--navy-deep) 100%);
+  color:#fff; border:none; border-right:1px solid rgba(255,255,255,.06); border-radius:0; box-shadow:none;
+}
+#pde-painel.pdeq-on .pde-lateral{min-height:calc(100vh - 52px); min-height:calc(100dvh - 52px); top:52px}
+
+/* a marca e o título vivem dentro da coluna escura (movidos pela camada PREMIUM) */
+#pde-painel .pde-lateral .pde-head{display:block; margin:0 0 4px}
+#pde-painel .pde-lateral .pdel-marca{
+  display:block !important; width:46px !important; height:46px !important; margin:0 0 16px !important;
+  border-radius:50% !important; object-fit:contain !important; filter:none !important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.18), 0 6px 18px rgba(0,0,0,.25);
+}
+#pde-painel .pde-lateral .pdel-marca.pdel-viva{animation:none !important}
+#pde-painel .pde-lateral .pde-eyebrow{font-size:11px; font-weight:600; letter-spacing:.1em !important; text-transform:uppercase !important; color:var(--cyan); margin-bottom:8px}
+#pde-painel .pde-lateral h1{font-family:var(--display) !important; font-size:23px; font-weight:800; letter-spacing:-.02em !important; line-height:1.15; color:#fff}
+#pde-painel .pde-lateral h1 b{color:#fff; font-weight:800}
+#pde-painel .pde-lateral .pde-head p{font-size:13px; line-height:1.5; color:rgba(255,255,255,.66); margin-top:10px}
+
+#pde-painel .pde-lateral-tit{font-size:10.5px; font-weight:600; letter-spacing:.12em !important; text-transform:uppercase !important; color:rgba(255,255,255,.45); padding:0; margin-top:6px}
+#pde-painel .pde-lateral .wz-steps{display:flex !important; flex-direction:column !important; gap:0; margin:0 !important; padding:0 !important; position:relative}
+#pde-painel .wz-step{display:flex !important; flex-direction:row !important; align-items:center; gap:12px; padding:7px 0; border-radius:0; cursor:pointer; position:relative}
+#pde-painel .wz-step::before{content:''; display:block !important; position:absolute; left:12px; top:0; bottom:0; width:1px; height:auto; background:rgba(255,255,255,.14); transform:none}
+#pde-painel .wz-step:first-child::before{top:50%}
+#pde-painel .wz-step:last-child::before{bottom:50%}
+#pde-painel .wz-step .dot{position:relative; z-index:1; width:25px; height:25px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:rgba(255,255,255,.7); background:var(--navy-deep); border:1px solid rgba(255,255,255,.28); box-shadow:none}
+#pde-painel .wz-step .nm{font-size:13.5px; font-weight:500; color:rgba(255,255,255,.62); line-height:1.2; transition:color .15s}
+#pde-painel .wz-step:hover .nm{color:#fff}
+#pde-painel .wz-step.on .dot{background:#fff; border-color:#fff; color:var(--navy)}
+#pde-painel .wz-step.on .nm{color:#fff; font-weight:600}
+#pde-painel .wz-step.done .dot{background:var(--cyan); border-color:var(--cyan); color:transparent;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230F2C4A' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E"); background-size:12px; background-position:center; background-repeat:no-repeat}
+#pde-painel .wz-step.done .nm{color:rgba(255,255,255,.8)}
+
+/* nota de responsabilidade no rodapé da coluna */
+#pde-painel .pde-lateral .pde-aviso-valida{
+  margin-top:auto; padding:16px 0 0; border:none; border-top:1px solid rgba(255,255,255,.12); border-radius:0;
+  background:transparent; font-size:11.5px; line-height:1.5; color:rgba(255,255,255,.55); display:block;
+}
+#pde-painel .pde-lateral .pde-aviso-valida .av-ic{display:none}
+#pde-painel .pde-lateral .pde-aviso-valida b{color:rgba(255,255,255,.88); font-weight:600}
+#pde-painel .pde-lateral .pde-aviso-valida .av-foco{color:var(--cyan)}
+/* se a nota ainda não foi movida, fica discreta na área clara */
+#pde-painel .pde-aviso-valida{display:flex; gap:10px; padding:10px 14px; margin:0 0 18px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r); font-size:12.5px; color:var(--ink-2)}
+
+/* área de trabalho */
+#pde-painel .pde-lateral-conteudo{padding:44px 56px 56px; background:var(--bg)}
+#pde-painel .pde-panel{background:transparent; border:none; border-radius:0; padding:0; box-shadow:none; max-width:820px; margin:0 auto}
+#pde-painel .wz-phase{display:none}
+#pde-painel .wz-phase.on{display:block; animation:pdeRise .22s ease}
+@keyframes pdeRise{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:none}}
+#pde-painel .wz-phase-title{font-family:var(--display) !important; font-size:30px; font-weight:800; letter-spacing:-.025em !important; line-height:1.15; color:var(--ink); margin-bottom:8px}
+#pde-painel .wz-phase-sub{font-size:15px; color:var(--ink-2); margin-bottom:28px; max-width:62ch; line-height:1.55}
+#pde-painel .sec-t{font-size:11px; font-weight:600; letter-spacing:.1em !important; text-transform:uppercase !important; color:var(--ink-3); margin:8px 0 12px}
+#pde-painel .sec-t.div{margin-top:26px; padding-top:20px; border-top:1px solid var(--line)}
+
+/* campos */
+#pde-painel .pde-grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+/* :where() para um campo condicional da própria ferramenta continuar escondido */
+#pde-painel :where(.pde-f){display:flex; flex-direction:column; gap:7px; margin-bottom:18px}
+#pde-painel label{font-size:13px; font-weight:600; color:var(--ink)}
+/* :where() zera a especificidade: um campo que a ferramenta desenha por classe
+   (linha de emoji + texto, campo curto) mantém a medida própria */
+#pde-painel :where(input:not([type=checkbox]):not([type=radio]),select,textarea){
+  width:100%; height:48px; min-height:48px; padding:0 14px; font-size:14.5px; color:var(--ink);
+  background:var(--surface); border:1px solid var(--line-2); border-radius:var(--r);
+  box-shadow:var(--sh); transition:border-color .12s, box-shadow .12s;
+}
+#pde-painel select{appearance:none; -webkit-appearance:none; padding-right:38px; cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238A94A6' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 13px center}
+#pde-painel input::placeholder,#pde-painel textarea::placeholder{color:var(--ink-3)}
+#pde-painel input:hover,#pde-painel select:hover{border-color:#B8C2CF}
+#pde-painel input:focus,#pde-painel select:focus,#pde-painel textarea:focus{outline:none; border-color:var(--navy); box-shadow:var(--ring)}
+#pde-painel textarea{height:auto; min-height:96px; padding:12px 14px}
+/* caixas de marcar visíveis: quadrado próprio, sem virar campo de texto */
+#pde-painel input[type=checkbox],#pde-painel input[type=radio]{
+  appearance:auto; -webkit-appearance:auto; width:auto; height:auto; min-height:0; flex:none;
+  padding:0; accent-color:var(--navy); cursor:pointer; box-shadow:none; border:0; background:none}
+#pde-painel input[type=checkbox]:focus-visible,#pde-painel input[type=radio]:focus-visible{outline:2px solid var(--cyan-ink); outline-offset:2px}
+#pde-painel .ajuda,#pde-painel .pde-help,#pde-painel .pde-hint{font-size:12.5px; color:var(--ink-3); line-height:1.5; margin-top:2px}
+#pde-painel .linha-sorteio{display:flex; gap:10px; align-items:flex-end}
+#pde-painel .linha-sorteio .pde-f{flex:1; margin-bottom:0}
+
+/* ── botões ──────────────────────────────────────────────────────────── */
+#pde-painel button{cursor:pointer; border-radius:var(--r); font-weight:600; font-size:14.5px; line-height:1; letter-spacing:0 !important; transition:background .12s, border-color .12s, color .12s, box-shadow .15s, transform .15s}
+/* ícones: desenhados em CSS, na cor do texto do botão */
+#pde-painel button[data-action]::before,#pde-painel .wz-back::before{content:''; width:17px; height:17px; flex:none; background-color:currentColor; -webkit-mask:var(--ico) center/contain no-repeat; mask:var(--ico) center/contain no-repeat}
+#pde-painel button[data-action]:not([data-action="gerar"]):not([data-action="gerar-rapido"]):not([data-action="copiar"]):not([data-action^="abrir-"]):not([data-action="variacao"]):not([data-action="vp"]):not([data-action="sortear"])::before{display:none}
+#pde-painel [data-action="gerar"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z'/%3E%3Cpath d='M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z'/%3E%3C/svg%3E")}
+#pde-painel [data-action="gerar-rapido"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 2 4 14h7l-1 8 9-12h-7z'/%3E%3C/svg%3E")}
+#pde-painel [data-action="copiar"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='12' height='12' rx='2'/%3E%3Cpath d='M5 15V5a2 2 0 0 1 2-2h10'/%3E%3C/svg%3E")}
+#pde-painel [data-action^="abrir-"],#pde-painel .pde-out .go-btn[data-go]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4h6v6'/%3E%3Cpath d='M20 4 10 14'/%3E%3Cpath d='M20 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5'/%3E%3C/svg%3E")}
+#pde-painel [data-action="variacao"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12a9 9 0 1 1-2.6-6.4'/%3E%3Cpath d='M21 3v6h-6'/%3E%3C/svg%3E")}
+#pde-painel [data-action="vp"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E")}
+#pde-painel [data-action="sortear"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 3h5v5'/%3E%3Cpath d='M4 20 21 3'/%3E%3Cpath d='M21 16v5h-5'/%3E%3Cpath d='M15 15l6 6'/%3E%3Cpath d='M4 4l5 5'/%3E%3C/svg%3E")}
+#pde-painel .wz-back{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 12H5'/%3E%3Cpath d='m12 19-7-7 7-7'/%3E%3C/svg%3E")}
+#pde-painel button:disabled{opacity:.55; cursor:not-allowed}
+#pde-painel .pde-btn,#pde-painel .wz-next,#pde-painel .pde-btn-primario,
+#pde-painel [data-action="proxima"],#pde-painel [data-action="next1"],#pde-painel [data-action="next1b"],
+#pde-painel [data-action="next2"],#pde-painel [data-action="next3"],#pde-painel [data-action="next4"]{
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  height:48px; min-height:48px; padding:0 22px; border:1px solid var(--navy-deep); color:#fff; font-weight:700; font-size:15px;
+  background:linear-gradient(180deg,#184266 0%,var(--navy) 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,.14) inset, 0 6px 16px rgba(15,44,74,.22);
+}
+#pde-painel .pde-btn:hover,#pde-painel .wz-next:hover,#pde-painel .pde-btn-primario:hover,
+#pde-painel [data-action="proxima"]:hover,#pde-painel [data-action^="next"]:hover{transform:translateY(-1px); box-shadow:0 1px 0 rgba(255,255,255,.12) inset, 0 12px 26px rgba(15,44,74,.28)}
+#pde-painel .pde-btn:active,#pde-painel .wz-next:active,#pde-painel .pde-btn-primario:active{transform:none}
+#pde-painel .pde-btn{width:100%}
+#pde-painel .wz-next::after{content:'→'; font-weight:600; opacity:.9}
+
+#pde-painel .wz-back,#pde-painel .btn-dado,#pde-painel .go-btn,
+#pde-painel .pde-btn-secundario,#pde-painel .pde-btn-ver,#pde-painel .pde-btn-copiar,#pde-painel .pde-btn-limpar,
+#pde-painel [data-action="anterior"],#pde-painel [data-action="voltar-areas"],#pde-painel [data-action="fase"],
+#pde-painel .pde-out button[data-action^="abrir-"],#pde-painel .pde-out button[data-action="variacao"],
+#pde-painel button[data-action="var"],#pde-painel button[data-action="ver"],#pde-painel button[data-action="vp"],
+#pde-painel .pde-out button[data-action="txt"],#pde-painel .pde-out button[data-action="nova"]{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  height:48px; min-height:48px; padding:0 18px; border:1px solid #C9D2DD !important;
+  background:var(--surface); color:var(--ink); box-shadow:var(--sh);
+}
+#pde-painel .wz-back:hover,#pde-painel .btn-dado:hover,#pde-painel .go-btn:hover,
+#pde-painel .pde-btn-secundario:hover,#pde-painel .pde-btn-ver:hover,#pde-painel .pde-btn-copiar:hover,
+#pde-painel [data-action="anterior"]:hover,#pde-painel [data-action="voltar-areas"]:hover,
+#pde-painel .pde-out button[data-action^="abrir-"]:hover,#pde-painel .pde-out button[data-action="variacao"]:hover{border-color:var(--navy) !important; box-shadow:var(--sh-lift); transform:translateY(-1px)}
+#pde-painel .wz-back{min-width:140px}
+#pde-painel .btn-dado{flex:none; padding:0 16px; font-size:14px; font-weight:600; color:var(--ink)}
+
+#pde-painel .btn-atalho,#pde-painel [data-action="gerar-rapido"]{
+  display:flex; width:100%; align-items:center; justify-content:center; gap:8px;
+  height:48px; margin-top:8px; padding:0 18px; border:1px solid #A9D9EC; background:var(--cyan-soft); color:var(--cyan-ink); font-weight:600; box-shadow:var(--sh);
+}
+#pde-painel .btn-atalho:hover,#pde-painel [data-action="gerar-rapido"]:hover{border-color:var(--cyan-ink); box-shadow:var(--sh-lift); transform:translateY(-1px)}
+#pde-painel .go-see{display:inline-flex; align-items:center; justify-content:center; gap:8px; margin:0; height:48px; padding:0 18px; border:1px solid #C9D2DD !important; background:var(--surface); color:var(--ink); box-shadow:var(--sh); text-decoration:none; font-size:14.5px; font-weight:600}
+#pde-painel .go-see:hover{border-color:var(--navy) !important; box-shadow:var(--sh-lift); transform:translateY(-1px)}
+
+#pde-painel .wz-nav{display:flex; justify-content:flex-end; align-items:center; gap:12px; margin-top:32px; padding-top:22px; border-top:1px solid var(--line)}
+#pde-painel .wz-nav .wz-next{min-width:220px}
+
+/* ── chips ───────────────────────────────────────────────────────────── */
+#pde-painel .chips,#pde-painel #g-sugestoes,#pde-painel #g-extras{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+#pde-painel .pde-chip{
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  min-height:36px; padding:7px 14px; border-radius:999px;
+  border:1px solid var(--line-2); background:var(--surface); color:var(--ink-2);
+  font-size:13px; font-weight:500; line-height:1.2; cursor:pointer; user-select:none; box-shadow:var(--sh);
+  transition:background .12s, border-color .12s, color .12s, transform .12s;
+}
+#pde-painel .pde-chip:hover{border-color:var(--navy); color:var(--ink); transform:translateY(-1px)}
+#pde-painel .pde-chip.on,#pde-painel .pde-chip[aria-pressed="true"]{background:var(--navy) !important; border-color:var(--navy) !important; color:#fff !important}
+#pde-painel #g-incl,#pde-painel [data-group="incl"]{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; margin-top:8px}
+#pde-painel #g-incl .pde-chip,#pde-painel [data-group="incl"] .pde-chip{
+  justify-content:flex-start !important; text-align:left !important; flex-direction:row !important;
+  min-height:50px; padding:10px 14px 10px 12px; border-radius:var(--r); width:100%; font-weight:600; color:var(--ink);
+}
+#pde-painel #g-incl .pde-chip::before,#pde-painel [data-group="incl"] .pde-chip::before{content:''; width:18px; height:18px; flex:none; border-radius:5px; border:1.5px solid var(--line-2); background:var(--surface)}
+#pde-painel #g-incl .pde-chip.on::before,#pde-painel [data-group="incl"] .pde-chip.on::before{border-color:#fff; background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230F2C4A' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/12px no-repeat}
+
+/* ── o que não cabe em meia coluna ocupa a linha inteira ─────────────── */
+#pde-painel .pde-grid2 > .pde-f:has(.orient-cards),
+#pde-painel .pde-grid2 > .pde-f:has(.md-grid),
+#pde-painel .pde-grid2 > .pde-f:has(#g-incl),
+#pde-painel .pde-grid2 > .pde-f:has(.chips),
+#pde-painel .pde-grid2 > .pde-f[data-pde-largo]{grid-column:1/-1}
+
+/* ── cartões de escolha ──────────────────────────────────────────────── */
+#pde-painel .md-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px}
+#pde-painel .orient-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; margin-top:8px}
+#pde-painel .md-card,#pde-painel .orient-card{
+  position:relative; display:grid !important; grid-template-columns:auto minmax(0,1fr) !important; grid-template-areas:'ic tit' 'ic desc' !important;
+  column-gap:14px !important; row-gap:3px !important; align-items:start !important;
+  padding:16px 40px 16px 16px !important; min-height:84px !important;
+  border:1px solid var(--line) !important; border-radius:var(--r-lg) !important;
+  background:var(--surface) !important; color:var(--ink) !important; box-shadow:var(--sh) !important;
+  cursor:pointer; text-align:left !important; transition:border-color .15s, box-shadow .15s, transform .15s;
+}
+#pde-painel .md-card:hover,#pde-painel .orient-card:hover{border-color:var(--line-2) !important; box-shadow:var(--sh-lift) !important; transform:translateY(-2px)}
+#pde-painel .md-card.on,#pde-painel .md-card[aria-pressed="true"],#pde-painel .orient-card.on{border-color:var(--navy) !important; box-shadow:0 0 0 1px var(--navy), var(--sh-lift) !important; background:var(--surface) !important}
+#pde-painel .md-card.on::after,#pde-painel .md-card[aria-pressed="true"]::after,#pde-painel .orient-card.on::after{
+  content:''; position:absolute; top:14px; right:14px; width:20px; height:20px; border-radius:50%;
+  background:var(--cyan) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230F2C4A' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/11px no-repeat;
+}
+#pde-painel .md-ic,#pde-painel .orient-card .oc-ic{grid-area:ic; width:40px; height:40px; border-radius:10px; background:var(--tile); display:flex; align-items:center; justify-content:center; font-size:18px; line-height:1; filter:grayscale(1) opacity(.7); transition:filter .15s}
+#pde-painel .md-card.on .md-ic,#pde-painel .md-card[aria-pressed="true"] .md-ic,#pde-painel .orient-card.on .oc-ic{filter:none; background:var(--cyan-soft)}
+#pde-painel .md-card > span:not(.md-ic){display:contents}
+#pde-painel .orient-card .oc-tx{display:contents}
+#pde-painel .md-n,#pde-painel .orient-card b{grid-area:tit; display:block; font-family:var(--display) !important; font-size:15px; font-weight:700; color:var(--ink); line-height:1.3; letter-spacing:-.01em !important}
+#pde-painel .md-t,#pde-painel .orient-card small{grid-area:desc; display:block; font-size:13px; font-weight:400; color:var(--ink-2); line-height:1.45}
+
+/* ── destinos: cada IA com a sua cor ─────────────────────────────────── */
+#pde-painel [data-action^="abrir-"],#pde-painel [data-ia]{
+  color:#fff !important; border:1px solid var(--dest-b) !important;
+  background:linear-gradient(180deg,var(--dest-1) 0%,var(--dest-2) 100%) !important;
+  box-shadow:0 1px 0 rgba(255,255,255,.18) inset, 0 4px 12px var(--dest-sh) !important;
+}
+#pde-painel [data-action^="abrir-"]:hover,#pde-painel [data-ia]:hover{
+  border-color:var(--dest-b) !important; transform:translateY(-1px);
+  box-shadow:0 1px 0 rgba(255,255,255,.18) inset, 0 8px 18px var(--dest-sh) !important;
+}
+#pde-painel .go-btn.gpt,#pde-painel .go-btn.gem,#pde-painel .go-btn.claude,#pde-painel .go-btn.gamma{
+  color:#fff !important; border:1px solid var(--dest-b) !important;
+  background:linear-gradient(180deg,var(--dest-1) 0%,var(--dest-2) 100%) !important;
+  box-shadow:0 1px 0 rgba(255,255,255,.18) inset, 0 4px 12px var(--dest-sh) !important;
+}
+#pde-painel .go-btn.gpt{--dest-1:#12B08A; --dest-2:#0E8C6E; --dest-b:#0B7A5E; --dest-sh:rgba(14,140,110,.30)}
+#pde-painel .go-btn.gem{--dest-1:#4A90F7; --dest-2:#1A73E8; --dest-b:#1557B0; --dest-sh:rgba(26,115,232,.30)}
+#pde-painel .go-btn.claude{--dest-1:#E08A67; --dest-2:#CE6A46; --dest-b:#B15535; --dest-sh:rgba(206,106,70,.30)}
+#pde-painel .go-btn.gamma{--dest-1:#8B5CF6; --dest-2:#7130E0; --dest-b:#5B22B8; --dest-sh:rgba(113,48,224,.30)}
+#pde-painel [data-action="abrir-chatgpt"],#pde-painel [data-ia="chatgpt"]{--dest-1:#12B08A; --dest-2:#0E8C6E; --dest-b:#0B7A5E; --dest-sh:rgba(14,140,110,.30)}
+#pde-painel [data-action="abrir-gemini"],#pde-painel [data-ia="gemini"]{--dest-1:#4A90F7; --dest-2:#1A73E8; --dest-b:#1557B0; --dest-sh:rgba(26,115,232,.30)}
+#pde-painel [data-action="abrir-claude"],#pde-painel [data-ia="claude"]{--dest-1:#E08A67; --dest-2:#CE6A46; --dest-b:#B15535; --dest-sh:rgba(206,106,70,.30)}
+#pde-painel [data-action="abrir-gamma"],#pde-painel [data-ia="gamma"]{--dest-1:#8B5CF6; --dest-2:#7130E0; --dest-b:#5B22B8; --dest-sh:rgba(113,48,224,.30)}
+#pde-painel [data-ia="copilot"]{--dest-1:#8B6AD0; --dest-2:#6E4BB2; --dest-b:#5A3A96; --dest-sh:rgba(110,75,178,.30)}
+#pde-painel [data-ia="canva"],#pde-painel [data-ia="nano"]{--dest-1:#EFB93A; --dest-2:#D99A00; --dest-b:#B87F00; --dest-sh:rgba(217,154,0,.30)}
+
+/* ── resumo e saída ──────────────────────────────────────────────────── */
+#pde-painel .res-box{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:18px 20px; margin-bottom:18px; box-shadow:var(--sh)}
+#pde-painel .res-box .rt{font-size:11px; font-weight:600; letter-spacing:.1em !important; text-transform:uppercase !important; color:var(--ink-3); margin-bottom:10px}
+#pde-painel .res-box .rg{display:grid; grid-template-columns:1fr 1fr; gap:6px 18px; font-size:13.5px; color:var(--ink)}
+#pde-painel .pde-out{display:none; margin-top:14px}
+#pde-painel .pde-out.show{display:block; animation:pdeRise .25s ease}
+#pde-painel .pde-out.show{display:grid; grid-template-columns:1fr 1fr; gap:10px 12px; align-items:stretch}
+/* as ferramentas embrulham os botões num div com flex inline: o embrulho some e
+   os botões entram direto na grade, todos do mesmo tamanho */
+#pde-painel .pde-out > div:not(.pde-reveal):not(.ca-saida){display:contents !important}
+#pde-painel .go-btn{width:100%; justify-content:center; text-align:center !important; line-height:1; padding:0 18px}
+#pde-painel .go-btn[data-action="copiar"]{grid-column:1/-1; border-color:var(--navy) !important; color:var(--navy)}
+#pde-painel .go-btn .gi{display:none}
+#pde-painel .go-btn > span:last-child{display:contents}
+#pde-painel .go-btn b{font-size:14.5px; font-weight:700}
+#pde-painel .go-btn small{display:none}
+#pde-painel .go-status{grid-column:1/-1; display:block; text-align:center !important; font-size:13px; font-weight:500; color:var(--ok); margin:0; min-height:18px}
+#pde-painel .go-status:empty{display:none}
+#pde-painel .go-status.err{color:var(--warn)}
+#pde-painel .pde-out .linha-ias{display:contents}
+#pde-painel .pde-out .linha-ias button{width:100%}
+#pde-painel .pde-out button[data-action="variacao"]{width:100%; margin:0}
+#pde-painel .pde-out .go-see{width:100%}
+#pde-painel .pde-reveal{grid-column:1/-1; display:none; margin:4px 0 0}
+#pde-painel .pde-reveal.show{display:block}
+#pde-painel .pde-prompt{font-family:var(--mono) !important; font-size:12px; line-height:1.6; background:var(--navy-deep); color:#D6E1EC; border-radius:var(--r-lg); padding:18px 20px; white-space:pre-wrap; word-break:break-word; max-height:380px; overflow:auto; box-shadow:0 12px 30px rgba(10,29,51,.25)}
+
+#pde-painel .ex-aviso,#pde-painel #cc-aviso,#pde-painel #ca-aviso{display:none; margin-bottom:18px; padding:11px 14px; border-radius:var(--r); background:var(--warn-bg) !important; border:1px solid var(--warn-line) !important; color:var(--warn) !important; font-size:13px !important; font-weight:500 !important; line-height:1.45}
+#pde-painel .ex-aviso.on{display:block}
+
+/* ── responsivo ──────────────────────────────────────────────────────── */
+@media (max-width:980px){
+  #pde-painel .pde-lateral-wrap{grid-template-columns:1fr; min-height:0}
+  #pde-painel.pdeq-on .pde-lateral-wrap{min-height:0}
+  #pde-painel .pde-lateral,#pde-painel.pdeq-on .pde-lateral{position:static; min-height:0; padding:22px 20px 18px; gap:14px}
+  #pde-painel .pde-lateral .pde-head p{display:none}
+  #pde-painel .pde-lateral .pdel-marca{width:38px !important; height:38px !important; margin-bottom:10px !important}
+  #pde-painel .pde-lateral h1{font-size:20px}
+  #pde-painel .pde-lateral-tit{display:none}
+  #pde-painel .pde-lateral .wz-steps{flex-direction:row !important; overflow-x:auto; gap:6px; padding-bottom:2px !important}
+  #pde-painel .wz-step{flex:none; padding:6px 12px 6px 6px; border:1px solid rgba(255,255,255,.14); border-radius:999px}
+  #pde-painel .wz-step::before{display:none !important}
+  #pde-painel .wz-step .nm{white-space:nowrap; font-size:13px}
+  /* com 8 etapas o nome de todas não cabe na faixa: o nome fica só na etapa atual */
+  #pde-painel .pde-lateral .wz-step .nm{display:none}
+  #pde-painel .pde-lateral .wz-step.on .nm{display:block}
+  #pde-painel .pde-lateral .wz-step{padding:6px; gap:8px}
+  #pde-painel .pde-lateral .wz-step.on{padding:6px 12px 6px 6px}
+  #pde-painel .pde-lateral .pde-aviso-valida{display:none}
+  #pde-painel .pde-lateral-conteudo{padding:26px 20px 36px}
+  #pde-painel .wz-phase-title{font-size:24px}
+}
+@media (max-width:600px){
+  #pde-painel .pde-grid2,#pde-painel .md-grid,#pde-painel .orient-cards,#pde-painel .res-box .rg{grid-template-columns:1fr}
+  #pde-painel .wz-nav{flex-direction:column-reverse}
+  #pde-painel .wz-nav button,#pde-painel .wz-nav .wz-next{width:100%; min-width:0}
+  #pde-painel .pde-out.show{grid-template-columns:1fr}
+  #pde-painel .wz-nav .wz-back,#pde-painel .wz-nav .wz-next{min-width:0}
+  #pde-painel .linha-sorteio{flex-direction:column; align-items:stretch}
+  #pde-painel .linha-sorteio .pde-f{margin-bottom:8px}
+  #pde-painel .pde-lateral-conteudo{padding:22px 16px 32px}
+}
+@media (prefers-reduced-motion:reduce){#pde-painel *{animation:none !important; transition:none !important}}
+
+/* ── celular: a trilha vira indicador de progresso ───────────────────── */
+@media (max-width:600px){
+  #pde-painel .pde-lateral .wz-steps{gap:6px !important; align-items:center}
+  #pde-painel .pde-lateral .wz-step{border:none !important; background:none !important; padding:0 !important}
+  #pde-painel .pde-lateral .wz-step .dot{width:8px; height:8px; font-size:0; border:none; background:rgba(255,255,255,.28); background-image:none}
+  #pde-painel .pde-lateral .wz-step.done .dot{background:var(--cyan); background-image:none}
+  #pde-painel .pde-lateral .wz-step.on{padding:4px 12px 4px 4px !important; border:1px solid rgba(255,255,255,.2) !important; border-radius:999px; background:rgba(255,255,255,.08) !important}
+  #pde-painel .pde-lateral .wz-step.on .dot{width:24px; height:24px; font-size:11px; background:#fff; color:var(--navy)}
+}
+
+/* tela de toque: chip também é alvo de dedo */
+@media (pointer:coarse){
+  #pde-painel .pde-chip{min-height:44px; padding:10px 16px}
+  #pde-painel #g-incl .pde-chip,#pde-painel [data-group="incl"] .pde-chip{min-height:48px}
+}
+
+
+/* seção dentro da fase (fases fundidas no fluxo): título curto e subtítulo */
+#pde-painel .pde-secao{margin-top:6px}
+#pde-painel .pde-secao-sub{font-size:13.5px; color:var(--ink-2); line-height:1.5; margin:-4px 0 14px}
+#pde-painel .pde-soltos{margin-bottom:18px}
+
+/* sugestões e extras: pílulas de largura natural, letra legível. As ferramentas
+   trazem uma regra própria por id (grade de 150px, 12px, largura total) que vencia
+   a folha; aqui a especificidade é a mesma e a ordem decide. */
+#pde-painel #g-sugestoes .pde-chip,#pde-painel #g-extras .pde-chip{
+  width:auto; font-size:14px; padding:9px 16px; min-height:40px; line-height:1.2; text-align:left}
+@media (pointer:coarse){
+  #pde-painel #g-sugestoes .pde-chip,#pde-painel #g-extras .pde-chip{min-height:44px; padding:10px 16px}
+}
+
+/* ── formato com cor própria: imprimir (verde-petróleo) e projetar (violeta).
+   A escolha define o material inteiro; com cor, o professor não gera no formato
+   errado e não gasta cota da IA à toa. O cartão nasce no script PDE-ORIENTACAO-V1
+   com data-i 0 (imprimir) e 1 (projetar). ── */
+#pde-painel .orient-card[data-i="0"]{--oc:#0F766E; --oc-soft:#E6F4F1; --oc-line:#9AD5CB}
+#pde-painel .orient-card[data-i="1"]{--oc:#6D28D9; --oc-soft:#F1EAFE; --oc-line:#C9B3F5}
+#pde-painel .orient-card .oc-ic{background:var(--oc-soft); filter:none; box-shadow:inset 0 0 0 1px var(--oc-line)}
+#pde-painel .orient-card b{color:var(--oc)}
+#pde-painel .orient-card:hover{border-color:var(--oc-line) !important}
+#pde-painel .orient-card.on{border-color:var(--oc) !important; box-shadow:0 0 0 1px var(--oc), var(--sh-lift) !important; background:var(--oc-soft) !important}
+#pde-painel .orient-card.on .oc-ic{background:var(--oc); box-shadow:none}
+#pde-painel .orient-card.on::after{background-color:var(--oc) !important}
+#pde-painel .orient-card.on small{color:var(--ink)}
+
+/* ── tela de resultado: depois de gerar, a coluna de conteúdo mostra só o
+   comando pronto e os botões de destino. O formulário continua no lugar,
+   apenas escondido, e volta pelo botão "Voltar e ajustar". ── */
+#pde-painel .pde-res-cab{display:none}
+#pde-painel.pde-resultado .pde-res-cab{display:block; margin-bottom:18px}
+#pde-painel.pde-resultado .pde-res-cab .pde-res-tit{font-family:var(--display) !important; font-size:30px; font-weight:800; letter-spacing:-.02em !important; line-height:1.15; color:var(--ink)}
+#pde-painel.pde-resultado .pde-res-cab .pde-res-sub{font-size:15px; color:var(--ink-2); margin-top:8px; line-height:1.5}
+#pde-painel.pde-resultado .pde-res-cab .pde-res-formato{display:inline-flex; align-items:center; gap:8px; margin-top:14px; padding:8px 14px; border-radius:999px; font-size:13px; font-weight:600; background:var(--tile); color:var(--ink)}
+#pde-painel.pde-resultado .pde-res-cab .pde-res-formato i{width:8px; height:8px; border-radius:50%; background:var(--oc,var(--navy)); display:inline-block}
+#pde-painel.pde-resultado [data-pde-res-oculto]{display:none !important}
+#pde-painel.pde-resultado .wz-nav{display:none !important}
+#pde-painel.pde-resultado .pde-out.show{margin-top:0}
+#pde-painel .pde-res-voltar{display:none}
+#pde-painel.pde-resultado .pde-res-voltar{display:inline-flex; align-items:center; justify-content:center; gap:8px; height:44px; padding:0 18px; margin-top:22px; border:1px solid #C9D2DD; border-radius:var(--r); background:var(--surface); color:var(--ink); font-weight:600; font-size:14px; cursor:pointer}
+#pde-painel .wz-step.pde-res-step{display:none !important}
+#pde-painel.pde-resultado .wz-step.pde-res-step{display:flex !important}
+#pde-painel.pde-resultado .wz-step.pde-res-step .dot{background:var(--cyan); border-color:var(--cyan); color:var(--navy-deep)}
+#pde-painel.pde-resultado .wz-step.pde-res-step .nm{color:#fff; font-weight:600}
+
+/* identificação dentro da fase Gerar: escola, município e destino numa linha só (menos rolagem).
+   O select de destino é inserido em tempo de execução dentro dessa mesma grade. */
+#pde-painel .pde-secao-ident > .pde-grid2{grid-template-columns:repeat(3,minmax(0,1fr)); gap:0 14px}
+#pde-painel .pde-secao-ident .pde-f{margin-bottom:14px}
+@media (max-width:900px){ #pde-painel .pde-secao-ident > .pde-grid2{grid-template-columns:1fr} }
+
+/* cartões de formato próprios (PDE-FORMATO-CARTOES-V1): cor por semântica */
+#pde-painel .orient-card[data-cor="petroleo"]{--oc:#0F766E; --oc-soft:#E6F4F1; --oc-line:#9AD5CB}
+#pde-painel .orient-card[data-cor="violeta"]{--oc:#6D28D9; --oc-soft:#F1EAFE; --oc-line:#C9B3F5}
+#pde-painel .orient-card[data-cor="ambar"]{--oc:#B45309; --oc-soft:#FEF3E2; --oc-line:#F3C98B}
+
+/* identificação nativa na fase Gerar: escola, município e destino numa linha (o destino é
+   inserido em tempo de execução nessa grade) */
+#pde-painel .pde-grid2:has(#pde-id-escola):has(#pde-ia-usada){grid-template-columns:repeat(3,minmax(0,1fr)); gap:0 14px}
+@media (max-width:900px){ #pde-painel .pde-grid2:has(#pde-id-escola):has(#pde-ia-usada){grid-template-columns:1fr} }
+
+/* ordem única do bloco de saída em todas: Copiar · estado · ChatGPT · Gemini · Variação · Ver o comando.
+   As ferramentas escrevem esses botões em ordens diferentes; a grade reordena. */
+#pde-painel .pde-out .go-btn[data-action="copiar"]{order:-30}
+#pde-painel .pde-out .go-status{order:-20}
+#pde-painel .pde-out [data-action="abrir-chatgpt"]{order:-12}
+#pde-painel .pde-out [data-action="abrir-gemini"]{order:-11}
+#pde-painel .pde-out [data-action^="abrir-"]{order:-10}
+#pde-painel .pde-out [data-action="variacao"]{order:-5}
+#pde-painel .pde-out .go-see,#pde-painel .pde-out [data-action="vp"]{order:-4}
+#pde-painel .pde-out .pde-reveal{order:99}
+
+#pde-painel .pde-out button[data-action="txt"],#pde-painel .pde-out button[data-action="nova"]{order:10; width:100%; font-size:14.5px !important; font-weight:600}
+
+/* cartões de formato nativos de algumas ferramentas (data-orient) recebem a mesma cor por destino */
+#pde-painel .orient-card[data-orient="imprimir"]{--oc:#0F766E; --oc-soft:#E6F4F1; --oc-line:#9AD5CB}
+#pde-painel .orient-card[data-orient="tela"]{--oc:#6D28D9; --oc-soft:#F1EAFE; --oc-line:#C9B3F5}
+/* saída com dois comandos (Atividades Criativas): os botões de destino ganham a cor da IA */
+#pde-painel .pde-out .go-btn[data-go="gpt"]{--dest-1:#12B08A; --dest-2:#0E8C6E; --dest-b:#0B7A5E; order:-12}
+#pde-painel .pde-out .go-btn[data-go="gem"]{--dest-1:#4A90F7; --dest-2:#1A73E8; --dest-b:#1557B0; order:-11}
+#pde-painel .pde-out .go-btn[data-go]{background:linear-gradient(180deg,var(--dest-1),var(--dest-2)) !important; border-color:var(--dest-b) !important; color:#fff !important; box-shadow:var(--sh)}
+#pde-painel .pde-out .go-btn[data-go] b{color:#fff}
+#pde-painel .pde-out .go-btn[data-go]::before{content:''; width:17px; height:17px; flex:none; background-color:currentColor; -webkit-mask:var(--ico) center/contain no-repeat; mask:var(--ico) center/contain no-repeat}
+#pde-painel .pde-out .go-foot{display:contents}
+#pde-painel .pde-out .rv-block{grid-column:1/-1}
+#pde-painel .pde-out .rv-h{display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:600; color:var(--ink-2); margin:10px 0 6px}
+#pde-painel .pde-out .rv-h .pde-copy{height:36px; min-height:36px; padding:0 12px; font-size:13px; border:1px solid #C9D2DD !important; background:var(--surface); color:var(--ink); border-radius:8px}
+/* toque: o botão compacto do cabeçalho de cada bloco sobe ao alvo de 44 px */
+@media (pointer:coarse){#pde-painel .pde-out .rv-h .pde-copy{height:auto; min-height:44px}}
+#pde-painel .go-btn .go-ic{display:none}
+#pde-painel .go-btn .go-tx{display:contents}
+#pde-painel .go-btn .go-tx small{display:none}
+#pde-painel .go-btn .go-tx b{font-size:14.5px; font-weight:700; display:inline}
+
+/* identificação com um quarto campo (ex.: turma): grade 2x2 em vez de uma linha de 3 mais um órfão */
+#pde-painel .pde-secao-ident > .pde-grid2:has(> .pde-f:nth-child(4)){grid-template-columns:repeat(2,minmax(0,1fr))}
+
+</style>
+<script>
+/* PDE-PREMIUM-LAYOUT-V1 · leva a marca, o título e a nota de responsabilidade
+   para dentro da coluna escura, marca os campos largos e devolve a leitura ao
+   topo quando o professor troca de etapa. Só move e marca: não cria texto nem
+   toca no comando. */
+(function(){
+  var P=document.getElementById('pde-painel')||document.getElementById('peg');
+  if(!P) return;
+  /* o quiosque move o painel para o fim do body, e os estilos que a ferramenta
+     tem DENTRO dele passariam na frente da folha nova. Devolvendo a folha para
+     dentro do painel ela volta a ser a última da cascata. */
+  function folhaPorUltimo(){
+    var pr=document.getElementById('pde-proprias');
+    if(pr && pr.parentNode!==P) P.appendChild(pr);
+    var f=document.getElementById('pde-premium-folha');
+    if(f && f.parentNode!==P) P.appendChild(f);
+    var aj=document.getElementById('pde-ajuste-css');
+    if(aj && (aj.parentNode!==P || aj.previousElementSibling!==f)) P.appendChild(aj);
+  }
+  /* blocos globais da ferramenta (seletor de modo, avisos, biblioteca) ficavam
+     soltos acima da casca, sem moldura. Vão para o topo da coluna de conteúdo,
+     na mesma ordem em que o autor os escreveu. Só muda de lugar. */
+  var CASCA=['pde-pular','pdeq-barra','pde-lateral-wrap','pde-logo','pde-rodape','pde-foot','pde-head','pde-aviso-valida'];
+  function recolherSoltos(){
+    var alvo=P.querySelector('.pde-panel'); if(!alvo) return;
+    var soltos=[];
+    for(var i=0;i<P.children.length;i++){
+      var e=P.children[i], tg=e.tagName;
+      if(tg==='SCRIPT'||tg==='STYLE'||tg==='TEMPLATE'||tg==='LINK') continue;
+      var c=(e.className||'')+''; var casa=false;
+      for(var k=0;k<CASCA.length;k++) if(c.indexOf(CASCA[k])>=0) casa=true;
+      if(!casa) soltos.push(e);
+    }
+    if(!soltos.length) return;
+    var caixa=P.querySelector('.pde-soltos');
+    if(!caixa){ caixa=document.createElement('div'); caixa.className='pde-soltos';
+      alvo.insertBefore(caixa, alvo.firstChild); }
+    soltos.forEach(function(e){ caixa.appendChild(e); });
+  }
+  function arrumar(){
+    folhaPorUltimo();
+    var lado=P.querySelector('.pde-lateral'); if(!lado) return false;
+    recolherSoltos();
+    var cab=P.querySelector('.pde-head');
+    if(cab && cab.parentNode!==lado) lado.insertBefore(cab, lado.firstChild);
+    var nota=P.querySelector('.pde-aviso-valida');
+    if(nota && nota.parentNode!==lado) lado.appendChild(nota);
+    P.querySelectorAll('.pde-grid2 > .pde-f').forEach(function(f){
+      if(f.querySelector('.orient-cards, .md-grid, #g-incl, .chips')) f.setAttribute('data-pde-largo','1');
+    });
+    /* ajustes individuais: blocos que a análise mandou para outra fase
+       (ex.: os chips de inclusão para a fase da turma). Só muda de lugar. */
+    var AJ=window.PDE_AJUSTES||{};
+    (AJ.mover||[]).forEach(function(m){
+      var el=P.querySelector(m.sel); if(!el) return;
+      var bloco=el.closest('.pde-f, .pde-campo')||el;
+      var alvo=P.querySelector('.wz-phase[data-phase="'+m.fase+'"]'); if(!alvo) return;
+      if(!m.dentro && !m.antes && bloco.parentNode===alvo) return;
+      if(m.dentro){ var cx=alvo.querySelector(m.dentro); if(cx && bloco.parentNode!==cx) cx.appendChild(bloco); return; }
+      var tit=bloco.previousElementSibling;
+      var ref=m.antes?alvo.querySelector(m.antes):null;
+      if(tit && tit.classList.contains('sec-t')){ if(ref) alvo.insertBefore(tit,ref); else alvo.appendChild(tit); }
+      if(ref) alvo.insertBefore(bloco,ref); else alvo.appendChild(bloco);
+    });
+    return true;
+  }
+  /* ── tela de resultado: depois de gerar, só o comando pronto e os botões de
+     destino ficam à vista. O formulário continua no DOM, escondido; "Voltar e
+     ajustar" devolve tudo. Nada do comando é tocado. ── */
+  function entrarResultado(){
+    var out=P.querySelector('.pde-out.show'); if(!out) return false;
+    var fase=out.closest('.wz-phase')||out.parentNode;
+    var el=out;
+    while(el && el!==fase){
+      var pai=el.parentNode;
+      for(var i=0;i<pai.children.length;i++){
+        var s=pai.children[i];
+        if(s!==el && !s.classList.contains('pde-res-cab') && !s.classList.contains('pde-res-voltar')) s.setAttribute('data-pde-res-oculto','1');
+      }
+      el=pai;
+    }
+    var cab=fase.querySelector('.pde-res-cab');
+    if(!cab){
+      cab=document.createElement('div'); cab.className='pde-res-cab';
+      cab.innerHTML='<div class="pde-res-tit">Seu comando está pronto</div><div class="pde-res-sub">Já está copiado. Escolha onde vai gerar e cole com Ctrl+V.</div>';
+      out.parentNode.insertBefore(cab,out);
+    }
+    var oc=P.querySelector('.orient-card.on'); var chip=cab.querySelector('.pde-res-formato');
+    var fixo=(window.PDE_AJUSTES||{}).formatoFixo;
+    if((oc && oc.querySelector('b')) || fixo){
+      if(!chip){ chip=document.createElement('div'); chip.className='pde-res-formato'; cab.appendChild(chip); }
+      chip.style.setProperty('--oc', oc?getComputedStyle(oc).getPropertyValue('--oc'):'#0F766E');
+      chip.innerHTML='<i></i>'+((window.PDE_AJUSTES||{}).formatoRotulo||'Formato')+': '+(oc?oc.querySelector('b').textContent:fixo);
+    }
+    if(!fase.querySelector('.pde-res-voltar')){
+      var volt=document.createElement('button'); volt.type='button'; volt.className='pde-res-voltar';
+      volt.setAttribute('data-action','pde-res-voltar'); volt.textContent='Voltar e ajustar';
+      out.parentNode.insertBefore(volt, out.nextSibling);
+    }
+    var steps=P.querySelector('.wz-steps');
+    if(steps && !steps.querySelector('.pde-res-step')){
+      var st=document.createElement('div'); st.className='wz-step pde-res-step'; st.setAttribute('aria-current','step');
+      st.innerHTML='<span class="dot">✓</span><span class="nm">Pronto</span>'; steps.appendChild(st);
+    }
+    var atual=P.querySelector('.wz-step.on:not(.pde-res-step)');
+    if(atual){ atual.classList.remove('on'); atual.classList.add('done','pde-res-era-on'); }
+    P.classList.add('pde-resultado'); aoTopo(); return true;
+  }
+  var resTimers=[];
+  function sairResultado(viaStep){
+    resTimers.forEach(clearTimeout); resTimers=[];
+    if(!P.classList.contains('pde-resultado')) return;
+    P.querySelectorAll('[data-pde-res-oculto]').forEach(function(e){ e.removeAttribute('data-pde-res-oculto'); });
+    var era=P.querySelector('.wz-step.pde-res-era-on');
+    if(era){
+      era.classList.remove('pde-res-era-on');
+      var restaurar=function(){ era.classList.remove('done'); era.classList.add('on'); };
+      /* saída pela trilha, por outra etapa: quem decide a etapa ativa é o motor da ferramenta;
+         só se ele ignorar o clique a etapa de antes volta a ficar ativa */
+      if(viaStep && viaStep!==era){ setTimeout(function(){ if(!P.querySelector('.wz-step.on:not(.pde-res-step)')) restaurar(); },0); }
+      else restaurar();
+    }
+    P.classList.remove('pde-resultado');
+  }
+  P.addEventListener('click',function(e){
+    if(e.target.closest('[data-action="gerar"],[data-action="gerar-rapido"],[data-action="gerar-serie"]')){
+      resTimers.forEach(clearTimeout);
+      resTimers=[80,400,1200].map(function(ms){ return setTimeout(function(){ if(!P.classList.contains('pde-resultado')) entrarResultado(); },ms); });
+    }
+    var stSaida=e.target.closest('.wz-step:not(.pde-res-step)');
+    if(stSaida || e.target.closest('[data-action="pde-res-voltar"],.wz-back')) sairResultado(stSaida);
+    /* saída com dois comandos: o script da ferramenta copia; aqui abre a IA, no mesmo clique, como as demais */
+    var dup=(window.PDE_AJUSTES||{}).abrirDuplo; var go=dup && e.target.closest('[data-go]');
+    if(go && dup[go.dataset.go]){
+      /* copia por conta própria, de forma síncrona e dentro do gesto do clique (não depende
+         da ordem dos ouvintes nem do foco), e só depois abre a IA, ainda dentro da janela
+         de ativação do usuário */
+      try{
+        var alvo=P.querySelector('#p-'+go.dataset.go); var txt=alvo?alvo.textContent:'';
+        if(txt){ var ta=document.createElement('textarea'); ta.value=txt; ta.setAttribute('readonly','');
+          ta.style.cssText='position:fixed;left:-9999px;top:0;font-size:16px'; document.body.appendChild(ta);
+          ta.focus(); ta.select(); ta.setSelectionRange(0,txt.length); document.execCommand('copy'); document.body.removeChild(ta);
+          if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).catch(function(){}); } }
+      }catch(x){}
+      var url=dup[go.dataset.go];
+      setTimeout(function(){ try{ window.open(url,'_blank'); }catch(x){} },250);
+    }
+  });
+  function aoTopo(){
+    try{
+      if(P.classList.contains('pdeq-on')){ P.scrollTop=0; return; }
+      var alvo=P.querySelector('.wz-phase.on')||P;
+      alvo.scrollIntoView({block:'start',behavior:'auto'});
+      parent.postMessage({tipo:'pde-scroll-top'},'*');
+    }catch(e){}
+  }
+  P.addEventListener('click',function(e){
+    if(e.target.closest('.wz-next,.wz-back,.wz-step,[data-action^="next"],[data-action="anterior"],[data-action="card"],[data-action="fase"],[data-action="proxima"]')){
+      [0,60,180,360,650,1000].forEach(function(ms){ setTimeout(aoTopo,ms); });
+    }
+    if(e.target.closest('[data-action]')) setTimeout(limparAviso,140);
+  });
+  /* a mensagem de sucesso vem com emoji em algumas ferramentas: aqui ela fica
+     na mesma voz das demais. Texto de tela, nunca do comando. */
+  var ICONES=/[🌀-🫿☀-➿️✅✔]/gu;
+  function limparAviso(){
+    P.querySelectorAll('.go-status').forEach(function(s){
+      var t=s.textContent||''; if(!ICONES.test(t)) return;
+      s.textContent=t.replace(ICONES,'').replace(/s{2,}/g,' ').trim();
+    });
+  }
+  function tentar(){ if(arrumar()) return; setTimeout(function(){ if(arrumar()) return; setTimeout(arrumar,900); },350); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',tentar); else tentar();
+  setTimeout(arrumar,1500); setTimeout(arrumar,2500);
+})();
+</script>

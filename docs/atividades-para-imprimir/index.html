@@ -1,0 +1,2536 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Atividades para Imprimir · IA Studio · Portal do Educador</title>
+<meta name="description" content="Monte fichas com suas questões ou peça novas questões sobre o tema.">
+<meta name="theme-color" content="#0F2C4A">
+<link rel="canonical" href="https://studio.portaldoeducador.com.br/atividades-para-imprimir/">
+<link rel="icon" href="https://2e9d36b373.clvaw-cdnwnd.com/335de600d4513f981d46eaac6920a1f2/200004620-7d1847d187/Logo_Estatico_Circular_Posicao3_002.png?ph=2e9d36b373">
+<meta property="og:title" content="Atividades para Imprimir · IA Studio">
+<meta property="og:description" content="Monte fichas com suas questões ou peça novas questões sobre o tema.">
+<meta property="og:url" content="https://studio.portaldoeducador.com.br/atividades-para-imprimir/">
+<meta property="og:image" content="https://2e9d36b373.clvaw-cdnwnd.com/335de600d4513f981d46eaac6920a1f2/200004620-7d1847d187/Logo_Estatico_Circular_Posicao3_002.png?ph=2e9d36b373">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>html,body{margin:0;padding:0;background:#F7F8FA;min-height:100%}</style>
+</head>
+<body>
+<style>
+/* PDE-PREMIUM-PRE-V1 · primeira coisa que o navegador lê.
+   Reserva a área e segura o conteúdo até a folha do fim ser lida, para não
+   aparecer o lampejo de tela sem estilo em arquivo grande. */
+#pde-painel{display:block;height:clamp(320px,70vh,640px);overflow:hidden;
+  background:#F7F8FA;border:1px solid #E6EAF0;border-radius:18px;margin:0 auto;max-width:1280px}
+#pde-painel > *{visibility:hidden}
+</style>
+<!-- ============================================================
+     GERADOR DE PROMPT EDITORIAL → FICHA PREMIUM v3
+     Portal do Educador / IA Studio
+     • DOIS MODOS: Conteúdo próprio  |  Gerar com IA
+     • Modo IA: prompt único cria questões + desenha a ficha
+     • Parâmetros: dificuldade, tipo, texto-base, BNCC
+     • Imagem temática automática por disciplina
+     • Elementos liga/desliga · 4 estilos visuais
+     • 2 alvos: ChatGPT/DALL·E (2 etapas) e Gemini/Nano Banana
+     • Arquivo único, #pde-painel, regras 1-9
+     ============================================================ -->
+<div id="pde-painel">
+<script>
+/* PDE-DECLARA-IA-V1 · declaração de uso de IA
+   Princípio adotado da Portaria CNPq 2.664/2026: declarar QUAL ferramenta de IA
+   generativa foi usada e PARA QUÊ, e nomear o responsável humano pela revisão.
+   O campo fica na fase de identificação e a linha viaja dentro do prompt. */
+(function(){
+  var P=document.getElementById('pde-painel')||document.getElementById('peg');
+  if(!P) return;
+
+  var FERRAMENTAS=['ChatGPT','Gemini','Claude','Copilot','Outra ferramenta de IA'];
+
+  /* 0. a identificação passa a ser compartilhada entre TODAS as ferramentas:
+        quem digita o nome numa, encontra preenchido nas outras */
+  function sincIdent(){
+    [['pde-id-prof','pde_professor'],['pde-id-escola','pde_escola'],['pde-id-municipio','pde_municipio']]
+    .forEach(function(par){
+      var el=P.querySelector('#'+par[0]);
+      if(!el||el.dataset.pdeSinc) return;
+      el.dataset.pdeSinc='1';
+      try{
+        var s=localStorage.getItem(par[1]);
+        if(s && !el.value) el.value=s;
+      }catch(e){}
+      el.addEventListener('input',function(){
+        try{ localStorage.setItem(par[1], el.value); }catch(e){}
+      });
+    });
+  }
+
+  function campoIdent(){
+    return P.querySelector('#pde-id-municipio') || P.querySelector('#pde-id-escola') || P.querySelector('#pde-id-prof');
+  }
+
+  /* 1. o campo nasce ao lado da identificação, que é onde o professor já se identifica */
+  function montar(){
+    if(P.querySelector('#pde-ia-usada')) return;
+    var ref=campoIdent(); if(!ref) return;
+    var cx=ref.closest('.pde-f, .pde-campo, div'); if(!cx) return;
+
+    var bloco=document.createElement('div');
+    bloco.className=cx.className||'pde-f';
+    bloco.innerHTML=
+      '<label for="pde-ia-usada">Onde você vai gerar este material</label>'+
+      '<select id="pde-ia-usada">'+
+        FERRAMENTAS.map(function(f){return '<option>'+f+'</option>';}).join('')+
+      '</select>'+
+      '<div class="pde-help pde-campo-hint" style="font-size:11px;color:#64748b;margin-top:5px;line-height:1.45">'+
+        'O material sai declarando a ferramenta usada e quem revisou. É o que separa material com autoria de texto anônimo de internet.'+
+      '</div>';
+    if(cx.parentNode) cx.parentNode.insertBefore(bloco, cx.nextSibling);
+
+    try{
+      var s=localStorage.getItem('pde_ia_usada');
+      if(s) P.querySelector('#pde-ia-usada').value=s;
+    }catch(e){}
+    P.querySelector('#pde-ia-usada').addEventListener('change',function(e){
+      try{ localStorage.setItem('pde_ia_usada', e.target.value); }catch(x){}
+    });
+  }
+
+  /* 2. a linha que vai para o rodapé do material */
+  window.declaraIA=function(){
+    var sel=P.querySelector('#pde-ia-usada');
+    var ferr=sel?sel.value:'ferramenta de IA generativa';
+    var prof=P.querySelector('#pde-id-prof');
+    var nome=(prof&&prof.value.trim())?prof.value.trim():'';
+    var txt='DECLARAÇÃO DE USO DE IA: material produzido com '+ferr+
+            ' para geração de texto, estrutura e elementos visuais, a partir de comando elaborado pelo professor no Portal do Educador. ';
+    txt+= nome
+      ? 'Revisão, validação pedagógica e responsabilidade pelo conteúdo final: '+nome+'.'
+      : 'A revisão, a validação pedagógica e a responsabilidade pelo conteúdo final são do professor que aplica o material.';
+    return txt;
+  };
+
+  /* 3. garante a declaração no prompt mesmo onde o rodapé é montado de outro jeito */
+  function vigiar(){
+    sincIdent();
+    montar();
+    ['p-uni','prompt-saida','prompt-gpt','peg-prompt-box','out-prompt','saida'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el||el.__declIA) return;
+      el.__declIA=1;
+      var obs=new MutationObserver(function(){
+        var t=el.textContent;
+        if(typeof t!=='string'||t.length<400) return;
+        if(t.indexOf('DECLARAÇÃO DE USO DE IA')>=0) return;
+        obs.disconnect();
+        el.textContent=t+'\n\n'+window.declaraIA()+
+          '\nEscreva essa declaração no rodapé do material, em fonte pequena, logo abaixo do quadro IA RESPONSÁVEL, sem alterar o texto.';
+        obs.observe(el,{childList:true,characterData:true,subtree:true});
+      });
+      obs.observe(el,{childList:true,characterData:true,subtree:true});
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',vigiar);
+  else vigiar();
+  setTimeout(vigiar,400); setTimeout(vigiar,1200);
+})();
+</script>
+
+
+
+
+
+  
+
+  <div class="pde-head">
+    <div class="pde-eyebrow">Atividades e avaliações</div>
+    <h1>Atividades para <b>Imprimir</b></h1>
+    <p>Crie atividades prontas para imprimir em segundos.</p>
+  </div>
+
+  <!-- SELETOR DE MODO (global, fora das fases) -->
+  <div class="mode-sw" id="mode-sw">
+    <button class="on" data-mode="own">Conteúdo próprio<small>Eu colo as questões</small></button>
+    <button data-mode="ai">Gerar com IA<small>A IA cria as questões pra mim</small></button>
+  </div>
+
+  <div class="pde-warn">
+    <b>Lembrete:</b> geradores de imagem podem errar texto longo. Mantenha poucas questões por imagem e gere 1 a 2 vezes até a escrita sair perfeita. Para texto 100% garantido, use o gerador de ficha em HTML.
+  </div>
+
+  <!-- biblioteca de atividades salvas -->
+  <div class="lib-bar">
+    <button class="lib-save" data-action="lib-salvar">Salvar atividade</button>
+    <button data-action="lib-abrir" id="lib-toggle">Minhas atividades (<span id="lib-count">0</span>)</button>
+  </div>
+  <div class="lib-panel" id="lib-panel"><div class="lib-empty">Nenhuma atividade salva ainda.</div></div>
+
+  <!-- barra de progresso das fases -->
+  <div class="wz-steps" id="wz-steps">
+    <div class="wz-step on" data-step="1" role="button" tabindex="0"><span class="dot">1</span><span class="nm">Turma e formato</span></div>
+    <div class="wz-step" data-step="2" role="button" tabindex="0"><span class="dot">2</span><span class="nm">Conteúdo</span></div>
+    <div class="wz-step" data-step="3" role="button" tabindex="0"><span class="dot">3</span><span class="nm">Estilo e elementos</span></div>
+    <div class="wz-step" data-step="4" role="button" tabindex="0"><span class="dot">4</span><span class="nm">Gerar</span></div>
+</div>
+
+  <div class="pde-panel">
+    <!-- FASE 1 — IDENTIFICAÇÃO -->
+    <div class="wz-phase on" data-phase="1">
+      <div class="wz-phase-title">Turma e formato</div>
+      <div class="wz-phase-sub">Disciplina, série, tema, adaptação inclusiva e onde a ficha vai ser usada.</div>
+      <div class="pde-grid2">
+        <div class="pde-f f-disc"><label>Disciplina</label>
+          <select id="i-disc">
+            <option value="">Selecione…</option>
+            <option>Matemática</option><option>Língua Portuguesa</option><option>Ciências</option>
+            <option>História</option><option>Geografia</option><option>Astronomia</option>
+            <option>Educação Física</option><option>Arte</option><option>Inglês</option>
+            <option>Ensino Religioso</option><option>Outra</option>
+          </select>
+        </div>
+        <div class="pde-f"><label>Série / Ano</label><input id="i-serie" placeholder="5º Ano"></div>
+      </div>
+      <div class="pde-grid3">
+        <div class="pde-f f-tema"><label>Tema</label><input id="i-tema" placeholder="Frações: adição e subtração"></div>
+        <div class="pde-f"><label>Questões por página</label><input id="i-qtd" type="number" min="1" max="6" value="4"></div>
+        <div class="pde-f"><label>Páginas</label><input id="i-pags" type="number" min="1" max="10" value="1"></div>
+      </div>
+      <div class="pde-help" id="pags-hint" hidden>Modo múltiplas páginas: na fase Conteúdo você define disciplina e tema de cada página. Cada prompt sai numerado (Página X de N).</div>
+      <div class="img-hint" id="img-hint">Selecione a disciplina para sugerir automaticamente a imagem temática da ficha.</div>
+
+      <div class="incl-wrap">
+        <label>Adaptação inclusiva (Desenho Universal para Aprendizagem)</label>
+        <div class="incl-chips" id="g-incl" data-group="incl">
+          <span class="incl-chip on" data-val=""><span class="ic">○</span>Nenhuma</span>
+          <span class="incl-chip" data-val="tea"><span class="ic">🧩</span>TEA / Autismo</span>
+          <span class="incl-chip" data-val="tdah"><span class="ic">⚡</span>TDAH</span>
+          <span class="incl-chip" data-val="dislexia"><span class="ic">🔤</span>Dislexia</span>
+          <span class="incl-chip" data-val="di"><span class="ic">💡</span>Def. Intelectual</span>
+          <span class="incl-chip" data-val="baixavisao"><span class="ic">👁</span>Baixa Visão</span>
+          <span class="incl-chip" data-val="auditiva"><span class="ic">🤟</span>Def. Auditiva</span>
+        </div>
+        <div class="incl-note" id="incl-note"></div>
+        <label style="display:flex;align-items:center;gap:9px;margin-top:10px;cursor:pointer;font-weight:500;color:var(--navy-2)">
+          <input type="checkbox" id="incl-legal" style="width:auto"> Incluir nota de fundamentação legal (LBI / AEE / DUA) no rodapé, para documentação do AEE
+        </label>
+      </div>
+      <div class="pde-secao"><div class="sec-t div">Formato de saída</div>
+      
+      <div class="pde-f">
+        <label>Como você vai usar este material</label>
+        <div class="orient-cards" data-group="formato">
+          <button type="button" class="orient-card on" data-orient="imprimir" aria-pressed="true"><span class="oc-ic" aria-hidden="true">🖨️</span>
+            <span class="oc-tx"><b>Imprimir na folha</b><small>A4 em pé, margem de 15 mm em todos os lados, pronto para a copiadora da escola.</small></span>
+          </button>
+          <button type="button" class="orient-card" data-orient="tela" aria-pressed="false"><span class="oc-ic" aria-hidden="true">📺</span>
+            <span class="oc-tx"><b>Apresentar na tela</b><small>16:9 na horizontal, texto grande, para projetor, TV ou lousa digital.</small></span>
+          </button>
+        </div>
+        <div class="pde-help">Dá para gerar as duas versões do mesmo material: escolha uma, gere, volte aqui e troque.</div>
+      </div>
+      </div>
+    </div>
+
+    <div class="wz-phase" data-phase="2">
+      <div class="wz-phase-title">Conteúdo</div>
+      <div class="wz-phase-sub">No modo próprio, cole as questões. No modo IA, defina os parâmetros.</div>
+
+      <!-- MULTI-PÁGINA: cards por página -->
+      <div id="pags-wrap" hidden></div>
+
+      <!-- MODO CONTEÚDO PRÓPRIO -->
+      <div class="only-own" id="single-own">
+        <div class="pde-f full">
+          <label>Questões (cole o texto exato que deve aparecer)</label>
+          <textarea id="i-quest" placeholder="1. Quanto é 1/4 + 2/4?
+A) 1/8
+B) 3/4
+C) 3/8
+D) 2/4
+
+2. ..."></textarea>
+          <p class="pde-help">Escreva exatamente como deve aparecer na ficha.</p>
+        </div>
+      </div>
+
+      <!-- MODO GERAR COM IA -->
+      <div class="only-ai">
+        <div class="pde-grid2">
+          <div class="pde-f"><label>Dificuldade</label>
+            <select id="ai-dif"><option>Fácil</option><option selected>Média</option><option>Difícil</option><option>Progressiva (fácil ao difícil)</option></select>
+          </div>
+          <div class="pde-f"><label>Tipo de questão</label>
+            <select id="ai-tipo">
+              <option>Múltipla escolha (A, B, C, D)</option>
+              <option>Verdadeiro ou Falso</option>
+              <option>Complete as lacunas</option>
+              <option>Dissertativas (resposta aberta)</option>
+              <option>Mistas</option>
+            </select>
+          </div>
+        </div>
+        <div class="pde-f full">
+          <label>Foco / habilidade específica (opcional)</label>
+          <input id="ai-foco" placeholder="Ex.: problemas com denominadores diferentes">
+        </div>
+        <div class="toggles" style="margin-top:4px">
+          <div class="tg" data-tg="ai-texto"><div class="sw"></div><div class="tl">Incluir texto-base<span>Pequeno texto antes das questões</span></div></div>
+          <div class="tg" data-tg="ai-bncc"><div class="sw"></div><div class="tl">Alinhar à BNCC<span>Citar código da habilidade</span></div></div>
+        </div>
+        <p class="pde-help" style="margin-top:8px">Neste modo a IA <b>cria as questões</b> a partir do tema e dos parâmetros e <b>desenha a ficha</b> no mesmo prompt.</p>
+      </div>
+    </div>
+
+    <!-- FASE 3 — ESTILO E ELEMENTOS -->
+    <div class="wz-phase" data-phase="3">
+      <div class="wz-phase-title">Estilo e elementos</div>
+      <div class="wz-phase-sub">Escolha a aparência e quais elementos a ficha terá.</div>
+
+      <div class="sec-t">Estilo visual</div>
+      <div class="pde-chips" data-group="estilo">
+        <span class="pde-chip" data-val="ludico">Lúdico (infantil)</span>
+        <span class="pde-chip on" data-val="apostila">Apostila premium</span>
+        <span class="pde-chip" data-val="militar">Concurso / Militar</span>
+        <span class="pde-chip" data-val="moderno">Moderno minimalista</span>
+      </div>
+
+      <div class="sec-t div">Elementos da ficha</div>
+      <div class="toggles">
+        <div class="tg on" data-tg="campos"><div class="sw"></div><div class="tl">Campos de cabeçalho<span>Nome · Turma · Data · Nota</span></div></div>
+        <div class="tg on" data-tg="imagem"><div class="sw"></div><div class="tl">Imagem temática<span>Ilustração grande do tema</span></div></div>
+        <div class="tg" data-tg="dicas"><div class="sw"></div><div class="tl">Caixa "Dicas para o aluno"<span>Box de orientação</span></div></div>
+        <div class="tg" data-tg="marca"><div class="sw"></div><div class="tl">Marca d'água temática<span>Fundo suave</span></div></div>
+        <div class="tg" data-tg="icones"><div class="sw"></div><div class="tl">Ícones educacionais<span>Detalhes discretos</span></div></div>
+      </div>
+    </div>
+
+    <!-- FASE 4 · FORMATO DE SAÍDA -->
+    <div class="wz-phase" data-phase="4">
+      <div class="wz-phase-title">Gerar</div>
+      <div class="wz-phase-sub">Confira a identificação e gere. O comando é montado e copiado automaticamente.</div>
+      <div style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--muted,#64748b);margin:4px 0 8px">Identificação do material (opcional)</div>
+      <div class="pde-f"><label for="pde-id-prof">Professor(a)</label>
+        <input type="text" id="pde-id-prof" placeholder="ex.: Profª Maria Silva" autocomplete="off"></div>
+      <div class="pde-grid2">
+        <div class="pde-f"><label for="pde-id-escola">Escola</label>
+          <input type="text" id="pde-id-escola" placeholder="ex.: EM João Pedro dos Santos" autocomplete="off"></div>
+        <div class="pde-f"><label for="pde-id-municipio">Município e UF</label>
+          <input type="text" id="pde-id-municipio" placeholder="ex.: Campo Grande/MS" autocomplete="off"></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted,#64748b);margin:-4px 0 14px;line-height:1.4">A escola entra no cabeçalho da folha e os três dados vão no rodapé. Você preenche uma vez e todas as ferramentas do Portal já sabem.</div>
+      <button class="pde-btn" data-action="gerar">Gerar Ficha Visual Inteligente</button>
+    </div>
+
+    <!-- navegação -->
+    <div class="wz-nav">
+      <button class="wz-back" id="wz-back" hidden>Voltar</button>
+      <button class="wz-next" id="wz-next">Continuar</button>
+    </div>
+  </div>
+
+  <div class="pde-out" id="out">
+    <!-- fila multi-página -->
+    <div id="fila-wrap" hidden></div>
+
+    <div class="go-grid" id="go-grid">
+      <button class="go-btn gpt" data-go="gpt"><span class="go-ic">⧉</span><span class="go-tx"><b>Copiar e abrir ChatGPT</b><small>Abra o ChatGPT e cole com Ctrl+V</small></span>
+      </button>
+      <button class="go-btn gem" data-go="gem"><span class="go-ic">⧉</span><span class="go-tx"><b>Copiar e abrir Gemini</b><small>Abra o Gemini e cole com Ctrl+V</small></span>
+      </button>
+    </div>
+
+    <div class="go-foot">
+      <span class="go-status" id="go-status"></span>
+      <button class="go-see" data-action="vp">Ver o comando</button>
+    </div>
+    <!-- prompts ocultos (usados pelos botões; visíveis só sob demanda) -->
+    <div class="pde-reveal" id="reveal">
+      <div class="rv-block">
+        <div class="rv-h">Comando para o ChatGPT <button class="pde-copy" data-copy="gpt">Copiar</button></div>
+        <div class="pde-prompt" id="p-gpt"></div>
+      </div>
+      <div class="rv-block">
+        <div class="rv-h">Comando para o Gemini <button class="pde-copy" data-copy="gem">Copiar</button></div>
+        <div class="pde-prompt" id="p-gem"></div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script>
+  (function(){
+
+/* PDE-INCL-V1 · inclusão operacional da suíte */
+var REGRAS_INCLUSAO_PDE = '\n\nACESSIBILIDADE DO MATERIAL (regras práticas, sempre aplicadas)\n'+
+'LEGIBILIDADE BASE: fonte sem serifa em todo o material. Corpo de texto nunca abaixo de 14 pontos, e nunca abaixo de 18 pontos quando houver pedido de baixa visão. Texto SEMPRE alinhado à esquerda, nunca justificado, porque o texto justificado cria rios de espaço em branco que atrapalham a leitura. Nada de texto em itálico em bloco inteiro nem de frase inteira em maiúsculas.\n'+
+'CONTRASTE: texto escuro sobre fundo claro, com contraste alto. NUNCA escreva por cima de foto ou de textura. Se o fundo for colorido, use uma tarja sólida atrás do texto.\n'+
+'NUNCA SÓ COR: nenhuma informação pode depender apenas da cor para ser entendida. Toda distinção feita por cor precisa vir acompanhada de rótulo escrito, ícone, número ou tipo de traço, para funcionar também impressa em preto e branco e para quem não distingue cores.\n'+
+'UMA IDEIA POR LINHA: instruções em frases curtas, uma ação por linha, numeradas quando houver ordem. Nada de parágrafo com três comandos dentro.\n'+
+'ESPAÇO PARA RESPONDER: quando houver campo de resposta escrita, deixe linhas largas e espaço generoso, porque letra grande e coordenação em desenvolvimento precisam de mais espaço do que o adulto imagina.\n'+
+'ESTRUTURA PREVISÍVEL: mesma ordem de blocos, mesmos lugares na página, mesmos ícones para as mesmas funções. Previsibilidade ajuda todo mundo e é essencial para estudantes autistas.\n'+
+'LINGUAGEM LITERAL: no enunciado, evite ironia, metáfora e expressão idiomática. Se uma expressão figurada for o próprio conteúdo da aula, explique-a.\n'+
+'SEM POLUIÇÃO VISUAL: margens limpas, sem enfeite decorativo competindo com o conteúdo, sem fundo estampado atrás de texto.\n'+
+'\nLIBRAS E BRAILLE (limite técnico que precisa ser respeitado)\n'+
+'É PROIBIDO desenhar sinais de Libras. Um sinal depende de configuração de mão, ponto de articulação, movimento, orientação e expressão facial, e uma imagem gerada erra esses parâmetros, ensinando o sinal ERRADO. Em vez de desenhar, reserve um quadrado VAZIO de 3,5 cm com a legenda "Vídeo em Libras" para o professor colar o QR do vídeo, e oriente a buscar o sinal em dicionário oficial de Libras.\n'+
+'É PROIBIDO desenhar Braille. A célula Braille tem posição exata de pontos, e a imagem gerada produz padrão inválido. Além disso, Braille impresso em papel comum não tem relevo e não serve para leitura tátil: precisa de impressora Braille ou de reglete. Quando o material citar Braille, apresente-o como informação, e não como algo para o aluno ler ali.\n'+
+'PARA ESTUDANTES SURDOS: a Libras é a primeira língua e o português escrito é a segunda. Portanto, aumente o apoio visual, reduza a quantidade de texto, use frases diretas na ordem sujeito, verbo e complemento, e traga glossário visual dos termos novos. Nada que dependa exclusivamente de som (áudio, ritmo, entonação) pode ser a única via de acesso ao conteúdo.\n';
+
+    var P=document.getElementById('pde-painel');
+    var mode='own';
+    function resize(){try{parent.postMessage({type:'pde-resize',height:document.body.scrollHeight},'*');}catch(e){}}
+    window.addEventListener('load',resize);
+
+    // ===== WIZARD: navegação entre as 5 fases =====
+    var curPhase=1, totalPhases=5;
+    var backBtn=P.querySelector('#wz-back'), nextBtn=P.querySelector('#wz-next');
+    function showPhase(n){
+      curPhase=n;
+      P.querySelectorAll('.wz-phase').forEach(function(ph){ ph.classList.toggle('on', +ph.dataset.phase===n); });
+      P.querySelectorAll('.wz-step').forEach(function(st){
+        var s=+st.dataset.step;
+        st.classList.toggle('on', s===n);
+        st.classList.toggle('done', s<n);
+      });
+      backBtn.hidden = (n===1);
+      nextBtn.hidden = (n===totalPhases);
+      P.querySelector('.wz-steps').scrollIntoView({behavior:'smooth',block:'nearest'});
+      resize();
+    }
+    nextBtn.addEventListener('click',function(){ if(curPhase<totalPhases) showPhase(curPhase+1); });
+    backBtn.addEventListener('click',function(){ if(curPhase>1) showPhase(curPhase-1); });
+    // clicar direto num passo da barra
+    P.querySelectorAll('.wz-step').forEach(function(st){
+      st.addEventListener('click',function(){ showPhase(+st.dataset.step); });
+    });
+
+    // ===== BIBLIOTECA (IndexedDB) =====
+    var DB=null;
+    function openDB(cb){
+      if(DB){cb(DB);return;}
+      if(typeof indexedDB==='undefined'||!indexedDB){ return; }
+      var req;
+      try{ req=indexedDB.open('pde-atividades',1); }catch(e){ return; }
+      req.onupgradeneeded=function(e){
+        var db=e.target.result;
+        if(!db.objectStoreNames.contains('atividades'))
+          db.createObjectStore('atividades',{keyPath:'id',autoIncrement:true});
+      };
+      req.onsuccess=function(e){DB=e.target.result;cb(DB);};
+      req.onerror=function(){alert('Não foi possível acessar o armazenamento local.');};
+    }
+    function coletarEstado(){
+      var st={ salvoEm:Date.now(), modo:mode, perfil:perfil,
+        campos:{}, chips:{}, toggles:{}, legal:P.querySelector('#incl-legal').checked };
+      ['i-disc','i-serie','i-tema','i-qtd','i-pags','i-quest','ai-dif','ai-tipo','ai-foco'].forEach(function(id){
+        var el=P.querySelector('#'+id); if(el) st.campos[id]=el.value;
+      });
+      // páginas do modo multi
+      st.paginas=[];
+      P.querySelectorAll('#pags-wrap .pg-card').forEach(function(c){
+        st.paginas.push({d:c.querySelector('.pg-disc').value,t:c.querySelector('.pg-tema').value,q:c.querySelector('.pg-quest')?c.querySelector('.pg-quest').value:''});
+      });
+      var ec=P.querySelector('[data-group="estilo"] .pde-chip.on'); st.chips.estilo=ec?ec.dataset.val:'apostila';
+      st.chips.formato=formato();
+      P.querySelectorAll('.tg[data-tg]').forEach(function(t){ st.toggles[t.dataset.tg]=t.classList.contains('on'); });
+      st.titulo=(st.campos['i-tema']||'Atividade sem tema')+' · '+(st.campos['i-disc']||'');
+      return st;
+    }
+    function restaurarEstado(st){
+      Object.keys(st.campos||{}).forEach(function(id){
+        var el=P.querySelector('#'+id); if(el) el.value=st.campos[id]||'';
+      });
+      // modo
+      P.querySelectorAll('#mode-sw button').forEach(function(b){
+        var ativo=b.dataset.mode===st.modo;
+        b.classList.toggle('on',ativo);
+      });
+      mode=st.modo||'own';
+      P.classList.toggle('mode-ai', mode==='ai');
+      // estilo
+      P.querySelectorAll('[data-group="estilo"] .pde-chip').forEach(function(c){
+        c.classList.toggle('on', c.dataset.val===st.chips.estilo);
+      });
+      // perfil inclusivo
+      perfil=st.perfil||'';
+      P.querySelectorAll('[data-group="incl"] .incl-chip').forEach(function(c){
+        c.classList.toggle('on', c.dataset.val===perfil);
+      });
+      if(perfil&&INCL[perfil]){inclNote.innerHTML='<b>'+INCL[perfil].nome+':</b> '+INCL[perfil].nota;inclNote.classList.add('show');}
+      else inclNote.classList.remove('show');
+      // toggles
+      P.querySelectorAll('.tg[data-tg]').forEach(function(t){
+        t.classList.toggle('on', !!(st.toggles||{})[t.dataset.tg]);
+      });
+      P.querySelector('#incl-legal').checked=!!st.legal;
+      // restaura multi-página
+      if(typeof renderPags==='function'){ renderPags();
+        var cards=P.querySelectorAll('#pags-wrap .pg-card');
+        (st.paginas||[]).forEach(function(pg,i){
+          if(cards[i]){
+            cards[i].querySelector('.pg-disc').value=pg.d||'';
+            cards[i].querySelector('.pg-tema').value=pg.t||'';
+            if(cards[i].querySelector('.pg-quest')) cards[i].querySelector('.pg-quest').value=pg.q||'';
+          }
+        });
+      }
+      // dispara sugestão de imagem temática
+      var ev=document.createEvent('HTMLEvents'); ev.initEvent('change',true,false);
+      P.querySelector('#i-disc').dispatchEvent(ev);
+
+      showPhase(1);
+    }
+    function libSalvar(){
+      var st=coletarEstado();
+      if(!st.campos['i-tema'] && !st.campos['i-quest']){alert('Preencha ao menos o tema ou as questões antes de salvar.');return;}
+      openDB(function(db){
+        db.transaction('atividades','readwrite').objectStore('atividades').add(st).onsuccess=function(){
+          libListar(); flashStatusLib('✓ Atividade salva!');
+        };
+      });
+    }
+    function flashStatusLib(msg){
+      var b=P.querySelector('.lib-save'), o=b.textContent;
+      b.textContent=msg; setTimeout(function(){b.textContent=o;},1600);
+    }
+    function libListar(){
+      openDB(function(db){
+        var itens=[];
+        db.transaction('atividades').objectStore('atividades').openCursor(null,'prev').onsuccess=function(e){
+          var c=e.target.result;
+          if(c){itens.push(c.value);c.continue();}
+          else renderLib(itens);
+        };
+      });
+    }
+    function renderLib(itens){
+      P.querySelector('#lib-count').textContent=itens.length;
+      var panel=P.querySelector('#lib-panel');
+      if(!itens.length){panel.innerHTML='<div class="lib-empty">Nenhuma atividade salva ainda.</div>';return;}
+      panel.innerHTML=itens.map(function(it){
+        var dt=new Date(it.salvoEm);
+        var quando=dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+        return '<div class="lib-item" data-id="'+it.id+'">'+
+          '<div class="li-info"><b>'+(it.titulo||'Atividade')+'</b><span>'+quando+(it.perfil?' · '+it.perfil.toUpperCase():'')+'</span></div>'+
+          '<button class="li-load" data-lib="load">Carregar</button>'+
+          '<button class="li-dup" data-lib="dup">Duplicar</button>'+
+          '<button class="li-del" data-lib="del">×</button></div>';
+      }).join('');
+    }
+    P.querySelector('#lib-panel').addEventListener('click',function(e){
+      var b=e.target.closest('[data-lib]'); if(!b)return;
+      var id=+b.closest('.lib-item').dataset.id;
+      openDB(function(db){
+        var store=db.transaction('atividades','readwrite').objectStore('atividades');
+        if(b.dataset.lib==='del'){
+          store.delete(id).onsuccess=libListar;
+        } else {
+          store.get(id).onsuccess=function(ev){
+            var it=ev.target.result; if(!it)return;
+            if(b.dataset.lib==='dup'){
+              delete it.id; it.salvoEm=Date.now(); it.titulo=it.titulo+' (cópia)';
+              db.transaction('atividades','readwrite').objectStore('atividades').add(it).onsuccess=libListar;
+            } else {
+              restaurarEstado(it);
+              P.querySelector('#lib-panel').classList.remove('show');
+              resize();
+            }
+          };
+        }
+      });
+    });
+    libListar();
+
+    var BANCO={
+      'Matemática':'elementos geométricos, números, gráficos, instrumentos matemáticos (compasso, régua, transferidor), formas coloridas',
+      'Língua Portuguesa':'livros abertos, letras, canetas, balões de fala, elementos de leitura e escrita',
+      'Ciências':'laboratório, microscópio, tubos de ensaio, células, plantas e experiências científicas',
+      'História':'cena histórica compatível com o conteúdo, documentos antigos, mapas históricos, monumentos',
+      'Geografia':'mapas, relevo, globo terrestre, imagens de satélite, paisagens naturais',
+      'Astronomia':'planetas, constelações, telescópio, nebulosas, sistema solar',
+      'Educação Física':'esportes, movimento corporal, quadra, elementos de atividade física',
+      'Arte':'pincéis, tinta, paleta de cores, obras e elementos artísticos',
+      'Inglês':'elementos culturais de países de língua inglesa, bandeiras, balões de fala em inglês',
+      'Ensino Religioso':'símbolos de valores humanos, diversidade cultural, elementos de respeito e convivência',
+      'Outra':'elementos visuais coerentes e elegantes relacionados ao tema da ficha'
+    };
+    var ESTILOS={
+      ludico:'lúdico e infantil, ilustrações fofas e coloridas, mascotes amigáveis, formas arredondadas, tom alegre',
+      apostila:'apostila educacional premium, design editorial moderno, elegante e altamente legível, acabamento comercial',
+      militar:'material oficial de concursos e simulados militares, sóbrio, robusto, faixas firmes, tipografia séria',
+      moderno:'moderno minimalista, muito espaço em branco, poucas cores, tipografia limpa, sofisticado'
+    };
+
+    // ---- perfis de educação inclusiva (DUA) ----
+    var INCL={
+      tea:{
+        nome:'TEA / Autismo',
+        nota:'Linguagem literal e direta (sem figuras de linguagem), apoio visual em cada questão, instruções passo a passo e layout previsível.',
+        prompt:'ADAPTAÇÃO INCLUSIVA — TEA (AUTISMO): use linguagem literal, direta e objetiva, sem metáforas, ironia ou duplo sentido. Uma instrução por vez. Apoio visual (pictograma simples) ao lado de cada questão. Layout previsível e organizado, sem excesso de estímulos. Enunciados curtos e numeração clara das etapas.'
+      },
+      tdah:{
+        nome:'TDAH',
+        nota:'Enunciados curtos, poucas questões por página, marcações visuais de foco e baixa poluição visual.',
+        prompt:'ADAPTAÇÃO INCLUSIVA — TDAH: enunciados curtos e objetivos. Poucas questões por página com bastante espaço entre elas. Destaque visual no comando principal de cada questão (palavra-chave em negrito ou cor). Reduza elementos decorativos e poluição visual. Uma tarefa claramente delimitada por bloco.'
+      },
+      dislexia:{
+        nome:'Dislexia',
+        nota:'Fonte ampliada sem serifa, maior espaçamento entre linhas e letras, evitar itálico, texto alinhado à esquerda.',
+        prompt:'ADAPTAÇÃO INCLUSIVA — DISLEXIA: use fonte grande sem serifa (estilo OpenDyslexic, Comic Sans ou Arial), espaçamento ampliado entre linhas (1,5) e entre letras. Texto alinhado à esquerda, sem justificar, sem itálico e sem sublinhado em palavras longas. Frases curtas. Bom contraste entre texto e fundo. Evite blocos densos de texto.'
+      },
+      di:{
+        nome:'Deficiência Intelectual',
+        nota:'Vocabulário simplificado, uma instrução por vez, forte apoio pictográfico e questões mais concretas.',
+        prompt:'ADAPTAÇÃO INCLUSIVA — DEFICIÊNCIA INTELECTUAL: vocabulário simples e concreto, frases curtas. Uma única instrução por questão. Forte apoio pictográfico (imagem clara ilustrando cada questão). Reduza a quantidade de alternativas quando possível. Conteúdo contextualizado com o cotidiano. Evite abstrações.'
+      },
+      baixavisao:{
+        nome:'Baixa Visão',
+        nota:'Alto contraste, fonte muito grande, sem marca d\'água, layout limpo e amplo.',
+        prompt:'ADAPTAÇÃO INCLUSIVA — BAIXA VISÃO: fonte MUITO grande (mínimo 18pt equivalente), alto contraste (texto escuro em fundo branco puro, sem cinza claro no texto). NÃO use marca d\'água nem fundos coloridos atrás do texto. Bordas grossas e nítidas nos blocos. Layout amplo, espaçado e limpo. Evite imagens com baixo contraste.'
+      },
+      auditiva:{
+        nome:'Deficiência Auditiva',
+        nota:'Apoio visual reforçado, vocabulário acessível e possibilidade de referência em Libras.',
+        prompt:'ADAPTAÇÃO INCLUSIVA — DEFICIÊNCIA AUDITIVA / SURDEZ: reforce o apoio visual em todas as questões (imagens e ícones explicativos). Vocabulário acessível e estrutura de frase simples e direta. Quando o conteúdo envolver vocabulário-chave, inclua espaço ou referência visual para o sinal em Libras. Priorize compreensão pela imagem.'
+      }
+    };
+
+    var perfil='';
+    var inclNote=P.querySelector('#incl-note');
+    P.querySelectorAll('[data-group="incl"] .incl-chip').forEach(function(c){
+      c.addEventListener('click',function(){
+        P.querySelectorAll('[data-group="incl"] .incl-chip').forEach(function(x){x.classList.remove('on')});
+        c.classList.add('on'); perfil=c.dataset.val;
+        if(perfil && INCL[perfil]){
+          inclNote.innerHTML='<b>'+INCL[perfil].nome+':</b> '+INCL[perfil].nota;
+          inclNote.classList.add('show');
+        } else { inclNote.classList.remove('show'); }
+        resize();
+      });
+    });
+
+    // modo
+    P.querySelector('#mode-sw').addEventListener('click',function(e){
+      var b=e.target.closest('button'); if(!b) return;
+      P.querySelectorAll('#mode-sw button').forEach(function(x){x.classList.remove('on')});
+      b.classList.add('on'); mode=b.dataset.mode;
+      P.classList.toggle('mode-ai', mode==='ai');
+      resize();
+    });
+
+    var disc=P.querySelector('#i-disc'), hint=P.querySelector('#img-hint');
+    disc.addEventListener('change',function(){
+      var b=BANCO[disc.value];
+      hint.innerHTML=b?'Imagem temática sugerida: <b>'+b+'</b>':'Selecione a disciplina para sugerir a imagem temática.';
+    });
+    P.querySelectorAll('[data-group="estilo"] .pde-chip').forEach(function(c){
+      c.addEventListener('click',function(){P.querySelectorAll('[data-group="estilo"] .pde-chip').forEach(function(x){x.classList.remove('on')});c.classList.add('on');});
+    });
+    P.querySelectorAll('.tg').forEach(function(t){t.addEventListener('click',function(){t.classList.toggle('on');});});
+
+    function v(id){return (P.querySelector('#'+id).value||'').trim();}
+    function on(tg){return P.querySelector('.tg[data-tg="'+tg+'"]').classList.contains('on');}
+    function estilo(){var c=P.querySelector('[data-group="estilo"] .pde-chip.on');return c?c.dataset.val:'apostila';}
+    P.querySelectorAll('[data-group="formato"] .orient-card').forEach(function(c){
+      c.addEventListener('click',function(){
+        P.querySelectorAll('[data-group="formato"] .orient-card').forEach(function(x){
+          x.classList.remove('on'); x.setAttribute('aria-pressed','false');
+        });
+        c.classList.add('on'); c.setAttribute('aria-pressed','true');
+      });
+    });
+
+    function extras(imgTema){
+      var x=[];
+      if(on('imagem')) x.push('IMAGEM TEMÁTICA: ilustração grande de alta qualidade ('+imgTema+'), ocupando de 15% a 25% da página, integrada ao layout. Nunca substitua texto por imagem.');
+      if(on('dicas')) x.push('CAIXA "DICAS PARA O ALUNO": box destacado com uma orientação curta de estudo sobre o tema.');
+      if(on('marca')) x.push('MARCA D\'ÁGUA: marca d\'água temática muito suave ao fundo, sem prejudicar a leitura.');
+      if(on('icones')) x.push('ÍCONES: ícones educacionais discretos para organizar as seções.');
+      return x;
+    }
+
+    // ===== MULTI-PÁGINA =====
+    var multiGpt=[], multiGem=[], filaUnica='';
+    function nPags(){ return Math.max(1, Math.min(10, parseInt(v('i-pags')||'1',10)||1)); }
+    function renderPags(){
+      var n=nPags(), wrap=P.querySelector('#pags-wrap'), single=P.querySelector('#single-own'), hint=P.querySelector('#pags-hint');
+      P.classList.toggle('multi-on', n>1);
+      if(n<=1){ wrap.hidden=true; wrap.innerHTML=''; single.style.display=''; hint.hidden=true; resize(); return; }
+      hint.hidden=false; single.style.display='none';
+      // preserva valores já digitados
+      var prev=[];
+      wrap.querySelectorAll('.pg-card').forEach(function(c,i){
+        prev[i]={d:c.querySelector('.pg-disc').value,t:c.querySelector('.pg-tema').value,q:c.querySelector('.pg-quest')?c.querySelector('.pg-quest').value:''};
+      });
+      var gd=v('i-disc'), html='';
+      for(var i=0;i<n;i++){
+        var p0=prev[i]||{};
+        html+='<div class="pg-card"><div class="pg-h"><span class="pg-n">'+(i+1)+'</span><span class="pg-t">Página '+(i+1)+'</span></div>'+
+          '<div class="pde-grid2"><div class="pde-f"><label>Disciplina</label><input class="pg-disc" value="'+((p0.d||gd)||'').replace(/"/g,'&quot;')+'" placeholder="Matemática"></div>'+
+          '<div class="pde-f"><label>Tema</label><input class="pg-tema" value="'+(p0.t||'').replace(/"/g,'&quot;')+'" placeholder="Tema desta página"></div></div>'+
+          '<div class="only-own"><div class="pde-f full"><label>Questões desta página</label><textarea class="pg-quest" placeholder="1. ...&#10;A) ...">'+(p0.q||'')+'</textarea></div></div></div>';
+      }
+      wrap.innerHTML=html; wrap.hidden=false; resize();
+    }
+    P.querySelector('#i-pags').addEventListener('change',renderPags);
+    P.querySelector('#i-pags').addEventListener('input',renderPags);
+
+    var IDENT=[['pde-id-prof','pde_professor'],['pde-id-escola','pde_escola'],['pde-id-municipio','pde_municipio']];
+    IDENT.forEach(function(par){
+      var el=document.getElementById(par[0]); if(!el)return;
+      try{ var s=localStorage.getItem(par[1]); if(s) el.value=s; }catch(e){}
+      el.addEventListener('input',function(){ try{ localStorage.setItem(par[1],el.value); }catch(e){} });
+    });
+    function idn(id){ var el=document.getElementById(id); return el?(el.value||'').trim():''; }
+    function assinatura(){
+      var out=[idn('pde-id-prof'),idn('pde-id-escola'),idn('pde-id-municipio')].filter(Boolean);
+      return out.length?' · Elaborado por: '+out.join(' · '):'';
+    }
+    function idMat(){ var a=new Date(); return 'PDE-CRIATIVAS-'+a.getFullYear()+('0'+(a.getMonth()+1)).slice(-2)+('0'+a.getDate()).slice(-2); }
+    function dataGer(){ var a=new Date(); return ('0'+a.getDate()).slice(-2)+'/'+('0'+(a.getMonth()+1)).slice(-2)+'/'+a.getFullYear()+assinatura(); }
+
+    /* FORMATO DE SAÍDA (fase 4): o bloco de página do prompt muda conforme
+       o professor vai imprimir na folha ou projetar na tela. O texto de
+       impressão é exatamente o que a ferramenta sempre usou. */
+    function formato(){
+      var c=P.querySelector('[data-group="formato"] .orient-card.on');
+      return c?c.dataset.orient:'imprimir';
+    }
+    var BLOCO_IMPRIMIR='TAMANHO DE PÁGINA E MARGENS (para imprimir sem cortar): a imagem tem EXATAMENTE o tamanho de uma folha A4 retrato (210 mm por 297 mm, 2480x3508 px a 300 DPI), com 15 mm de margem livre em TODOS os lados; nenhum texto ou quadro pode entrar nessa faixa nem encostar na borda, e o fundo da margem é branco, porque impressora escolar não imprime até o limite do papel. Se o conteúdo não couber, distribua em mais páginas, NUNCA encolha a letra até ficar ilegível.\n\n';
+    var BLOCO_TELA='TAMANHO DE TELA (para projetar sem cortar): a imagem tem EXATAMENTE a proporção 16:9 na horizontal (1920x1080 px), com uma faixa livre de 60 px em TODOS os lados; nenhum texto ou quadro entra nessa faixa nem encosta na borda, porque projetor e televisão cortam as extremidades. O texto sai GRANDE o bastante para ser lido do fundo da sala. Se o conteúdo não couber, distribua em MAIS TELAS, nunca encolha a letra até ficar ilegível. Como este material é projetado e não impresso, NÃO desenhe linhas para preencher à mão nem quadrinho de nota: o cabeçalho traz apenas o tema, a disciplina e a série.\n\n';
+    function blocoFormato(){ return formato()==='tela' ? BLOCO_TELA : BLOCO_IMPRIMIR; }
+    function linhaPagina(){ return formato()==='tela' ? 'Tela horizontal 16:9 (1920x1080 px)' : 'Página vertical A4 (2480x3508 px)'; }
+    function checagemFormato(){ return formato()==='tela'
+      ? 'A tela está em 16:9 exato, com a faixa livre nas bordas e o texto legível do fundo da sala?'
+      : 'A folha está no tamanho A4 exato, com as margens livres de 15 mm?'; }
+
+    function promptPagina(i,n,pd,ptema,pquest){
+      var qtd=v('i-qtd')||'4', serie=v('i-serie')||'(série)';
+      var estTxt=ESTILOS[estilo()], imgTema=BANCO[pd]||BANCO['Outra'];
+      var campos=on('campos')?'Nome, Turma, Data e Nota':'Nome e Data';
+      var inclB=(perfil&&INCL[perfil])?INCL[perfil].prompt+'\n\n':'';
+      var ex=extras(imgTema);
+      var etapa1, passoGem;
+      if(mode==='own'){
+        etapa1='ETAPA 1 — REVISÃO DO TEXTO\nTranscreva o conteúdo abaixo corrigindo apenas ortografia, acentuação e pontuação. Revise DUAS vezes antes de desenhar. Use EXATAMENTE este conteúdo, sem inventar nem omitir:\n\nDisciplina: '+pd+'\nTema: '+ptema+'\nSérie: '+serie+'\n\nQUESTÕES:\n'+(pquest||'(cole as questões desta página)');
+        passoGem='PASSO INTERNO: revise DUAS vezes a ortografia em português do Brasil do conteúdo abaixo. Depois renderize esse texto na imagem EXATAMENTE como escrito, palavra por palavra:\n\nDisciplina: '+pd+' · Série: '+serie+'\nQUESTÕES:\n'+(pquest||'(questões)');
+      } else {
+        var dif=v('ai-dif'), tipo=v('ai-tipo'), foco=v('ai-foco');
+        var params='Dificuldade: '+dif+'\nTipo: '+tipo+(foco?'\nFoco: '+foco:'')+(on('ai-texto')?'\nInclua um pequeno texto-base antes das questões.':'')+(on('ai-bncc')?'\nRelacione cada questão a uma habilidade da BNCC. Cite o CÓDIGO apenas se tiver certeza absoluta de que é real e do ano certo; caso contrário, descreva a habilidade com suas palavras SEM inventar código.':'');
+        etapa1='ETAPA 1 — CRIAÇÃO DO CONTEÚDO\nCrie '+qtd+' questões originais de '+pd+' sobre o tema "'+ptema+'" para o '+serie+', em português do Brasil correto, com estes parâmetros:\n'+params+'\nEscreva as questões completas e revise a ortografia DUAS vezes antes de desenhar.';
+        passoGem='PASSO INTERNO: crie '+qtd+' questões originais de '+pd+' sobre "'+ptema+'" para o '+serie+', em português do Brasil correto.\nParâmetros:\n'+params+'\nRevise a ortografia DUAS vezes e então renderize as questões na imagem.';
+      }
+      var pagMark='Inclua a marcação "Página '+i+' de '+n+'" no canto superior direito e no rodapé.';
+
+      var gpt='Você é um designer editorial especialista em materiais educacionais premium. Crie a PÁGINA '+i+' de '+n+' de um conjunto de FICHAS DE EXERCÍCIOS ESCOLARES, como IMAGEM em alta resolução.\n\n'+
+etapa1+'\n\n'+
+'ETAPA 2 — CRIAÇÃO DA IMAGEM\n'+linhaPagina()+', estilo '+estTxt+'.\n\n'+
+inclB+
+'IDENTIDADE VISUAL: azul-marinho #0F2C4A, azul-ciano #37B1DA, cinza claro #E9EEF2, branco predominante.\n\n'+
+'CABEÇALHO ESCOLAR: faixa superior robusta com o tema "'+ptema+'" em destaque, subtítulo '+pd+' — '+serie+', e linhas para preencher à mão: '+(idn('pde-id-escola')?'Escola "'+idn('pde-id-escola')+'" já impressa, ':'Escola, ')+(idn('pde-id-prof')?'Professor(a) "'+idn('pde-id-prof')+'", ':'Professor(a), ')+campos+'. '+pagMark+'\n\n'+
+'QUESTÕES: cada questão em um bloco visual, numeração destacada, alternativas alinhadas, espaçamento confortável, bordas discretas, alta legibilidade.\n\n'+
+'IMAGENS DE APOIO POR QUESTÃO: quando o enunciado exigir (gráfico, figura, mapa, tirinha ou cena), gere uma ilustração de apoio clara dentro do bloco daquela questão. Não adicione imagem em questões puramente textuais. As imagens nunca substituem o texto.\n\n'+
+(ex.length?ex.join('\n')+'\n\n':'')+
+'ESTILO DE ESCRITA: escreva como um redator humano profissional. PROIBIDO usar travessão (—) ou hífen (-) como conector de frase ou para criar pausas: use vírgula, dois-pontos, parênteses ou reescreva. Hífen apenas em palavras compostas legítimas.\n\n'+
+'RODAPÉ OBRIGATÓRIO (PRIORIDADE MÁXIMA: se faltar espaço na folha, REDUZA O CONTEÚDO do material, nunca o rodapé; é PROIBIDO entregar o material sem ele, e é PROIBIDO encolher a ponto de ficar ilegível), em TRÊS partes discretas que ocupam o MÍNIMO de espaço:\n1) QUADRO "IA RESPONSÁVEL": retângulo fino de borda discreta, com um pequeno ícone de robô à esquerda, o título pequeno "IA RESPONSÁVEL" e o texto: "Material elaborado com apoio de Inteligência Artificial para fins educacionais. Recomenda-se revisão pelo professor antes da aplicação." Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: '+(window.declaraIA?window.declaraIA():"")+' Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: '+(window.declaraIA?window.declaraIA():"")+' Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: [[PDE_DECLARACAO_IA]]  \n2) LINHA DE CONFORMIDADE, em fonte bem pequena, em uma única linha: ✓ Alinhado à BNCC · ✓ Uso educacional · ✓ Revisão docente recomendada · ID: '+idMat()+' · Versão: 1.0 · Gerado em: '+dataGer()+'\n3) Barra final em azul-marinho #0F2C4A, com os três canais em UMA única linha horizontal separados por barras verticais: 🌐 portaldoeducador.com.br | ▶️ YouTube: @PortaldoEducador | 📷 Instagram: @portal._do_educador\nIMPORTANTE: o rodapé é somente texto (mais o pequeno ícone de robô). NÃO crie logotipo, símbolo, brasão ou marca gráfica para o Portal do Educador nem para a escola. Reproduza o ID, a versão, a data e a identificação EXATAMENTE como informados.\n\n'+
+blocoFormato()+
+'PROTOCOLO DE CHECAGEM FINAL (obrigatório antes de entregar)\n1) Cada palavra foi reproduzida exatamente como na Etapa 1, sem inventar, resumir ou omitir alternativa? 2) A ortografia foi revisada DUAS vezes e nenhum texto ficou cortado, sobreposto ou ilegível? 3) A numeração das questões está correta e sem pular? 4) O espaço de resposta é suficiente? 5) '+checagemFormato()+' 6) Nenhum código BNCC foi inventado? 7) O cabeçalho escolar está completo? 8) O rodapé traz o quadro IA RESPONSÁVEL, a linha de conformidade e o ID, a versão e a data EXATAMENTE como informados, sem logotipo inventado? Só entregue depois de aprovar os 8 itens.\n\n'+
+'REGRAS CRÍTICAS DE TEXTO: reproduza cada palavra exatamente como na Etapa 1; não invente, não resuma, não omita alternativas, não crie texto decorativo ilegível; todo texto perfeitamente legível em português do Brasil; se faltar espaço, reduza imagens e elementos gráficos, NUNCA o texto. O texto tem prioridade máxima.\n\n'+
+'QUALIDADE: aparência de material vendido comercialmente, acabamento editorial profissional, impressão nítida, alta resolução, organização impecável.';
+
+      var gem='Crie uma imagem em alta resolução: FICHA DE EXERCÍCIOS escolar, página vertical A4 (2480x3508 px), estilo '+estTxt+'. Esta é a PÁGINA '+i+' de '+n+' de um conjunto.\n\n'+
+passoGem+'\n\n'+
+'PALETA: #0F2C4A (azul-marinho), #37B1DA (ciano), #E9EEF2 (cinza claro), branco predominante.\n\n'+
+inclB+
+'CABEÇALHO: faixa superior com o título "'+ptema+'", subtítulo "'+pd+' — '+serie+'", campos para '+campos+'. '+pagMark+'\n\n'+
+'LAYOUT: '+qtd+' questões, cada uma em um bloco com numeração destacada e alternativas alinhadas, muito espaço em branco, fonte grande e legível.\n\n'+
+'IMAGENS DE APOIO: quando a questão exigir (gráfico, figura, mapa, tirinha), inclua ilustração de apoio no bloco da questão; nunca em questões só de texto; imagens nunca substituem o texto.\n\n'+
+(ex.length?'ELEMENTOS:\n- '+ex.join('\n- ')+'\n\n':'')+
+'PÁGINA E MARGENS: a folha tem EXATAMENTE o tamanho A4 retrato (210 mm por 297 mm, 2480x3508 px a 300 DPI), com 15 mm de margem livre em todos os lados; nada encosta na borda e o fundo da margem é branco, para imprimir sem cortar.\n\n'+
+'RODAPÉ OBRIGATÓRIO (PRIORIDADE MÁXIMA: se faltar espaço, REDUZA O CONTEÚDO, nunca o rodapé) em TRÊS partes discretas:\n1) QUADRO "IA RESPONSÁVEL": retângulo fino com um pequeno ícone de robô, o título pequeno "IA RESPONSÁVEL" e o texto "Material elaborado com apoio de Inteligência Artificial para fins educacionais. Recomenda-se revisão pelo professor antes da aplicação." Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: '+(window.declaraIA?window.declaraIA():"")+' Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: '+(window.declaraIA?window.declaraIA():"")+' Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: [[PDE_DECLARACAO_IA]]  \n2) LINHA DE CONFORMIDADE em fonte bem pequena: ✓ Alinhado à BNCC · ✓ Uso educacional · ✓ Revisão docente recomendada · ID: '+idMat()+' · Versão: 1.0 · Gerado em: '+dataGer()+'\n3) Barra final em azul-marinho #0F2C4A com os três canais em UMA linha: 🌐 portaldoeducador.com.br | ▶️ YouTube: @PortaldoEducador | 📷 Instagram: @portal._do_educador\nSomente texto (mais o ícone de robô), sem logotipo ou marca gráfica inventada, e reproduzindo o ID, a versão e a data EXATAMENTE como informados.\n\n'+
+'ESTILO DE ESCRITA: proibido usar travessão (—) ou hífen (-) como conector de frase; use vírgula, dois-pontos ou parênteses.\n\n'+
+'CHECAGEM ANTES DE ENTREGAR: 1) o texto saiu exatamente como pedido, sem inventar nem omitir alternativa; 2) ortografia revisada DUAS vezes; 3) nada cortado, sobreposto ou ilegível; 4) numeração correta; 5) espaço de resposta suficiente; 6) folha em A4 exato com as margens de 15 mm; 7) cabeçalho escolar completo; 8) rodapé com o quadro IA RESPONSÁVEL e o ID, a versão e a data exatos. Só entregue depois de aprovar os 8 itens.\n\n'+
+'REGRAS: texto sempre legível e correto em português do Brasil; não omitir alternativas; se faltar espaço, reduzir ilustrações e nunca o texto. QUALIDADE: acabamento editorial profissional, aparência de material comercial, alta resolução.';
+
+      return {gpt:gpt,gem:gem};
+    }
+
+    function buildMulti(){
+      var n=nPags(); multiGpt=[]; multiGem=[];
+      var cards=P.querySelectorAll('#pags-wrap .pg-card');
+      if(cards.length!==n){ renderPags(); cards=P.querySelectorAll('#pags-wrap .pg-card'); }
+      var linhasFila=[];
+      cards.forEach(function(c,idx){
+        var i=idx+1, pd=c.querySelector('.pg-disc').value.trim()||'(disciplina)',
+            pt=c.querySelector('.pg-tema').value.trim()||'(tema)',
+            pq=(c.querySelector('.pg-quest')?c.querySelector('.pg-quest').value.trim():'');
+        var pr=promptPagina(i,n,pd,pt,pq);
+        multiGpt.push(pr.gpt); multiGem.push(pr.gem);
+        linhasFila.push('PÁGINA '+i+': '+pd+' — '+pt+(mode==='own'&&pq?'\nQuestões:\n'+pq:''));
+      });
+      // prompt-fila único (ChatGPT)
+      var serie=v('i-serie')||'(série)', estTxt=ESTILOS[estilo()];
+      var inclB=(perfil&&INCL[perfil])?'\n'+INCL[perfil].prompt:'';
+      filaUnica='Vamos criar um conjunto de '+n+' páginas de fichas de exercícios, UMA POR VEZ.\n\nPADRÃO VISUAL (vale para todas): página vertical A4 (2480x3508 px), estilo '+estTxt+', paleta #0F2C4A/#37B1DA/#E9EEF2, cabeçalho com tema e série ('+serie+'), campos Nome/Data, marcação "Página X de '+n+'", rodapé em duas partes: linha discreta com um pequeno ícone de robô e o texto "Material elaborado com apoio de Inteligência Artificial e revisado pedagogicamente antes da publicação." e, abaixo, barra final em azul-marinho #0F2C4A com os três canais em UMA única linha horizontal separados por barras verticais: 🌐 portaldoeducador.com.br | ▶️ YouTube: @PortaldoEducador | 📷 Instagram: @portal._do_educador (somente texto, sem logotipo ou marca gráfica). Texto sempre correto e legível em português do Brasil.'+inclB+'\n\nCONTEÚDO DAS PÁGINAS:\n'+linhasFila.join('\n\n')+'\n\n'+(mode==='ai'?'Para cada página, crie '+(v('i-qtd')||'4')+' questões originais ('+v('ai-dif')+', '+v('ai-tipo')+'), revise a ortografia DUAS vezes e desenhe com acabamento editorial premium.\n\n':'Revise a ortografia DUAS vezes e reproduza as questões exatamente como fornecidas. Acabamento editorial premium em todas as páginas.\n\n')+'Gere AGORA apenas a PÁGINA 1. Quando eu disser "próxima", gere a página seguinte mantendo exatamente o mesmo estilo visual.';
+      // renderiza a fila: um botão por página
+      var fw=P.querySelector('#fila-wrap');
+      fw.innerHTML=cards.length?(
+        Array.prototype.map.call(cards,function(c,idx){
+          var i=idx+1, pt=c.querySelector('.pg-tema').value.trim()||'Página '+i;
+          return '<div class="fila-item"><span class="fi-n">'+i+'</span><span class="fi-t">'+pt.replace(/</g,'&lt;')+'</span>'+
+            '<button class="fi-copy" data-mcopy="'+idx+'-gpt">Copiar prompt '+i+'</button></div>';
+        }).join('')+
+        '<button class="fila-unica" data-mcopy="fila">⚡ Copiar prompt-fila único (ChatGPT: gera 1 por vez, digite "próxima")</button>'+
+        '<div class="fila-note">Copie o prompt 1, cole na IA e gere. Depois o 2, e assim por diante. Funciona no ChatGPT e no Gemini. A numeração "Página X de '+n+'" sai em cada ficha.</div>'
+      ):'';
+      fw.hidden=false;
+      P.querySelector('#go-grid').style.display='none';
+    }
+
+    function build(){
+      var d=v('i-disc')||'(disciplina)', serie=v('i-serie')||'(série)',
+          tema=v('i-tema')||'(tema)', qtd=v('i-qtd')||'4';
+      var estTxt=ESTILOS[estilo()], imgTema=BANCO[d]||BANCO['Outra'];
+      var campos=on('campos')?'Nome, Turma, Data e Nota':'Nome e Data';
+
+      // ---- bloco de CONTEÚDO conforme o modo ----
+      var etapa1Gpt, conteudoGem;
+      if(mode==='own'){
+        var quest=v('i-quest')||'(cole as questões)';
+        etapa1Gpt='ETAPA 1 — REVISÃO DO TEXTO\nTranscreva o conteúdo abaixo corrigindo apenas ortografia, acentuação e pontuação. Revise DUAS vezes antes de desenhar. Use EXATAMENTE este conteúdo, sem inventar nem omitir:\n\nDisciplina: '+d+'\nTema: '+tema+'\nSérie: '+serie+'\n\nQUESTÕES:\n'+quest;
+        conteudoGem='PASSO INTERNO: revise DUAS vezes a ortografia em português do Brasil do conteúdo abaixo e renderize-o EXATAMENTE como escrito, palavra por palavra.\n\nCONTEÚDO ('+qtd+' questões):\n'+quest;
+      } else {
+        var dif=v('ai-dif'), tipo=v('ai-tipo'), foco=v('ai-foco');
+        var params='Dificuldade: '+dif+'\nTipo: '+tipo+(foco?'\nFoco: '+foco:'')+
+          (on('ai-texto')?'\nInclua um pequeno texto-base antes das questões.':'')+
+          (on('ai-bncc')?'\nRelacione cada questão a uma habilidade da BNCC. Cite o CÓDIGO apenas se tiver certeza absoluta de que é real e do ano certo; caso contrário, descreva a habilidade com suas palavras SEM inventar código.':'');
+        etapa1Gpt='ETAPA 1 — CRIAÇÃO DO CONTEÚDO\nCrie '+qtd+' questões originais de '+d+' sobre o tema "'+tema+'" para o '+serie+', em português do Brasil correto, com estes parâmetros:\n'+params+'\nEscreva as questões completas e revise a ortografia antes de desenhar.';
+        conteudoGem='PASSO INTERNO: crie '+qtd+' questões originais de '+d+' sobre "'+tema+'" para o '+serie+', em português do Brasil correto.\nParâmetros:\n'+params+'\nRevise a ortografia e então renderize as questões na imagem.';
+      }
+
+      var ex=extras(imgTema);
+
+      // bloco de adaptação inclusiva (entra com destaque)
+      var inclBlock = (perfil && INCL[perfil]) ? INCL[perfil].prompt+'\n\n' : '';
+      // nota de fundamentação legal (opcional)
+      var legalOn = P.querySelector('#incl-legal').checked && perfil;
+      var legalBlock = legalOn
+        ? '\n\nNOTA DE RODAPÉ (discreta, abaixo do rodapé institucional): "Material adaptado conforme a Lei Brasileira de Inclusão (Lei 13.146/2015), o Atendimento Educacional Especializado (AEE) e os princípios do Desenho Universal para a Aprendizagem (DUA)."'
+        : '';
+
+      // ---------- ChatGPT / DALL·E ----------
+      var gpt=
+'Você é um designer editorial especialista em materiais educacionais premium. Crie uma FICHA DE EXERCÍCIOS ESCOLAR como IMAGEM em alta resolução.\n\n'+
+etapa1Gpt+'\n\n'+
+'ETAPA 2 — CRIAÇÃO DA IMAGEM\n'+linhaPagina()+', estilo '+estTxt+'.\n\n'+
+inclBlock+
+'IDENTIDADE VISUAL: azul-marinho #0F2C4A, azul-ciano #37B1DA, cinza claro #E9EEF2, branco predominante.\n\n'+
+'CABEÇALHO ESCOLAR: faixa superior robusta com o título do tema em destaque, subtítulo com disciplina e série, e linhas para preencher à mão: '+(idn('pde-id-escola')?'Escola "'+idn('pde-id-escola')+'" já impressa, ':'Escola, ')+(idn('pde-id-prof')?'Professor(a) "'+idn('pde-id-prof')+'", ':'Professor(a), ')+campos+'.\n\n'+
+'QUESTÕES: cada questão em um bloco visual, numeração destacada, alternativas alinhadas, espaçamento confortável, bordas discretas, alta legibilidade.\n\n'+
+'IMAGENS DE APOIO POR QUESTÃO: quando o enunciado exigir (interpretação de imagem, gráfico, tabela, figura geométrica, mapa, tirinha ou cena), gere uma ilustração de apoio clara DENTRO do bloco daquela questão, coerente com o conteúdo. Não adicione imagem em questões puramente textuais. As imagens de apoio nunca substituem o texto.\n\n'+
+(ex.length?ex.join('\n')+'\n\n':'')+
+'ESTILO DE ESCRITA: escreva como um redator humano profissional. PROIBIDO usar travessão (—) ou hífen (-) como conector de frase ou para criar pausas: use vírgula, dois-pontos, parênteses ou reescreva. Hífen apenas em palavras compostas legítimas.\n\n'+
+'RODAPÉ OBRIGATÓRIO (PRIORIDADE MÁXIMA: se faltar espaço na folha, REDUZA O CONTEÚDO do material, nunca o rodapé; é PROIBIDO entregar o material sem ele, e é PROIBIDO encolher a ponto de ficar ilegível), em TRÊS partes discretas que ocupam o MÍNIMO de espaço:\n1) QUADRO "IA RESPONSÁVEL": retângulo fino de borda discreta, com um pequeno ícone de robô à esquerda, o título pequeno "IA RESPONSÁVEL" e o texto: "Material elaborado com apoio de Inteligência Artificial para fins educacionais. Recomenda-se revisão pelo professor antes da aplicação." Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: '+(window.declaraIA?window.declaraIA():"")+' Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: '+(window.declaraIA?window.declaraIA():"")+' Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: [[PDE_DECLARACAO_IA]]  \n2) LINHA DE CONFORMIDADE, em fonte bem pequena, em uma única linha: ✓ Alinhado à BNCC · ✓ Uso educacional · ✓ Revisão docente recomendada · ID: '+idMat()+' · Versão: 1.0 · Gerado em: '+dataGer()+'\n3) Barra final em azul-marinho #0F2C4A, com os três canais em UMA única linha horizontal separados por barras verticais: 🌐 portaldoeducador.com.br | ▶️ YouTube: @PortaldoEducador | 📷 Instagram: @portal._do_educador\nIMPORTANTE: o rodapé é somente texto (mais o pequeno ícone de robô). NÃO crie logotipo, símbolo, brasão ou marca gráfica para o Portal do Educador nem para a escola. Reproduza o ID, a versão, a data e a identificação EXATAMENTE como informados.\n\n'+
+blocoFormato()+
+'PROTOCOLO DE CHECAGEM FINAL (obrigatório antes de entregar)\n1) Cada palavra foi reproduzida exatamente como na Etapa 1, sem inventar, resumir ou omitir alternativa? 2) A ortografia foi revisada DUAS vezes e nenhum texto ficou cortado, sobreposto ou ilegível? 3) A numeração das questões está correta e sem pular? 4) O espaço de resposta é suficiente? 5) '+checagemFormato()+' 6) Nenhum código BNCC foi inventado? 7) O cabeçalho escolar está completo? 8) O rodapé traz o quadro IA RESPONSÁVEL, a linha de conformidade e o ID, a versão e a data EXATAMENTE como informados, sem logotipo inventado? Só entregue depois de aprovar os 8 itens.\n\n'+
+'REGRAS CRÍTICAS DE TEXTO: reproduza cada palavra exatamente como na Etapa 1; não invente além do solicitado, não resuma, não omita alternativas, não crie texto decorativo ilegível; todo texto perfeitamente legível em português do Brasil; se faltar espaço, reduza imagens e elementos gráficos, NUNCA o texto. O texto tem prioridade máxima.\n\n'+
+'QUALIDADE: aparência de material vendido comercialmente, acabamento editorial profissional, impressão nítida, alta resolução, organização impecável.'+legalBlock;
+
+      // ---------- Gemini / Nano Banana ----------
+      var gem=
+'Crie uma imagem em alta resolução: FICHA DE EXERCÍCIOS escolar, página vertical A4 (2480x3508 px), estilo '+estTxt+'.\n\n'+
+conteudoGem+'\n\n'+
+'PALETA: #0F2C4A, #37B1DA, #E9EEF2, branco predominante.\n\n'+
+inclBlock+
+'CABEÇALHO: faixa superior com o título "'+tema+'", subtítulo "'+d+' — '+serie+'", campos para '+campos+'.\n\n'+
+'LAYOUT: '+qtd+' questões, cada uma em um bloco com numeração destacada e alternativas alinhadas, muito espaço em branco, fonte grande.\n\n'+
+'IMAGENS DE APOIO POR QUESTÃO: quando o enunciado exigir (interpretação de imagem, gráfico, tabela, figura geométrica, mapa, tirinha ou cena), inclua uma ilustração de apoio clara dentro do bloco daquela questão. Não adicione imagem em questões puramente textuais. As imagens nunca substituem o texto.\n\n'+
+(ex.length?'ELEMENTOS:\n- '+ex.join('\n- ')+'\n\n':'')+
+'PÁGINA E MARGENS: a folha tem EXATAMENTE o tamanho A4 retrato (210 mm por 297 mm, 2480x3508 px a 300 DPI), com 15 mm de margem livre em todos os lados; nada encosta na borda e o fundo da margem é branco, para imprimir sem cortar.\n\n'+
+'RODAPÉ OBRIGATÓRIO (PRIORIDADE MÁXIMA: se faltar espaço, REDUZA O CONTEÚDO, nunca o rodapé) em TRÊS partes discretas:\n1) QUADRO "IA RESPONSÁVEL": retângulo fino com um pequeno ícone de robô, o título pequeno "IA RESPONSÁVEL" e o texto "Material elaborado com apoio de Inteligência Artificial para fins educacionais. Recomenda-se revisão pelo professor antes da aplicação." Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: '+(window.declaraIA?window.declaraIA():"")+' Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: '+(window.declaraIA?window.declaraIA():"")+' Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: [[PDE_DECLARACAO_IA]]  \n2) LINHA DE CONFORMIDADE em fonte bem pequena: ✓ Alinhado à BNCC · ✓ Uso educacional · ✓ Revisão docente recomendada · ID: '+idMat()+' · Versão: 1.0 · Gerado em: '+dataGer()+'\n3) Barra final em azul-marinho #0F2C4A com os três canais em UMA linha: 🌐 portaldoeducador.com.br | ▶️ YouTube: @PortaldoEducador | 📷 Instagram: @portal._do_educador\nSomente texto (mais o ícone de robô), sem logotipo ou marca gráfica inventada, e reproduzindo o ID, a versão e a data EXATAMENTE como informados.\n\n'+
+'ESTILO DE ESCRITA: proibido usar travessão (—) ou hífen (-) como conector de frase; use vírgula, dois-pontos ou parênteses.\n\n'+
+'CHECAGEM ANTES DE ENTREGAR: 1) o texto saiu exatamente como pedido, sem inventar nem omitir alternativa; 2) ortografia revisada DUAS vezes; 3) nada cortado, sobreposto ou ilegível; 4) numeração correta; 5) espaço de resposta suficiente; 6) folha em A4 exato com as margens de 15 mm; 7) cabeçalho escolar completo; 8) rodapé com o quadro IA RESPONSÁVEL e o ID, a versão e a data exatos. Só entregue depois de aprovar os 8 itens.\n\n'+
+'REGRAS: texto sempre legível e correto em português do Brasil; não omitir alternativas; se faltar espaço, reduzir ilustrações e nunca o texto.'+legalBlock;
+
+      P.querySelector('#p-gpt').textContent=gpt;
+      P.querySelector('#p-gem').textContent=gem;
+    }
+
+    P.addEventListener('click',function(e){
+      var t=e.target.closest('[data-action],[data-copy],[data-go],[data-mcopy]'); if(!t) return;
+
+      if(t.dataset.action==='lib-salvar'){ libSalvar(); return; }
+      if(t.dataset.action==='lib-abrir'){
+        var lp=P.querySelector('#lib-panel');
+        lp.classList.toggle('show'); resize(); return;
+      }
+
+      if(t.dataset.action==='gerar'){
+        if(nPags()>1){ buildMulti(); }
+        else {
+          build();
+          P.querySelector('#fila-wrap').hidden=true;
+          P.querySelector('#go-grid').style.display='';
+        }
+        P.querySelector('#out').classList.add('show');
+        P.querySelector('#reveal').classList.remove('show');
+        P.querySelector('#go-status').textContent='';
+        P.querySelector('#out').scrollIntoView({behavior:'smooth'});
+        resize();
+      }
+
+      // cópia da fila multi-página
+      if(t.dataset.mcopy){
+        var mk=t.dataset.mcopy, mtxt;
+        if(mk==='fila'){ mtxt=filaUnica; }
+        else {
+          var pp=mk.split('-'); mtxt=(pp[1]==='gpt'?multiGpt:multiGem)[+pp[0]]||'';
+        }
+        var mbtn=t, morig=mbtn.textContent;
+        var mok=function(){
+          P.querySelector('#go-status').textContent='Pronto e já copiado! Abra o ChatGPT ou o Gemini e cole com Ctrl+V.';
+          mbtn.textContent='Copiado ✓';
+          setTimeout(function(){mbtn.textContent=morig;},2000);
+        };
+        copiarTexto(mtxt,mok);
+        return;
+      }
+
+      if(t.dataset.action==='vp'){
+        var rv=P.querySelector('#reveal');
+        rv.classList.toggle('show');
+        t.textContent=rv.classList.contains('show')?'ocultar prompt':'ver prompt';
+        resize();
+      }
+
+      // mapa chave -> {id do prompt, nome amigável}
+      var MAP={
+        'gpt':{id:'p-gpt',nome:'ChatGPT'},
+        'gem':{id:'p-gem',nome:'Gemini'}
+      };
+
+      // botão grande: copia o prompt certo (usuário abre a IA e cola)
+      if(t.dataset.go){
+        var m=MAP[t.dataset.go]; if(!m) return;
+        var txt=P.querySelector('#'+m.id).textContent;
+        var ok=function(){
+          P.querySelector('#go-status').textContent='Comando do '+m.nome+' copiado! Cole na aba que abriu com Ctrl+V.';
+        };
+        copiarTexto(txt,ok);
+      }
+
+      // copiar dentro do bloco "ver prompt"
+      if(t.dataset.copy){
+        var mc=MAP[t.dataset.copy]; if(!mc) return;
+        var ptxt=P.querySelector('#'+mc.id).textContent, btn=t;
+        var done=function(){btn.textContent='Copiado ✓';btn.classList.add('ok');setTimeout(function(){btn.textContent='Copiar';btn.classList.remove('ok')},1700);};
+        copiarTexto(ptxt,done);
+      }
+    });
+    // Cópia robusta p/ iframe (Webnode) e mobile:
+    // 1) execCommand síncrono dentro do gesto (funciona em iframe e iOS)
+    // 2) API clipboard como segunda tentativa
+    // 3) fallback manual: mostra o prompt para copiar à mão
+    function copiarTexto(txt,ok){
+      var feito=false;
+      try{
+        var ta=document.createElement('textarea');
+        ta.value=txt; ta.setAttribute('readonly','');
+        ta.style.position='fixed'; ta.style.left='-9999px'; ta.style.top='0'; ta.style.fontSize='16px';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        ta.setSelectionRange(0, txt.length);
+        feito=document.execCommand('copy');
+        document.body.removeChild(ta);
+      }catch(e){ feito=false; }
+      if(feito){ ok(); return; }
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(txt).then(ok).catch(copiaManual);
+      } else { copiaManual(); }
+      function copiaManual(){
+        // último recurso: abre o painel com o prompt visível e selecionado
+        var rv=P.querySelector('#reveal');
+        if(rv){ rv.classList.add('show'); }
+        P.querySelector('#go-status').textContent='Não foi possível copiar automaticamente. Toque e segure no texto abaixo para copiar.';
+        resize();
+      }
+    }
+    function fb(txt,cb){ copiarTexto(txt,cb); }
+  })();
+  </script>
+</div>
+
+<script>
+/* PDE-INCL-V1-UNIVERSAL: garante a inclusão operacional em qualquer estrutura */
+(function(){
+  var MARCA='ACESSIBILIDADE DO MATERIAL';
+  var BLOCO='\n\nACESSIBILIDADE DO MATERIAL (regras práticas, sempre aplicadas)\n'+
+'LEGIBILIDADE BASE: fonte sem serifa em todo o material. Corpo de texto nunca abaixo de 14 pontos, e nunca abaixo de 18 pontos quando houver pedido de baixa visão. Texto SEMPRE alinhado à esquerda, nunca justificado. Nada de texto em itálico em bloco inteiro nem de frase inteira em maiúsculas.\n'+
+'CONTRASTE: texto escuro sobre fundo claro, com contraste alto. NUNCA escreva por cima de foto ou de textura; se o fundo for colorido, use tarja sólida atrás do texto.\n'+
+'NUNCA SÓ COR: nenhuma informação pode depender apenas da cor. Toda distinção por cor vem acompanhada de rótulo escrito, ícone, número ou tipo de traço, para funcionar impressa em preto e branco e para quem não distingue cores.\n'+
+'UMA IDEIA POR LINHA: instruções em frases curtas, uma ação por linha, numeradas quando houver ordem.\n'+
+'ESPAÇO PARA RESPONDER: onde houver campo de resposta escrita, linhas largas e espaço generoso.\n'+
+'ESTRUTURA PREVISÍVEL: mesma ordem de blocos, mesmos lugares na página, mesmos ícones para as mesmas funções. Previsibilidade ajuda todo mundo e é essencial para estudantes autistas.\n'+
+'LINGUAGEM LITERAL: no enunciado, evite ironia, metáfora e expressão idiomática; se a expressão figurada for o conteúdo da aula, explique-a.\n'+
+'SEM POLUIÇÃO VISUAL: margens limpas, sem enfeite competindo com o conteúdo, sem fundo estampado atrás de texto.\n'+
+'\nLIBRAS E BRAILLE (limite técnico que precisa ser respeitado)\n'+
+'É PROIBIDO desenhar sinais de Libras. Um sinal depende de configuração de mão, ponto de articulação, movimento, orientação e expressão facial, e a imagem gerada erra esses parâmetros, ensinando o sinal ERRADO. Reserve um quadrado VAZIO de 3,5 cm com a legenda "Vídeo em Libras" para o professor colar o QR do vídeo, e oriente a buscar o sinal em dicionário oficial de Libras.\n'+
+'É PROIBIDO desenhar Braille. A célula Braille tem posição exata de pontos e a imagem gerada produz padrão inválido; além disso, Braille impresso em papel comum não tem relevo e não serve para leitura tátil, exigindo impressora Braille ou reglete. Cite o Braille como informação, nunca como algo para o aluno ler ali.\n'+
+'PARA ESTUDANTES SURDOS: a Libras é a primeira língua e o português escrito é a segunda. Aumente o apoio visual, reduza a quantidade de texto, use frases na ordem sujeito, verbo e complemento, e traga glossário visual dos termos novos. Nada que dependa exclusivamente de som pode ser a única via de acesso ao conteúdo.\n';
+
+  function completa(t){
+    if(typeof t!=='string'||t.length<400) return t;
+    if(t.indexOf(MARCA)>=0) return t;
+    if(t.indexOf('RODAPÉ OBRIGATÓRIO (PRIORIDADE MÁXIMA: se faltar espaço, REDUZA O CONTEÚDO, nunca o rodapé)')<0 && t.indexOf('IA RESPONSÁVEL')<0 && t.indexOf('OBJETIVO')<0) return t;
+    return t+BLOCO;
+  }
+
+  /* intercepta a escrita do prompt na tela */
+  function vigiar(){
+    var alvos=['p-uni','prompt-saida','peg-prompt-box','out-prompt','saida'];
+    alvos.forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el||el.__pdeIncl) return;
+      el.__pdeIncl=1;
+      var obs=new MutationObserver(function(){
+        var t=el.textContent;
+        if(typeof t==='string'&&t.length>400&&t.indexOf(MARCA)<0){
+          var novo=completa(t);
+          if(novo!==t){ obs.disconnect(); el.textContent=novo; obs.observe(el,{childList:true,characterData:true,subtree:true}); }
+        }
+      });
+      obs.observe(el,{childList:true,characterData:true,subtree:true});
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',vigiar);
+  else vigiar();
+  setTimeout(vigiar,400);
+  setTimeout(vigiar,1200);
+})();
+</script>
+
+
+
+<script>
+/* PDE-A11Y-V1 acessibilidade da interface, aplicada no carregamento */
+(function(){
+  function aplicar(){
+    var P=document.getElementById('pde-painel')||document.getElementById('peg');
+    if(!P||P.dataset.a11y) return;
+    P.dataset.a11y='1';
+
+    /* idioma declarado, para o leitor de tela pronunciar em português */
+    try{ if(document.documentElement && !document.documentElement.lang) document.documentElement.lang='pt-BR'; }catch(e){}
+    P.setAttribute('lang','pt-BR');
+
+    /* cada campo precisa de nome acessível: usa o label, o placeholder ou o texto do botão */
+    P.querySelectorAll('input,select,textarea').forEach(function(el){
+      if(el.getAttribute('aria-label')||el.getAttribute('aria-labelledby')) return;
+      var lab = el.id ? P.querySelector('label[for="'+el.id+'"]') : null;
+      if(lab){ if(!lab.id){ lab.id='lb-'+(el.id||Math.random().toString(36).slice(2,7)); } el.setAttribute('aria-labelledby',lab.id); return; }
+      var t=(el.getAttribute('placeholder')||'').trim();
+      if(!t){ var p=el.closest('.pde-f,.peg-f'); var l=p&&p.querySelector('label'); t=l?l.textContent.trim():''; }
+      if(t) el.setAttribute('aria-label',t.replace(/\s+/g,' ').slice(0,90));
+    });
+
+    /* botão sem texto legível (só ícone) ganha nome */
+    P.querySelectorAll('button').forEach(function(b){
+      if(b.getAttribute('aria-label')) return;
+      var t=(b.textContent||'').replace(/[\s\u200d\ufe0f]/g,'');
+      if(t.length<=2){
+        var titulo=b.getAttribute('title')||b.dataset.action||'';
+        if(titulo) b.setAttribute('aria-label',titulo);
+      }
+    });
+
+    /* estado dos chips e cards anunciado, não só colorido */
+    function sincronizar(){
+      P.querySelectorAll('.pde-chip,.md-card,.hub-cat').forEach(function(c){
+        if(!c.hasAttribute('role') && c.tagName!=='BUTTON') c.setAttribute('role','button');
+        if(!c.hasAttribute('tabindex') && c.tagName!=='BUTTON') c.setAttribute('tabindex','0');
+        c.setAttribute('aria-pressed', c.classList.contains('on')?'true':'false');
+      });
+      P.querySelectorAll('.wz-step').forEach(function(s){
+        s.setAttribute('aria-current', s.classList.contains('on')?'step':'false');
+      });
+    }
+    sincronizar();
+    P.addEventListener('click',function(){ setTimeout(sincronizar,0); });
+
+    /* Enter e espaço ativam quem não é <button> */
+    P.addEventListener('keydown',function(e){
+      if(e.key!=='Enter'&&e.key!==' ') return;
+      var alvo=e.target;
+      if(!alvo||alvo.tagName==='BUTTON'||alvo.tagName==='INPUT'||alvo.tagName==='SELECT'||alvo.tagName==='TEXTAREA') return;
+      if(alvo.getAttribute('role')==='button'){ e.preventDefault(); alvo.click(); }
+    });
+
+    /* a área de resultado avisa o leitor de tela quando o prompt fica pronto */
+    var out=P.querySelector('#out,#resultado,#peg-result');
+    if(out && !out.getAttribute('aria-live')){
+      out.setAttribute('aria-live','polite');
+      out.setAttribute('aria-atomic','false');
+    }
+    var st=P.querySelector('#go-status');
+    if(st && !st.getAttribute('aria-live')) st.setAttribute('aria-live','polite');
+
+    /* atalho para pular direto ao conteúdo */
+    if(!P.querySelector('.pde-pular')){
+      var painel=P.querySelector('.pde-panel,.peg-card');
+      if(painel){
+        if(!painel.id) painel.id='pde-conteudo';
+        var a=document.createElement('a');
+        a.className='pde-pular'; a.href='#'+painel.id;
+        a.textContent='Pular para o conteúdo';
+        P.insertBefore(a,P.firstChild);
+      }
+    }
+
+    /* imagem decorativa não é lida pelo leitor de tela */
+    P.querySelectorAll('img:not([alt])').forEach(function(i){ i.setAttribute('alt',''); });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',aplicar);
+  else aplicar();
+  setTimeout(aplicar,300);
+})();
+</script>
+
+
+
+<script>
+/* PDE-AVISO-VALIDA-V1 · aviso de validação logo abaixo do título
+   Princípio: quem responde pelo material é o professor, e ele precisa
+   saber disso ANTES de gerar, não só no rodapé do que foi gerado. */
+(function(){
+  var P=document.getElementById('pde-painel')||document.getElementById('peg');
+  if(!P) return;
+
+  function criar(){
+    if(P.querySelector('.pde-aviso-valida')) return;
+    /* acha o cabeçalho da ferramenta, qualquer que seja a estrutura */
+    var cab = P.querySelector('.pde-head, .cf-head, .pde-header-v4, header');
+    if(!cab){
+      var h1=P.querySelector('h1');
+      cab = h1 ? (h1.parentElement||h1) : null;
+    }
+    if(!cab) return;
+
+    var faixa=document.createElement('div');
+    faixa.className='pde-aviso-valida';
+    faixa.setAttribute('role','note');
+    faixa.innerHTML='<span class="av-ic" aria-hidden="true">👤</span>'+
+      '<span class="av-tx"><b>Você continua no comando.</b> '+
+      'Todo material gerado por inteligência artificial precisa da sua revisão antes de chegar à turma.<br>'+
+      '<b class="av-foco">Confira principalmente os números</b>, as medidas, as datas e os nomes científicos: '+
+      'é onde a IA mais erra, sobretudo quando resume o conteúdo. Depois ajuste ao seu planejamento e assine o que for usar.</span>';
+
+    cab.parentNode.insertBefore(faixa, cab.nextSibling);
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',criar);
+  else criar();
+  setTimeout(criar,300); setTimeout(criar,1000);
+})();
+</script>
+
+
+
+<script>
+/* PDE-CONTRATO-A4-V1 · contrato visual A4 no topo do prompt
+   Motivo: na validação real, só a ferramenta que tinha contrato com
+   geometria entregou o rodapé completo. Instrução no fim do prompt é
+   ignorada; instrução como GEOMETRIA, antes do conteúdo, é obedecida. */
+(function(){
+  var P=document.getElementById('pde-painel')||document.getElementById('peg');
+  if(!P) return;
+
+  var CONTRATO="\n\n####################################################################\nCONTRATO VISUAL INEGOCIÁVEL — FORMATO A4 E RODAPÉ OBRIGATÓRIO\n####################################################################\nESTA SEÇÃO TEM PRIORIDADE SUPERIOR A TODO O RESTANTE DO PROMPT.\nANTES DE DESENHAR TÍTULO, IMAGEM, BLOCOS OU QUALQUER CONTEÚDO, RESERVE A ZONA DO RODAPÉ.\n\nFORMATO OBRIGATÓRIO\nEste material vai ser IMPRESSO na impressora da escola ou projetado na lousa, então a geometria informada acima é obrigatória e não pode ser alterada.\n\nMARGEM DE SEGURANÇA DE IMPRESSÃO\nReserve 177 px (15 mm) de margem em TODOS os lados. Impressora escolar não imprime até a borda do papel.\nÉ PROIBIDO qualquer elemento, cor de fundo, moldura ou texto ultrapassar essa margem.\nÉ PROIBIDO conteúdo encostado ou cortado na borda.\n\nZONAS DA PÁGINA\nAs coordenadas exatas estão no FORMATO acima, que muda conforme a folha esteja em pé ou deitada.\nEm qualquer um dos dois: o conteúdo pedagógico ocupa NO MÁXIMO 82% da altura útil, o rodapé fica na zona reservada indicada, e a margem inferior fica sempre limpa.\n\nÉ PROIBIDO colocar conteúdo pedagógico dentro da zona do rodapé.\nÉ PROIBIDO usar toda a altura da página para o conteúdo.\nÉ PROIBIDO entregar a imagem sem o rodapé completo.\nÉ PROIBIDO criar o rodapé em outra página, segunda imagem ou fora do canvas.\nSE O CONTEÚDO NÃO COUBER: reduza o conteúdo, tire uma curiosidade, um exemplo ou uma ilustração. NUNCA reduza nem remova o rodapé.\n\nO RODAPÉ TEM EXATAMENTE 3 PARTES, TODAS VISÍVEIS NA MESMA IMAGEM:\n\nPARTE 1 — QUADRO \"IA RESPONSÁVEL\"\nRetângulo fino de borda discreta, com um pequeno ícone de robô à esquerda. SEM LOGOTIPO, SEM SÍMBOLO, SEM BRASÃO.\nTítulo pequeno: IA RESPONSÁVEL\nTexto exato: \"Material elaborado com apoio de Inteligência Artificial para fins educacionais. Recomenda-se revisão pelo professor antes da aplicação.\"\nLogo abaixo, dentro da MESMA caixa, em fonte menor porém legível, insira integralmente:\n[[PDE_DECLARACAO_IA]]\n\nPARTE 2 — LINHA DE CONFORMIDADE\nUma única linha horizontal, pequena porém legível, SEM quebrar em duas linhas.\nESCREVA EXATAMENTE ESTE TEXTO, CARACTERE POR CARACTERE:\n[[PDE_LINHA_CONFORMIDADE]]\nÉ PROIBIDO alterar, encurtar, traduzir, reformatar ou RECRIAR o código de identificação (o ID), a versão ou a data.\nO ID começa com PDE- seguido da área e da data. Ele identifica de qual ferramenta o material saiu: se você trocar uma letra sequer, o material deixa de ser rastreável e a saída está ERRADA.\nNUNCA reaproveite um ID de outro material, nem invente um código parecido.\n\nPARTE 3 — BARRA FINAL\nBarra horizontal em azul-marinho #0F2C4A, dentro do canvas e dentro da margem, com texto branco em uma única linha:\n🌐 portaldoeducador.com.br | ▶️ YouTube: @PortaldoEducador | 📷 Instagram: @portal._do_educador\n\nREGRA DE LEGIBILIDADE IMPRESSA\nNenhum texto do material abaixo de 9 pontos equivalentes. O rodapé é pequeno, mas precisa ser LEGÍVEL no papel.\n\nREGRA DE ACEITAÇÃO\nSe as 3 partes não estiverem integralmente visíveis dentro da MESMA imagem, dentro das margens, a saída está ERRADA. NÃO ENTREGUE: refaça a composição reduzindo o conteúdo superior.\n####################################################################\n";
+
+  function vigiar(){
+    ['p-uni','prompt-saida','prompt-gpt','peg-prompt-box','out-prompt','saida'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el||el.__contratoA4) return;
+      el.__contratoA4=1;
+      var obs=new MutationObserver(function(){
+        var t=el.textContent;
+        if(typeof t!=='string'||t.length<400) return;
+        if(t.indexOf('CONTRATO VISUAL INEGOCIÁVEL')>=0) return;
+        obs.disconnect();
+        /* a linha de conformidade REAL vive no fim do prompt; trazemos ela
+           para dentro do contrato, senão a IA inventa o ID em vez de copiar */
+        var linha=(t.match(/✓ Alinhado à BNCC[^\n]*/)||[])[0]
+               || (t.match(/ID: PDE-[A-ZÇÃÕÁÉÍÓÚ]+-\d{8}[^\n]*/)||[])[0]
+               || '(use a linha de conformidade escrita adiante neste prompt)';
+        var c=CONTRATO.split('[[PDE_LINHA_CONFORMIDADE]]').join(linha.trim());
+        /* o contrato entra DEPOIS da camada de declaração, então precisa
+           resolver o próprio marcador: senão ele sai cru no prompt */
+        if(c.indexOf('[[PDE_DECLARACAO_IA]]')>=0){
+          var dec = (typeof window.declaraIA==='function') ? window.declaraIA() : '';
+          if(!dec){
+            var k=t.indexOf('DECLARAÇÃO DE USO DE IA:');
+            if(k>=0){ var kf=t.indexOf(String.fromCharCode(10), k); dec=t.slice(k, kf>k?kf:k+400); }
+          }
+          c=c.split('[[PDE_DECLARACAO_IA]]').join(dec);
+        }
+        /* o contrato entra NO TOPO: a IA precisa ler a geometria antes do conteúdo */
+        el.textContent=c+'\n\n'+t;
+        obs.observe(el,{childList:true,characterData:true,subtree:true});
+      });
+      obs.observe(el,{childList:true,characterData:true,subtree:true});
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',vigiar);
+  else vigiar();
+  setTimeout(vigiar,400); setTimeout(vigiar,1200);
+})();
+</script>
+<script>
+/* PDE-RESOLVE-MARCADORES-V1 · resolve marcadores que sobraram no prompt
+   As camadas rodam em ordens diferentes; esta passa por último e garante
+   que nenhum [[...]] chegue ao professor. */
+(function(){
+  var P=document.getElementById('pde-painel')||document.getElementById('peg');
+  if(!P) return;
+
+  function declaracao(t){
+    if(typeof window.declaraIA==='function'){
+      try{ var d=window.declaraIA(); if(d) return d; }catch(e){}
+    }
+    var k=t.indexOf('DECLARAÇÃO DE USO DE IA:');
+    if(k>=0){
+      var f=t.indexOf(String.fromCharCode(10), k);
+      return t.slice(k, f>k?f:k+400);
+    }
+    return 'DECLARAÇÃO DE USO DE IA: material produzido com apoio de inteligência artificial, a partir de comando elaborado pelo professor no Portal do Educador. Revisão, validação pedagógica e responsabilidade pelo conteúdo final são do professor que aplica o material.';
+  }
+
+  function conformidade(t){
+    var k=t.indexOf('✓ Alinhado à BNCC');
+    if(k>=0){
+      var f=t.indexOf(String.fromCharCode(10), k);
+      return t.slice(k, f>k?f:k+300);
+    }
+    return '✓ Alinhado à BNCC · ✓ Uso educacional · ✓ Revisão docente recomendada';
+  }
+
+  function resolver(t){
+    if(t.indexOf('[[PDE_DECLARACAO_IA]]')>=0){
+      t=t.split('[[PDE_DECLARACAO_IA]]').join(declaracao(t));
+    }
+    /* alguma camada pode ter resolvido a declaração cedo demais, quando o
+       campo da ferramenta ainda não existia, e gravado o texto genérico:
+       aqui corrigimos para o nome real que o professor escolheu */
+    if(t.indexOf('produzido com ferramenta de IA generativa')>=0 && typeof window.declaraIA==='function'){
+      try{
+        var real=window.declaraIA();
+        var ini=real.indexOf('produzido com ');
+        var fim=real.indexOf(' para geração');
+        if(ini>=0 && fim>ini){
+          var nome=real.slice(ini+14, fim);
+          t=t.split('produzido com ferramenta de IA generativa').join('produzido com '+nome);
+        }
+      }catch(e){}
+    }
+    if(t.indexOf('[[PDE_LINHA_CONFORMIDADE]]')>=0){
+      t=t.split('[[PDE_LINHA_CONFORMIDADE]]').join(conformidade(t));
+    }
+    return t;
+  }
+
+  function vigiar(){
+    ['p-uni','prompt-saida','prompt-gpt','peg-prompt-box','out-prompt','saida'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el||el.__resolveM) return;
+      el.__resolveM=1;
+      var obs=new MutationObserver(function(){
+        var t=el.textContent;
+        if(typeof t!=='string'||t.length<200) return;
+        if(t.indexOf('[[PDE_')<0 && t.indexOf('produzido com ferramenta de IA generativa')<0) return;
+        obs.disconnect();
+        el.textContent=resolver(t);
+        obs.observe(el,{childList:true,characterData:true,subtree:true});
+      });
+      obs.observe(el,{childList:true,characterData:true,subtree:true});
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',vigiar);
+  else vigiar();
+  setTimeout(vigiar,500); setTimeout(vigiar,1400); setTimeout(vigiar,2200);
+})();
+</script>
+<script>
+/* PDE-LATERAL-V1 · fluxo de fases na lateral esquerda
+   O professor vê todas as etapas enquanto preenche, em vez de perdê-las ao rolar. */
+(function(){
+  var P=document.getElementById('pde-painel');
+  if(!P) return;
+
+  function montar(){
+    if(P.querySelector('.pde-lateral-wrap')) return;
+    var steps=P.querySelector('.wz-steps');
+    var painel=P.querySelector('.pde-panel');
+    if(!steps||!painel) return;
+
+    /* a coluna da esquerda: o fluxo, com título */
+    var lado=document.createElement('aside');
+    lado.className='pde-lateral';
+    var tit=document.createElement('div');
+    tit.className='pde-lateral-tit';
+    tit.textContent='FLUXO DE CRIAÇÃO';
+    lado.appendChild(tit);
+    lado.appendChild(steps);          /* move o indicador que já existe */
+
+    /* a coluna da direita: tudo o que vinha depois dos passos */
+    var wrap=document.createElement('div');
+    wrap.className='pde-lateral-wrap';
+    var col=document.createElement('div');
+    col.className='pde-lateral-conteudo';
+
+    painel.parentNode.insertBefore(wrap, painel);
+    wrap.appendChild(lado);
+    wrap.appendChild(col);
+    col.appendChild(painel);
+
+    /* o que vier depois do painel (botão de tela cheia, notas) acompanha */
+    var seg=wrap.nextElementSibling;
+    while(seg){
+      var prox=seg.nextElementSibling;
+      if(seg.tagName==='SCRIPT'||seg.tagName==='STYLE'){ seg=prox; continue; }
+      col.appendChild(seg);
+      seg=prox;
+    }
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',montar);
+  else montar();
+  setTimeout(montar,300); setTimeout(montar,1000);
+})();
+</script>
+<script>
+/* PDE-A11Y-EXEC-V3 · acessibilidade que a IA consegue desenhar
+   Regra que guiou a reescrita: a IA que gera imagem NÃO controla tipografia.
+   Toda exigência é ELEMENTO VISÍVEL (quantos blocos, que blocos, que tamanho
+   de campo), e sobe para o contrato do topo, porque o fim do prompt é ignorado. */
+(function(){
+  var P=document.getElementById('pde-painel')||document.getElementById('peg');
+  if(!P) return;
+
+  var CHIPS=[["baixavisao", "👁️ Baixa visão", "menos blocos e texto maior"], ["tea", "🧩 Autismo", "mesma estrutura e sem poluição"], ["tdah", "⚡ TDAH", "poucos blocos, numerados"], ["surdez", "🤟 Surdez", "glossário visual e espaço para Libras"], ["di", "💡 Deficiência intelectual", "uma ideia por vez, com exemplo"], ["motora", "✋ Deficiência motora", "campos grandes, sem escrita fina"]];
+  var INSTR={"baixavisao": "BAIXA VISÃO — o texto precisa sair GRANDE, e para isso a página precisa ter MENOS COISA. Use NO MÁXIMO 5 blocos na página inteira. Cada bloco com no máximo 3 linhas de texto. Frases curtas. Se o conteúdo não couber em 5 blocos, CORTE conteúdo. É PROIBIDO escrever texto por cima de foto, ilustração ou fundo colorido. É PROIBIDO usar cinza claro em texto: só preto ou cor escura sobre fundo claro. Ilustrações grandes e simples, com contorno grosso.", "tea": "AUTISMO — a página precisa ser PREVISÍVEL e LIMPA. Todos os blocos do mesmo tamanho, alinhados numa grade regular, cada um com um título curto que diz exatamente o que tem dentro. Nenhuma imagem atrás de texto, nenhum elemento decorativo solto, nenhuma forma cortada pela borda do bloco. Linguagem literal: nada de metáfora, ironia, gíria ou expressão figurada. No topo da página, escreva quantas partes o material tem, para a pessoa saber o que esperar.", "tdah": "TDAH — NO MÁXIMO 4 blocos na página, numerados de 1 a 4, bem separados uns dos outros por espaço em branco largo. Cada bloco começa com a informação mais importante em destaque. Nenhum texto com mais de 2 linhas. Margens completamente limpas: nada de enfeite, moldura decorativa ou ilustração que não ensine algo.", "surdez": "SURDEZ — o português escrito é a SEGUNDA língua de quem usa Libras, então a página muda de verdade e isso PRECISA APARECER. DOIS BLOCOS OBRIGATÓRIOS, desenhados na página: (1) bloco \"PALAVRAS DESTE MATERIAL\", com 4 a 6 termos, cada um com um desenho ao lado e uma linha muito curta de explicação; (2) QUADRADO VAZIO de 3,5 cm por 3,5 cm, com moldura pontilhada e a legenda \"Vídeo em Libras\", para o professor colar o QR. Corte pelo menos um terço do texto do resto da página e transforme em imagem, ícone ou esquema. Todas as frases na ordem direta: sujeito, verbo, complemento. É PROIBIDO desenhar sinais de Libras: a imagem gerada erra os parâmetros do sinal e ensina errado.", "di": "DEFICIÊNCIA INTELECTUAL — uma ideia por frase e um comando por vez, nunca instrução composta. Todo termo técnico aparece DEPOIS da explicação, nunca antes. Todo dado abstrato vem acompanhado de uma comparação concreta do dia a dia, desenhada ao lado. Onde houver alternativas, use 3 em vez de 4. No fim da página, um bloco curto repetindo o essencial. A estética continua adulta e digna: simplificar não é infantilizar.", "motora": "DEFICIÊNCIA MOTORA — toda resposta precisa ser possível SEM escrita fina. Todo campo de marcar é um quadrado de no mínimo 1 cm por 1 cm, bem separado dos vizinhos. Alternativas grandes, com área de toque larga. Onde houver linha para escrever, ela é larga e bem espaçada. É PROIBIDO exigir recortar, colar, ligar com traço fino ou escrever dentro de espaço pequeno. Inclua um espaço para o professor registrar a resposta dada oralmente."};
+  var SELO={"baixavisao": "menos blocos e texto ampliado", "tea": "estrutura previsível e página limpa", "tdah": "quatro blocos numerados", "surdez": "glossário visual e espaço para vídeo em Libras", "di": "uma ideia por vez com exemplo concreto", "motora": "resposta sem escrita fina"};
+
+  function grupo(){
+    return P.querySelector('#g-incl') || P.querySelector('[data-group="incl"]') ||
+      (function(){ var c=P.querySelector('.pde-chip[data-val="tea"],.pde-chip[data-val="baixavisao"],.pde-chip[data-val="surdez"]'); return c?c.parentNode:null; })();
+  }
+
+  /* os botões passam a ser 6: dislexia sai, porque não muda a imagem */
+  function padronizar(){
+    var g=grupo(); if(!g||g.dataset.a11yv3) return;
+    var marcados={};
+    g.querySelectorAll('.pde-chip').forEach(function(c){ if(c.classList.contains('on')&&c.dataset.val) marcados[c.dataset.val]=1; });
+    g.innerHTML='';
+    CHIPS.forEach(function(par){
+      var s=document.createElement('span');
+      s.className='pde-chip'+(marcados[par[0]]?' on':'');
+      s.dataset.val=par[0];
+      s.innerHTML='<b style="font-weight:800">'+par[1]+'</b><br><small style="font-size:10.5px;opacity:.85;font-weight:500">'+par[2]+'</small>';
+      s.setAttribute('role','button'); s.setAttribute('tabindex','0');
+      s.setAttribute('aria-pressed', marcados[par[0]]?'true':'false');
+      s.setAttribute('aria-label', par[1]+': '+par[2]);
+      s.addEventListener('click',function(){
+        s.classList.toggle('on');
+        s.setAttribute('aria-pressed', s.classList.contains('on')?'true':'false');
+      });
+      g.appendChild(s);
+    });
+    g.dataset.a11yv3='1';
+  }
+
+  /* o bloco que vai para o CONTRATO, no topo do prompt */
+  window.__pdeBlocoA11y=function(){
+    var g=grupo(); if(!g) return '';
+    var sel=[].slice.call(g.querySelectorAll('.pde-chip.on')).map(function(c){return c.dataset.val;}).filter(function(k){return INSTR[k];});
+    if(!sel.length) return '';
+    var out='\n\nADAPTAÇÃO OBRIGATÓRIA DA PÁGINA (prioridade igual à do rodapé)\n'+
+      'O professor marcou adaptação para alunos desta turma. O material PRECISA SAIR DIFERENTE por causa disso, e a diferença precisa ser VISÍVEL na página.\n'+
+      'Se ao terminar a página estiver igual à de sempre, a adaptação NÃO foi feita: refaça.\n'+
+      'A adaptação muda o CAMINHO DE ACESSO, nunca o conteúdo ensinado.\n\n'+
+      'COMO REDUZIR SEM ERRAR (regra crítica)\n'+
+      'Para caber em menos blocos, REMOVA BLOCOS INTEIROS. É PROIBIDO encurtar frase que contenha número, medida, unidade, data ou nome científico.\n'+
+      'Todo dado que permanecer na página tem de sair EXATAMENTE como está escrito neste prompt: o número, a unidade e o que ele mede.\n'+
+      'É PROIBIDO trocar a grandeza ao resumir. Comprimento não vira altura, largura não vira profundidade, peso não vira tamanho.\n'+
+      'Se um dado não couber por inteiro e correto, RETIRE o dado da página em vez de escrevê-lo pela metade ou aproximado.\n'+
+      'Antes de entregar, releia cada número da página e confira contra este prompt. Número errado em material de escola é falha grave.';
+    sel.forEach(function(k){ out+='\n\n'+INSTR[k]; });
+    var selos=sel.map(function(k){return SELO[k];}).filter(Boolean);
+    out+='\n\nNO RODAPÉ, ao lado da linha de conformidade, escreva em fonte pequena: "Versão adaptada: '+selos.join(' · ')+'".';
+    return out;
+  };
+
+  function vigiar(){
+    padronizar();
+    ['p-uni','prompt-saida','prompt-gpt','peg-prompt-box','out-prompt','saida'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el||el.__a11yv3) return;
+      el.__a11yv3=1;
+      var obs=new MutationObserver(function(){
+        var t=el.textContent;
+        if(typeof t!=='string'||t.length<400) return;
+        if(t.indexOf('ADAPTAÇÃO OBRIGATÓRIA DA PÁGINA')>=0) return;
+        var b=window.__pdeBlocoA11y(); if(!b) return;
+        obs.disconnect();
+        /* entra logo APÓS o contrato do topo, antes do conteúdo */
+        var marca='####################################################################';
+        var fim=t.indexOf(marca, t.indexOf(marca)+10);
+        fim=t.indexOf(marca, fim+10);
+        if(fim>0){ fim+=marca.length; el.textContent=t.slice(0,fim)+b+t.slice(fim); }
+        else{ el.textContent=b+'\n\n'+t; }
+        obs.observe(el,{childList:true,characterData:true,subtree:true});
+      });
+      obs.observe(el,{childList:true,characterData:true,subtree:true});
+    });
+  }
+  window.__pdeA11yPadronizar=function(){ try{ padronizar(); vigiar(); }catch(e){} };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',vigiar);
+  else vigiar();
+  setTimeout(vigiar,400); setTimeout(vigiar,1200); setTimeout(vigiar,2000);
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   PDE-QUIOSQUE-V2 · modo tela cheia (quiosque)
+   Autocontido: vive só dentro deste arquivo, com prefixo .pdeq- para não
+   colidir com nada do Portal nem da própria ferramenta.
+   ═══════════════════════════════════════════════════════════════════════ */
+#pde-painel.pdeq-on{
+  position:fixed !important;
+  inset:0 !important;
+  top:0 !important; right:0 !important; bottom:0 !important; left:0 !important;
+  width:100vw !important;
+  height:100vh !important;
+  height:100dvh !important;
+  max-width:none !important;
+  margin:0 !important;
+  z-index:2147483000 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  -webkit-overflow-scrolling:touch !important;
+  padding:0 !important;
+  overscroll-behavior:contain !important;
+}
+/* o conteúdo respira até 1600px e fica centralizado; elementos soltos
+   (modais, toasts, overlays da própria ferramenta) ficam de fora da regra */
+#pde-painel.pdeq-on > *:not(.pdeq-barra):not(style):not(script):not([data-pdeq-solto]){
+  max-width:1600px !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+  padding-left:clamp(12px,2.4vw,32px) !important;
+  padding-right:clamp(12px,2.4vw,32px) !important;
+}
+#pde-painel .pdeq-barra{ display:none; }
+#pde-painel.pdeq-on .pdeq-barra{
+  display:flex !important;
+  position:sticky !important; top:0 !important;
+  z-index:5 !important;
+  align-items:center !important; justify-content:space-between !important;
+  gap:12px !important; flex-wrap:wrap !important;
+  padding:10px clamp(12px,2.4vw,32px) !important;
+  margin:0 0 4px !important;
+  background:rgba(255,255,255,.94) !important;
+  backdrop-filter:saturate(140%) blur(8px) !important;
+  border-bottom:1px solid #dde6ee !important;
+  box-shadow:0 2px 10px rgba(15,44,74,.06) !important;
+  max-width:none !important;
+}
+#pde-painel .pdeq-grupo{ display:flex !important; align-items:center !important; gap:8px !important; flex-wrap:wrap !important; }
+#pde-painel .pdeq-sair,
+#pde-painel .pdeq-fechar,
+#pde-painel .pdeq-tela{
+  display:inline-flex !important; align-items:center !important; gap:8px !important;
+  min-height:44px !important; padding:0 16px !important;
+  border-radius:11px !important; cursor:pointer !important;
+  font-weight:800 !important; font-size:13.5px !important;
+  font-family:inherit !important; line-height:1 !important;
+  white-space:nowrap !important;
+}
+#pde-painel .pdeq-sair{ background:#0F2C4A !important; color:#fff !important; border:none !important; }
+#pde-painel .pdeq-sair:hover{ filter:brightness(1.12) !important; }
+#pde-painel .pdeq-fechar,
+#pde-painel .pdeq-tela{ background:#fff !important; color:#0F2C4A !important; border:1.5px solid #dde6ee !important; }
+#pde-painel .pdeq-fechar:hover,
+#pde-painel .pdeq-tela:hover{ border-color:#37B1DA !important; }
+#pde-painel .pdeq-sair:focus-visible,
+#pde-painel .pdeq-fechar:focus-visible,
+#pde-painel .pdeq-tela:focus-visible{ outline:3px solid #0C77A1 !important; outline-offset:2px !important; }
+
+/* o atalho de acessibilidade fica escondido ate receber foco. No Planejador
+   a regra original aponta para #pde-painel e nunca alcancava o #peg. */
+#pde-painel .pde-pular{ position:absolute !important; left:-9999px !important; top:0 !important; z-index:99 !important; }
+#pde-painel .pde-pular:focus{ left:0 !important; }
+
+html.pdeq-travado, body.pdeq-travado{
+  overflow:hidden !important; height:100% !important; overscroll-behavior:none !important;
+}
+/* enquanto o quiosque está ligado, a moldura do Portal em volta some */
+body [data-pdeq-oculto]{ display:none !important; }
+
+@media (max-width:900px){
+  #pde-painel .pdeq-fechar .pdeq-rot, #pde-painel .pdeq-tela .pdeq-rot{ display:none !important; }
+}
+@media (max-width:560px){
+  #pde-painel.pdeq-on .pdeq-barra{ padding:8px 12px !important; flex-wrap:nowrap !important; gap:8px !important; }
+  #pde-painel .pdeq-grupo{ flex:1 1 auto !important; flex-wrap:nowrap !important; min-width:0 !important; }
+  #pde-painel .pdeq-sair{ flex:1 1 auto !important; justify-content:center !important; padding:0 10px !important; font-size:13px !important; }
+  #pde-painel .pdeq-fechar, #pde-painel .pdeq-tela{ flex:0 0 auto !important; padding:0 12px !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PDE-LOGO-V2 · marca do Portal do Educador no cabeçalho da ferramenta
+   ═══════════════════════════════════════════════════════════════════════ */
+#pde-painel .pdel-marca{
+  display:block !important; width:72px !important; height:72px !important;
+  margin:0 auto 8px !important; object-fit:contain !important; border-radius:50% !important;
+  filter:drop-shadow(0 4px 12px rgba(15,44,74,.18));
+}
+#pde-painel .pdel-marca.pdel-viva{ animation:pdel-resp 2.6s ease-in-out 3; transform-origin:center center; }
+@keyframes pdel-resp{
+  0%,100%{ transform:scale(1); filter:drop-shadow(0 4px 12px rgba(15,44,74,.18)); }
+  50%{ transform:scale(1.055); filter:drop-shadow(0 6px 18px rgba(55,177,218,.42)); }
+}
+@media (prefers-reduced-motion:reduce){ #pde-painel .pdel-marca.pdel-viva{ animation:none !important; } }
+@media (max-width:560px){ #pde-painel .pdel-marca{ width:58px !important; height:58px !important; } }
+</style>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   PDE-QUIOSQUE-V2 + PDE-LOGO-V2 · Portal do Educador
+   Mesmo código em todas as ferramentas. Nada aqui depende do hub, da
+   navegação do Portal ou de qualquer componente compartilhado.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+
+  /* ─────────── EDITE AQUI ───────────
+     LOGO_ANIMADA: URL do GIF/WebP animado, ou data:image/gif;base64,...
+                   Vazio = usa a logo estática com respiração em CSS.       */
+  var LOGO_ANIMADA='';
+  var LOGO_ESTATICA='https://2e9d36b373.clvaw-cdnwnd.com/335de600d4513f981d46eaac6920a1f2/200004620-7d1847d187/Logo_Estatico_Circular_Posicao3_002.png?ph=2e9d36b373';
+  var VOLTA_PADRAO='https://www.portaldoeducador.com.br/portal-do-educador-ia-studio/';
+  var ABRIR_EM_QUIOSQUE=true;   /* false = a ferramenta abre normal e o professor liga pelo botão */
+  /* ────────── FIM DA EDIÇÃO ────────── */
+
+  var P=document.getElementById('pde-painel')||document.getElementById('peg');
+  if(!P || P.dataset.pdeqPronto) return;
+  P.dataset.pdeqPronto='1';
+
+  var raiz=document.documentElement, corpo=document.body;
+  var rolagemSalva=0, marcador=null, ocultos=[], soltos=[], vigia=null;
+
+  /* nome da ferramenta: sai do próprio título da página, sem configuração */
+  var tituloEl=P.querySelector('h1,h2');
+  var NOME=(tituloEl?tituloEl.textContent:'').replace(/\s+/g,' ').trim() || 'Portal do Educador';
+
+  /* ---------------- barra de controles ---------------- */
+  var barra=document.createElement('div');
+  barra.className='pdeq-barra';
+  barra.innerHTML=
+    '<span class="pdeq-grupo">'+
+      '<button type="button" class="pdeq-sair" data-pdeq="sair">← Voltar ao Portal</button>'+
+      '<button type="button" class="pdeq-fechar" data-pdeq="fechar">⤢ <span class="pdeq-rot">Sair do modo tela cheia</span></button>'+
+    '</span>'+
+    '<button type="button" class="pdeq-tela" data-pdeq="tela" aria-pressed="false">⛶ <span class="pdeq-rot">Tela cheia</span></button>';
+  P.insertBefore(barra, P.firstChild);
+
+  /* ---------------- quiosque ----------------
+     O Webnode envolve o bloco em seções que podem ter transform, filter ou
+     perspective. Qualquer uma delas cria bloco de contenção e o position:fixed
+     passa a valer sobre a seção, não sobre a janela: o cabeçalho do site
+     continua aparecendo e o topo da aplicação fica cortado. Por isso o painel
+     é movido para filho direto do body enquanto o quiosque estiver ligado. */
+  function moverParaBody(){
+    if(P.parentNode===corpo) return;
+    marcador=document.createComment('pdeq-lugar-original');
+    P.parentNode.insertBefore(marcador,P);
+    corpo.appendChild(P);
+  }
+  function devolverAoLugar(){
+    if(marcador && marcador.parentNode){
+      marcador.parentNode.insertBefore(P,marcador);
+      marcador.parentNode.removeChild(marcador);
+    }
+    marcador=null;
+  }
+  function esconderPortal(){
+    var filhos=corpo.children;
+    for(var i=0;i<filhos.length;i++){
+      var el=filhos[i], t=el.tagName;
+      if(el===P) continue;
+      if(t==='SCRIPT'||t==='STYLE'||t==='LINK'||t==='NOSCRIPT'||t==='TEMPLATE') continue;
+      if(el.contains(P)) continue;
+      if(el.hasAttribute('data-pdeq-oculto')) continue;
+      el.setAttribute('data-pdeq-oculto','1');
+      ocultos.push(el);
+    }
+  }
+  function mostrarPortal(){
+    for(var i=0;i<ocultos.length;i++){ ocultos[i].removeAttribute('data-pdeq-oculto'); }
+    ocultos=[];
+  }
+  /* modais, toasts e overlays da própria ferramenta ficam livres da regra de
+     largura máxima, senão um modal de tela inteira sairia centralizado a 1600px */
+  function marcarSoltos(){
+    var filhos=P.children;
+    for(var i=0;i<filhos.length;i++){
+      var el=filhos[i];
+      if(el===barra) continue;
+      var pos='';
+      try{ pos=getComputedStyle(el).position; }catch(e){}
+      if(pos==='fixed'||pos==='absolute'||pos==='sticky'){
+        el.setAttribute('data-pdeq-solto','1');
+        soltos.push(el);
+      }
+    }
+  }
+  function limparSoltos(){
+    for(var i=0;i<soltos.length;i++){ soltos[i].removeAttribute('data-pdeq-solto'); }
+    soltos=[];
+  }
+  function vigiarPortal(){
+    if(vigia || typeof MutationObserver==='undefined') return;
+    vigia=new MutationObserver(function(){ if(ativo()) esconderPortal(); });
+    vigia.observe(corpo,{childList:true});
+  }
+  function pararVigia(){ if(vigia){ vigia.disconnect(); vigia=null; } }
+  function conferirEncaixe(){
+    try{
+      var r=P.getBoundingClientRect();
+      if(Math.abs(r.top)<1 && Math.abs(r.left)<1){ P.style.transform=''; return; }
+      P.style.transform='translate('+(-r.left)+'px,'+(-r.top)+'px)';
+    }catch(e){}
+  }
+  function ativo(){ return P.classList.contains('pdeq-on'); }
+
+  function entrar(){
+    if(ativo()) return;
+    rolagemSalva=window.pageYOffset||raiz.scrollTop||0;
+    moverParaBody();
+    esconderPortal();
+    vigiarPortal();
+    marcarSoltos();
+    P.classList.add('pdeq-on');
+    raiz.classList.add('pdeq-travado');
+    corpo.classList.add('pdeq-travado');
+    P.setAttribute('role','region');
+    P.setAttribute('aria-label',NOME+' em modo tela cheia');
+    conferirEncaixe();
+  }
+  function sair(){
+    if(!ativo()) return;
+    P.classList.remove('pdeq-on');
+    P.style.transform='';
+    raiz.classList.remove('pdeq-travado');
+    corpo.classList.remove('pdeq-travado');
+    P.removeAttribute('role'); P.removeAttribute('aria-label');
+    pararVigia(); limparSoltos(); mostrarPortal(); devolverAoLugar();
+    try{ window.scrollTo(0,rolagemSalva); }catch(e){}
+    try{ requestAnimationFrame(function(){ window.scrollTo(0,rolagemSalva); }); }catch(e){}
+    telaCheiaNativa(false);
+  }
+  function voltarAoPortal(){
+    sair();
+    var veioDoPortal=false;
+    try{ veioDoPortal=!!document.referrer && document.referrer.indexOf(location.host)>=0; }catch(e){}
+    if(veioDoPortal && window.history.length>1){ window.history.back(); }
+    else{ window.location.href=VOLTA_PADRAO; }
+  }
+
+  /* ---------------- tela cheia nativa (complemento) ---------------- */
+  function telaCheiaNativa(ligar){
+    try{
+      var d=document;
+      if(ligar){
+        var pedir=raiz.requestFullscreen||raiz.webkitRequestFullscreen||raiz.msRequestFullscreen;
+        if(pedir){ var r=pedir.call(raiz); if(r&&r.catch) r.catch(function(){}); }
+      }else{
+        if(!emTelaCheia()) return;
+        var sairFs=d.exitFullscreen||d.webkitExitFullscreen||d.msExitFullscreen;
+        if(sairFs){ var x=sairFs.call(d); if(x&&x.catch) x.catch(function(){}); }
+      }
+    }catch(e){}
+  }
+  function emTelaCheia(){
+    return !!(document.fullscreenElement||document.webkitFullscreenElement||document.msFullscreenElement);
+  }
+  function sincronizarBotaoTela(){
+    var b=barra.querySelector('[data-pdeq="tela"]'); if(!b) return;
+    var r=b.querySelector('.pdeq-rot'), on=emTelaCheia();
+    b.setAttribute('aria-pressed', on?'true':'false');
+    if(r) r.textContent = on ? 'Sair da tela cheia' : 'Tela cheia';
+  }
+
+  barra.addEventListener('click',function(e){
+    var b=e.target.closest('[data-pdeq]'); if(!b) return;
+    e.preventDefault();
+    if(b.dataset.pdeq==='sair'){ voltarAoPortal(); return; }
+    if(b.dataset.pdeq==='fechar'){ sair(); return; }
+    if(b.dataset.pdeq==='tela'){ telaCheiaNativa(!emTelaCheia()); }
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Escape' && e.key!=='Esc') return;
+    if(!ativo()) return;
+    if(emTelaCheia()) return;   /* o navegador trata o primeiro ESC */
+    sair();
+  });
+  ['fullscreenchange','webkitfullscreenchange','msfullscreenchange'].forEach(function(ev){
+    document.addEventListener(ev,function(){ sincronizarBotaoTela(); if(ativo()) conferirEncaixe(); });
+  });
+  ['resize','orientationchange'].forEach(function(ev){
+    window.addEventListener(ev,function(){ if(ativo()) conferirEncaixe(); });
+  });
+
+  /* ---------------- logo no cabeçalho ---------------- */
+  var FONTE=LOGO_ANIMADA||LOGO_ESTATICA, ANIMADA=!!LOGO_ANIMADA;
+  function montarLogo(){
+    if(!FONTE || P.querySelector('.pdel-marca')) return;
+    var img=document.createElement('img');
+    img.className='pdel-marca'+(ANIMADA?'':' pdel-viva');
+    img.alt='Portal do Educador';
+    img.setAttribute('decoding','async');
+    img.addEventListener('error',function(){ if(img.parentNode) img.parentNode.removeChild(img); });
+    img.src=FONTE;
+
+    var t=P.querySelector('h1,h2');
+    if(t && t.parentNode){ t.parentNode.insertBefore(img,t); }
+    else { P.insertBefore(img, barra.nextSibling); }
+
+    /* se o titulo da ferramenta e alinhado a esquerda, a marca acompanha:
+       logo centralizada sobre titulo a esquerda fica desencontrada. */
+    try{
+      var al=t?getComputedStyle(t).textAlign:'center';
+      if(al==='left'||al==='start') img.style.setProperty('margin-left','0','important');
+      if(al==='right'||al==='end') img.style.setProperty('margin-right','0','important');
+    }catch(e){}
+
+    /* conferência de encaixe: a marca precisa ficar ACIMA do título. Se o
+       cabeçalho da ferramenta usar flex e jogar a logo para o lado, ela sobe
+       para o topo do painel, logo abaixo da barra. */
+    try{
+      requestAnimationFrame(function(){
+        if(!t) return;
+        var a=img.getBoundingClientRect(), b=t.getBoundingClientRect();
+        if(a.width===0 && a.height===0) return;
+        if(a.bottom > b.top + 4){
+          img.parentNode.removeChild(img);
+          P.insertBefore(img, barra.nextSibling);
+        }
+      });
+    }catch(e){}
+  }
+
+  /* ---------------- partida ----------------
+     Só depois do documento pronto: durante o parse, o rodapé e os blocos
+     finais do Portal ainda nem existem no DOM para poderem ser escondidos. */
+  function iniciar(){
+    montarLogo();
+    if(ABRIR_EM_QUIOSQUE) entrar();
+    sincronizarBotaoTela();
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',iniciar); }
+  else{ iniciar(); }
+  window.addEventListener('load',function(){ montarLogo(); if(ativo()){ esconderPortal(); conferirEncaixe(); } });
+
+  window.PDEQuiosque={ entrar:entrar, sair:sair, voltar:voltarAoPortal, ativo:ativo, nome:NOME };
+})();
+</script>
+
+<style id="pde-proprias">
+/* PDE-PROPRIAS-V1 · regras da própria ferramenta preservadas */
+#pde-painel{--muted:#64748b;--navy:#0F2C4A;--navy-2:#163a5c;--cyan-d:#2890b5;--line:#dde6ee;--cyan:#37B1DA;}
+#pde-painel .pde-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+#pde-painel .pde-f.full{grid-column:1/-1}
+/* SELETOR DE MODO (segmented) */
+    #pde-painel .mode-sw{display:flex;background:#e2eaf1;border-radius:13px;padding:5px;margin-bottom:20px;gap:5px}
+#pde-painel .mode-sw button{flex:1;border:none;background:transparent;padding:13px;border-radius:9px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;color:var(--muted);transition:all .18s;line-height:1.3}
+#pde-painel .mode-sw button small{display:block;font-size:10.5px;font-weight:500;opacity:.8;margin-top:2px}
+#pde-painel .mode-sw button.on{background:#fff;color:var(--navy);box-shadow:0 2px 8px rgba(15,44,74,.12)}
+#pde-painel .img-hint{margin-top:6px;font-size:12px;color:var(--navy-2);background:rgba(55,177,218,.08);border:1px dashed rgba(55,177,218,.4);border-radius:9px;padding:9px 12px;line-height:1.5}
+#pde-painel .img-hint b{color:var(--cyan-d)}
+/* perfil inclusivo */
+    #pde-painel .incl-wrap{margin-top:14px}
+#pde-painel .incl-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+#pde-painel .incl-chip{font-size:12.5px;padding:8px 13px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--muted);cursor:pointer;user-select:none;transition:all .15s;font-weight:600;display:flex;align-items:center;gap:6px}
+#pde-painel .incl-chip .ic{font-size:14px}
+#pde-painel .incl-chip.on{background:#6d4ea8;border-color:#6d4ea8;color:#fff}
+#pde-painel .incl-note{margin-top:9px;font-size:12px;color:#4a3570;background:rgba(109,78,168,.08);border:1px dashed rgba(109,78,168,.4);border-radius:9px;padding:9px 12px;line-height:1.5;display:none}
+#pde-painel .incl-note.show{display:block}
+#pde-painel .incl-note b{color:#5a3d92}
+#pde-painel .pde-chips{display:flex;flex-wrap:wrap;gap:8px}
+#pde-painel .toggles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#pde-painel .tg{display:flex!important;flex-direction:row!important;align-items:center;gap:12px;padding:11px 13px;border:1.5px solid var(--line);border-radius:11px;cursor:pointer;transition:all .15s;background:#fff}
+#pde-painel .tg.on{border-color:var(--cyan);background:rgba(55,177,218,.06)}
+#pde-painel .tg .sw{flex:0 0 38px!important;width:38px!important;min-width:38px!important;max-width:38px!important;height:22px!important;min-height:22px!important;border-radius:999px!important;background:#cbd5e1;position:relative;transition:background .2s;display:block!important;padding:0!important;margin:0!important;order:0!important}
+#pde-painel .tg.on .sw{background:var(--cyan)}
+#pde-painel .tg .sw::after{content:'';position:absolute;top:2px;left:2px;width:18px!important;height:18px!important;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+#pde-painel .tg.on .sw::after{transform:translateX(16px)}
+#pde-painel .tg .tl{flex:1 1 auto!important;min-width:0;font-size:13px;color:var(--navy);font-weight:600;line-height:1.3}
+#pde-painel .tg .tl span{display:block;font-size:11px;color:var(--muted);font-weight:400}
+#pde-painel .pde-warn{background:rgba(255,180,59,.12);border:1px solid rgba(245,158,11,.35);border-radius:12px;padding:12px 15px;font-size:12.5px;color:#92600c;margin-bottom:18px;line-height:1.55}
+#pde-painel .pde-warn b{color:#7a4f08}
+/* ===== BIBLIOTECA (IndexedDB) ===== */
+    #pde-painel .lib-bar{display:flex;gap:10px;margin-bottom:16px}
+#pde-painel .lib-bar button{flex:1;padding:11px;border:1.5px solid var(--line);border-radius:11px;background:#fff;color:var(--navy);font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .15s}
+#pde-painel .lib-bar button:hover{border-color:var(--cyan)}
+#pde-painel .lib-bar .lib-save{background:var(--navy);color:#fff;border-color:var(--navy)}
+#pde-painel .lib-panel{display:none;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+#pde-painel .lib-panel.show{display:block;animation:f .25s ease}
+#pde-painel .lib-empty{font-size:12.5px;color:var(--muted);text-align:center;padding:10px}
+#pde-painel .lib-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:#fafcfe}
+#pde-painel .lib-item .li-info{flex:1;min-width:0}
+#pde-painel .lib-item .li-info b{font-size:13px;color:var(--navy);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pde-painel .lib-item .li-info span{font-size:11px;color:var(--muted)}
+#pde-painel .lib-item button{border:none;border-radius:8px;padding:7px 11px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
+#pde-painel .li-load{background:var(--cyan);color:#fff}
+#pde-painel .li-dup{background:#e2eaf1;color:var(--navy)}
+#pde-painel .li-del{background:#fde8e8;color:#dc2626}
+/* mostra/esconde por modo */
+    #pde-painel .only-own{display:block}
+#pde-painel .only-ai{display:none}
+#pde-painel.mode-ai .only-own{display:none}
+#pde-painel.mode-ai .only-ai{display:block}
+/* botões grandes de ação */
+    #pde-painel .go-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+/* multi-página */
+    #pde-painel .pg-card{border:1.5px solid var(--line);border-radius:13px;padding:14px;margin-bottom:12px;background:#fafcfe}
+#pde-painel .pg-card .pg-h{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+#pde-painel .pg-card .pg-n{width:26px;height:26px;border-radius:7px;background:var(--cyan);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+#pde-painel .pg-card .pg-t{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:var(--navy)}
+#pde-painel .pg-card textarea{min-height:90px}
+#pde-painel .fila-item{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid var(--line);border-radius:11px;margin-bottom:9px;background:#fff}
+#pde-painel .fila-item .fi-n{width:30px;height:30px;border-radius:8px;background:var(--navy);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#pde-painel .fila-item .fi-t{flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pde-painel .fila-item button{border:none;border-radius:8px;padding:8px 12px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;color:#fff}
+#pde-painel .fi-gpt{background:#10a37f}
+#pde-painel .fi-gem{background:#4285f4}
+#pde-painel .fi-copy{background:var(--cyan)}
+#pde-painel.multi-on .f-disc,#pde-painel.multi-on .f-tema,#pde-painel.multi-on #img-hint{display:none}
+#pde-painel .fila-unica{width:100%;margin-top:8px;padding:13px;border:none;border-radius:11px;background:var(--navy);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13.5px;cursor:pointer}
+#pde-painel .fila-note{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.5;text-align:center}
+#pde-painel .go-btn.small{padding:14px 16px}
+#pde-painel .go-btn.small .go-ic{width:34px;height:34px;font-size:17px}
+#pde-painel .go-btn.small .go-tx b{font-size:14px}
+#pde-painel .pde-copy.ok{background:#16a34a}
+@media(max-width:560px){
+#pde-painel .pde-grid2,#pde-painel .pde-grid3,#pde-painel .toggles,#pde-painel .go-grid{grid-template-columns:1fr}
+}
+</style>
+<script>window.PDE_AJUSTES={"mover":[],"formatoFixo":"","abrirDuplo":{"gpt":"https://chatgpt.com/","gem":"https://gemini.google.com/"}};</script>
+
+<style id="pde-premium-folha">
+/* ═══════════════════════════════════════════════════════════════════════
+   PDE-PREMIUM-V5 · sistema visual premium do Portal do Educador
+   Casca de aplicativo: coluna escura à esquerda (marca, etapas, nota de
+   responsabilidade) e área de trabalho clara à direita. Folha única; os
+   scripts e o motor de prompt não mudam.
+   ═══════════════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+#pde-painel{
+  --navy:#0F2C4A; --navy-deep:#0A1D33; --navy-2:#153B63; --cyan:#37B1DA; --cyan-ink:#1B7FA3; --cyan-soft:#EAF6FB;
+  --ink:#141B24; --ink-2:#4B5563; --ink-3:#8A94A6;
+  --line:#E6EAF0; --line-2:#D5DCE5; --bg:#F7F8FA; --surface:#FFFFFF; --tile:#F1F4F8;
+  --ok:#1F7A4D; --warn:#9A5B00; --warn-bg:#FFF7E6; --warn-line:#F2D48A;
+  --r:10px; --r-lg:14px; --r-xl:18px;
+  --sh:0 1px 2px rgba(16,24,40,.04),0 2px 6px rgba(16,24,40,.04);
+  --sh-lift:0 10px 28px rgba(15,44,74,.10);
+  --ring:0 0 0 4px rgba(55,177,218,.22);
+  --display:'Manrope','Inter',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif !important;
+  font-size:14.5px !important; line-height:1.55 !important;
+  color:var(--ink); background:var(--bg);
+  max-width:1280px; margin:0 auto; padding:0; height:auto;
+  border-radius:var(--r-xl); overflow:hidden; border:1px solid var(--line);
+  text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;
+}
+#pde-painel *,#pde-painel *::before,#pde-painel *::after{box-sizing:border-box}
+/* libera o conteúdo: até aqui a camada PRE o mantinha oculto para não haver
+   lampejo de tela sem estilo enquanto o navegador lê o arquivo */
+#pde-painel > *{visibility:visible}
+/* em tela cheia a casca ocupa a janela inteira, sem moldura */
+#pde-painel.pdeq-on{border-radius:0 !important; border:none !important; background:var(--bg) !important}
+#pde-painel.pdeq-on > *:not(.pdeq-barra):not(style):not(script):not([data-pdeq-solto]){max-width:none !important; padding-left:0 !important; padding-right:0 !important; margin:0 !important}
+
+/* ── blindagem contra o tema do site hospedeiro ───────────────────────── */
+#pde-painel,#pde-painel *{text-align:left !important; text-justify:auto !important; hyphens:none !important; -webkit-hyphens:none !important; text-indent:0 !important; font-style:normal; text-transform:none}
+#pde-painel p,#pde-painel h1,#pde-painel h2,#pde-painel h3,#pde-painel h4{margin:0}
+#pde-painel ul,#pde-painel ol{list-style:none;padding-left:0;margin:0}
+#pde-painel img{max-width:100%;height:auto}
+#pde-painel a{text-decoration:none;color:var(--cyan-ink)}
+#pde-painel button,#pde-painel input,#pde-painel select,#pde-painel textarea{font-family:inherit !important;text-transform:none !important;font-size:14.5px}
+#pde-painel [hidden]{display:none !important}
+#pde-painel :focus-visible{outline:none;box-shadow:var(--ring)}
+
+/* ── barra superior (modo tela cheia) ────────────────────────────────── */
+#pde-painel.pdeq-on .pdeq-barra{
+  background:rgba(255,255,255,.92) !important; backdrop-filter:blur(10px) !important;
+  border-bottom:1px solid var(--line) !important; box-shadow:none !important;
+  min-height:52px; padding:8px 20px !important; margin:0 !important;
+}
+#pde-painel .pdeq-sair,#pde-painel .pdeq-fechar,#pde-painel .pdeq-tela{
+  min-height:36px !important; padding:0 12px !important; border-radius:var(--r) !important;
+  font-size:13px !important; font-weight:600 !important; gap:6px !important; line-height:1 !important;
+}
+#pde-painel .pdeq-sair,#pde-painel .pdeq-fechar,#pde-painel .pdeq-tela{background:var(--surface) !important; border:1px solid var(--line-2) !important; color:var(--ink) !important; box-shadow:var(--sh) !important; height:36px !important}
+#pde-painel .pdeq-sair:hover,#pde-painel .pdeq-fechar:hover,#pde-painel .pdeq-tela:hover{border-color:var(--navy) !important; background:var(--surface) !important; filter:none !important}
+#pde-painel .pdeq-sair:focus-visible,#pde-painel .pdeq-fechar:focus-visible,#pde-painel .pdeq-tela:focus-visible{outline:none !important; box-shadow:var(--ring) !important}
+/* alvo de toque: em tela de dedo nada abaixo de 44px, nem na barra do topo */
+@media (pointer:coarse),(max-width:900px){
+  #pde-painel .pdeq-sair,#pde-painel .pdeq-fechar,#pde-painel .pdeq-tela{height:44px !important; min-height:44px !important; padding:0 14px !important}
+  #pde-painel.pdeq-on .pdeq-barra{min-height:60px}
+}
+
+/* ── a casca: coluna escura + área de trabalho ───────────────────────── */
+#pde-painel .pde-lateral-wrap{display:grid; grid-template-columns:300px minmax(0,1fr); gap:0; align-items:stretch; min-height:640px}
+#pde-painel.pdeq-on .pde-lateral-wrap{min-height:calc(100vh - 52px); min-height:calc(100dvh - 52px)}
+#pde-painel .pde-lateral-wrap > *{min-width:0}
+
+#pde-painel .pde-lateral{
+  position:sticky; top:0; align-self:start;
+  display:flex; flex-direction:column; gap:22px;
+  min-height:640px; padding:32px 26px 26px;
+  background:radial-gradient(120% 60% at 0% 0%,rgba(55,177,218,.16) 0%,rgba(55,177,218,0) 60%),linear-gradient(180deg,var(--navy) 0%,var(--navy-deep) 100%);
+  color:#fff; border:none; border-right:1px solid rgba(255,255,255,.06); border-radius:0; box-shadow:none;
+}
+#pde-painel.pdeq-on .pde-lateral{min-height:calc(100vh - 52px); min-height:calc(100dvh - 52px); top:52px}
+
+/* a marca e o título vivem dentro da coluna escura (movidos pela camada PREMIUM) */
+#pde-painel .pde-lateral .pde-head{display:block; margin:0 0 4px}
+#pde-painel .pde-lateral .pdel-marca{
+  display:block !important; width:46px !important; height:46px !important; margin:0 0 16px !important;
+  border-radius:50% !important; object-fit:contain !important; filter:none !important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.18), 0 6px 18px rgba(0,0,0,.25);
+}
+#pde-painel .pde-lateral .pdel-marca.pdel-viva{animation:none !important}
+#pde-painel .pde-lateral .pde-eyebrow{font-size:11px; font-weight:600; letter-spacing:.1em !important; text-transform:uppercase !important; color:var(--cyan); margin-bottom:8px}
+#pde-painel .pde-lateral h1{font-family:var(--display) !important; font-size:23px; font-weight:800; letter-spacing:-.02em !important; line-height:1.15; color:#fff}
+#pde-painel .pde-lateral h1 b{color:#fff; font-weight:800}
+#pde-painel .pde-lateral .pde-head p{font-size:13px; line-height:1.5; color:rgba(255,255,255,.66); margin-top:10px}
+
+#pde-painel .pde-lateral-tit{font-size:10.5px; font-weight:600; letter-spacing:.12em !important; text-transform:uppercase !important; color:rgba(255,255,255,.45); padding:0; margin-top:6px}
+#pde-painel .pde-lateral .wz-steps{display:flex !important; flex-direction:column !important; gap:0; margin:0 !important; padding:0 !important; position:relative}
+#pde-painel .wz-step{display:flex !important; flex-direction:row !important; align-items:center; gap:12px; padding:7px 0; border-radius:0; cursor:pointer; position:relative}
+#pde-painel .wz-step::before{content:''; display:block !important; position:absolute; left:12px; top:0; bottom:0; width:1px; height:auto; background:rgba(255,255,255,.14); transform:none}
+#pde-painel .wz-step:first-child::before{top:50%}
+#pde-painel .wz-step:last-child::before{bottom:50%}
+#pde-painel .wz-step .dot{position:relative; z-index:1; width:25px; height:25px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:rgba(255,255,255,.7); background:var(--navy-deep); border:1px solid rgba(255,255,255,.28); box-shadow:none}
+#pde-painel .wz-step .nm{font-size:13.5px; font-weight:500; color:rgba(255,255,255,.62); line-height:1.2; transition:color .15s}
+#pde-painel .wz-step:hover .nm{color:#fff}
+#pde-painel .wz-step.on .dot{background:#fff; border-color:#fff; color:var(--navy)}
+#pde-painel .wz-step.on .nm{color:#fff; font-weight:600}
+#pde-painel .wz-step.done .dot{background:var(--cyan); border-color:var(--cyan); color:transparent;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230F2C4A' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E"); background-size:12px; background-position:center; background-repeat:no-repeat}
+#pde-painel .wz-step.done .nm{color:rgba(255,255,255,.8)}
+
+/* nota de responsabilidade no rodapé da coluna */
+#pde-painel .pde-lateral .pde-aviso-valida{
+  margin-top:auto; padding:16px 0 0; border:none; border-top:1px solid rgba(255,255,255,.12); border-radius:0;
+  background:transparent; font-size:11.5px; line-height:1.5; color:rgba(255,255,255,.55); display:block;
+}
+#pde-painel .pde-lateral .pde-aviso-valida .av-ic{display:none}
+#pde-painel .pde-lateral .pde-aviso-valida b{color:rgba(255,255,255,.88); font-weight:600}
+#pde-painel .pde-lateral .pde-aviso-valida .av-foco{color:var(--cyan)}
+/* se a nota ainda não foi movida, fica discreta na área clara */
+#pde-painel .pde-aviso-valida{display:flex; gap:10px; padding:10px 14px; margin:0 0 18px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r); font-size:12.5px; color:var(--ink-2)}
+
+/* área de trabalho */
+#pde-painel .pde-lateral-conteudo{padding:44px 56px 56px; background:var(--bg)}
+#pde-painel .pde-panel{background:transparent; border:none; border-radius:0; padding:0; box-shadow:none; max-width:820px; margin:0 auto}
+#pde-painel .wz-phase{display:none}
+#pde-painel .wz-phase.on{display:block; animation:pdeRise .22s ease}
+@keyframes pdeRise{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:none}}
+#pde-painel .wz-phase-title{font-family:var(--display) !important; font-size:30px; font-weight:800; letter-spacing:-.025em !important; line-height:1.15; color:var(--ink); margin-bottom:8px}
+#pde-painel .wz-phase-sub{font-size:15px; color:var(--ink-2); margin-bottom:28px; max-width:62ch; line-height:1.55}
+#pde-painel .sec-t{font-size:11px; font-weight:600; letter-spacing:.1em !important; text-transform:uppercase !important; color:var(--ink-3); margin:8px 0 12px}
+#pde-painel .sec-t.div{margin-top:26px; padding-top:20px; border-top:1px solid var(--line)}
+
+/* campos */
+#pde-painel .pde-grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+/* :where() para um campo condicional da própria ferramenta continuar escondido */
+#pde-painel :where(.pde-f){display:flex; flex-direction:column; gap:7px; margin-bottom:18px}
+#pde-painel label{font-size:13px; font-weight:600; color:var(--ink)}
+/* :where() zera a especificidade: um campo que a ferramenta desenha por classe
+   (linha de emoji + texto, campo curto) mantém a medida própria */
+#pde-painel :where(input:not([type=checkbox]):not([type=radio]),select,textarea){
+  width:100%; height:48px; min-height:48px; padding:0 14px; font-size:14.5px; color:var(--ink);
+  background:var(--surface); border:1px solid var(--line-2); border-radius:var(--r);
+  box-shadow:var(--sh); transition:border-color .12s, box-shadow .12s;
+}
+#pde-painel select{appearance:none; -webkit-appearance:none; padding-right:38px; cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238A94A6' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 13px center}
+#pde-painel input::placeholder,#pde-painel textarea::placeholder{color:var(--ink-3)}
+#pde-painel input:hover,#pde-painel select:hover{border-color:#B8C2CF}
+#pde-painel input:focus,#pde-painel select:focus,#pde-painel textarea:focus{outline:none; border-color:var(--navy); box-shadow:var(--ring)}
+#pde-painel textarea{height:auto; min-height:96px; padding:12px 14px}
+/* caixas de marcar visíveis: quadrado próprio, sem virar campo de texto */
+#pde-painel input[type=checkbox],#pde-painel input[type=radio]{
+  appearance:auto; -webkit-appearance:auto; width:auto; height:auto; min-height:0; flex:none;
+  padding:0; accent-color:var(--navy); cursor:pointer; box-shadow:none; border:0; background:none}
+#pde-painel input[type=checkbox]:focus-visible,#pde-painel input[type=radio]:focus-visible{outline:2px solid var(--cyan-ink); outline-offset:2px}
+#pde-painel .ajuda,#pde-painel .pde-help,#pde-painel .pde-hint{font-size:12.5px; color:var(--ink-3); line-height:1.5; margin-top:2px}
+#pde-painel .linha-sorteio{display:flex; gap:10px; align-items:flex-end}
+#pde-painel .linha-sorteio .pde-f{flex:1; margin-bottom:0}
+
+/* ── botões ──────────────────────────────────────────────────────────── */
+#pde-painel button{cursor:pointer; border-radius:var(--r); font-weight:600; font-size:14.5px; line-height:1; letter-spacing:0 !important; transition:background .12s, border-color .12s, color .12s, box-shadow .15s, transform .15s}
+/* ícones: desenhados em CSS, na cor do texto do botão */
+#pde-painel button[data-action]::before,#pde-painel .wz-back::before{content:''; width:17px; height:17px; flex:none; background-color:currentColor; -webkit-mask:var(--ico) center/contain no-repeat; mask:var(--ico) center/contain no-repeat}
+#pde-painel button[data-action]:not([data-action="gerar"]):not([data-action="gerar-rapido"]):not([data-action="copiar"]):not([data-action^="abrir-"]):not([data-action="variacao"]):not([data-action="vp"]):not([data-action="sortear"])::before{display:none}
+#pde-painel [data-action="gerar"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z'/%3E%3Cpath d='M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z'/%3E%3C/svg%3E")}
+#pde-painel [data-action="gerar-rapido"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 2 4 14h7l-1 8 9-12h-7z'/%3E%3C/svg%3E")}
+#pde-painel [data-action="copiar"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='12' height='12' rx='2'/%3E%3Cpath d='M5 15V5a2 2 0 0 1 2-2h10'/%3E%3C/svg%3E")}
+#pde-painel [data-action^="abrir-"],#pde-painel .pde-out .go-btn[data-go]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4h6v6'/%3E%3Cpath d='M20 4 10 14'/%3E%3Cpath d='M20 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5'/%3E%3C/svg%3E")}
+#pde-painel [data-action="variacao"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12a9 9 0 1 1-2.6-6.4'/%3E%3Cpath d='M21 3v6h-6'/%3E%3C/svg%3E")}
+#pde-painel [data-action="vp"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E")}
+#pde-painel [data-action="sortear"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 3h5v5'/%3E%3Cpath d='M4 20 21 3'/%3E%3Cpath d='M21 16v5h-5'/%3E%3Cpath d='M15 15l6 6'/%3E%3Cpath d='M4 4l5 5'/%3E%3C/svg%3E")}
+#pde-painel .wz-back{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 12H5'/%3E%3Cpath d='m12 19-7-7 7-7'/%3E%3C/svg%3E")}
+#pde-painel button:disabled{opacity:.55; cursor:not-allowed}
+#pde-painel .pde-btn,#pde-painel .wz-next,#pde-painel .pde-btn-primario,
+#pde-painel [data-action="proxima"],#pde-painel [data-action="next1"],#pde-painel [data-action="next1b"],
+#pde-painel [data-action="next2"],#pde-painel [data-action="next3"],#pde-painel [data-action="next4"]{
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  height:48px; min-height:48px; padding:0 22px; border:1px solid var(--navy-deep); color:#fff; font-weight:700; font-size:15px;
+  background:linear-gradient(180deg,#184266 0%,var(--navy) 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,.14) inset, 0 6px 16px rgba(15,44,74,.22);
+}
+#pde-painel .pde-btn:hover,#pde-painel .wz-next:hover,#pde-painel .pde-btn-primario:hover,
+#pde-painel [data-action="proxima"]:hover,#pde-painel [data-action^="next"]:hover{transform:translateY(-1px); box-shadow:0 1px 0 rgba(255,255,255,.12) inset, 0 12px 26px rgba(15,44,74,.28)}
+#pde-painel .pde-btn:active,#pde-painel .wz-next:active,#pde-painel .pde-btn-primario:active{transform:none}
+#pde-painel .pde-btn{width:100%}
+#pde-painel .wz-next::after{content:'→'; font-weight:600; opacity:.9}
+
+#pde-painel .wz-back,#pde-painel .btn-dado,#pde-painel .go-btn,
+#pde-painel .pde-btn-secundario,#pde-painel .pde-btn-ver,#pde-painel .pde-btn-copiar,#pde-painel .pde-btn-limpar,
+#pde-painel [data-action="anterior"],#pde-painel [data-action="voltar-areas"],#pde-painel [data-action="fase"],
+#pde-painel .pde-out button[data-action^="abrir-"],#pde-painel .pde-out button[data-action="variacao"],
+#pde-painel button[data-action="var"],#pde-painel button[data-action="ver"],#pde-painel button[data-action="vp"],
+#pde-painel .pde-out button[data-action="txt"],#pde-painel .pde-out button[data-action="nova"]{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  height:48px; min-height:48px; padding:0 18px; border:1px solid #C9D2DD !important;
+  background:var(--surface); color:var(--ink); box-shadow:var(--sh);
+}
+#pde-painel .wz-back:hover,#pde-painel .btn-dado:hover,#pde-painel .go-btn:hover,
+#pde-painel .pde-btn-secundario:hover,#pde-painel .pde-btn-ver:hover,#pde-painel .pde-btn-copiar:hover,
+#pde-painel [data-action="anterior"]:hover,#pde-painel [data-action="voltar-areas"]:hover,
+#pde-painel .pde-out button[data-action^="abrir-"]:hover,#pde-painel .pde-out button[data-action="variacao"]:hover{border-color:var(--navy) !important; box-shadow:var(--sh-lift); transform:translateY(-1px)}
+#pde-painel .wz-back{min-width:140px}
+#pde-painel .btn-dado{flex:none; padding:0 16px; font-size:14px; font-weight:600; color:var(--ink)}
+
+#pde-painel .btn-atalho,#pde-painel [data-action="gerar-rapido"]{
+  display:flex; width:100%; align-items:center; justify-content:center; gap:8px;
+  height:48px; margin-top:8px; padding:0 18px; border:1px solid #A9D9EC; background:var(--cyan-soft); color:var(--cyan-ink); font-weight:600; box-shadow:var(--sh);
+}
+#pde-painel .btn-atalho:hover,#pde-painel [data-action="gerar-rapido"]:hover{border-color:var(--cyan-ink); box-shadow:var(--sh-lift); transform:translateY(-1px)}
+#pde-painel .go-see{display:inline-flex; align-items:center; justify-content:center; gap:8px; margin:0; height:48px; padding:0 18px; border:1px solid #C9D2DD !important; background:var(--surface); color:var(--ink); box-shadow:var(--sh); text-decoration:none; font-size:14.5px; font-weight:600}
+#pde-painel .go-see:hover{border-color:var(--navy) !important; box-shadow:var(--sh-lift); transform:translateY(-1px)}
+
+#pde-painel .wz-nav{display:flex; justify-content:flex-end; align-items:center; gap:12px; margin-top:32px; padding-top:22px; border-top:1px solid var(--line)}
+#pde-painel .wz-nav .wz-next{min-width:220px}
+
+/* ── chips ───────────────────────────────────────────────────────────── */
+#pde-painel .chips,#pde-painel #g-sugestoes,#pde-painel #g-extras{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+#pde-painel .pde-chip{
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  min-height:36px; padding:7px 14px; border-radius:999px;
+  border:1px solid var(--line-2); background:var(--surface); color:var(--ink-2);
+  font-size:13px; font-weight:500; line-height:1.2; cursor:pointer; user-select:none; box-shadow:var(--sh);
+  transition:background .12s, border-color .12s, color .12s, transform .12s;
+}
+#pde-painel .pde-chip:hover{border-color:var(--navy); color:var(--ink); transform:translateY(-1px)}
+#pde-painel .pde-chip.on,#pde-painel .pde-chip[aria-pressed="true"]{background:var(--navy) !important; border-color:var(--navy) !important; color:#fff !important}
+#pde-painel #g-incl,#pde-painel [data-group="incl"]{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; margin-top:8px}
+#pde-painel #g-incl .pde-chip,#pde-painel [data-group="incl"] .pde-chip{
+  justify-content:flex-start !important; text-align:left !important; flex-direction:row !important;
+  min-height:50px; padding:10px 14px 10px 12px; border-radius:var(--r); width:100%; font-weight:600; color:var(--ink);
+}
+#pde-painel #g-incl .pde-chip::before,#pde-painel [data-group="incl"] .pde-chip::before{content:''; width:18px; height:18px; flex:none; border-radius:5px; border:1.5px solid var(--line-2); background:var(--surface)}
+#pde-painel #g-incl .pde-chip.on::before,#pde-painel [data-group="incl"] .pde-chip.on::before{border-color:#fff; background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230F2C4A' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/12px no-repeat}
+
+/* ── o que não cabe em meia coluna ocupa a linha inteira ─────────────── */
+#pde-painel .pde-grid2 > .pde-f:has(.orient-cards),
+#pde-painel .pde-grid2 > .pde-f:has(.md-grid),
+#pde-painel .pde-grid2 > .pde-f:has(#g-incl),
+#pde-painel .pde-grid2 > .pde-f:has(.chips),
+#pde-painel .pde-grid2 > .pde-f[data-pde-largo]{grid-column:1/-1}
+
+/* ── cartões de escolha ──────────────────────────────────────────────── */
+#pde-painel .md-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px}
+#pde-painel .orient-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; margin-top:8px}
+#pde-painel .md-card,#pde-painel .orient-card{
+  position:relative; display:grid !important; grid-template-columns:auto minmax(0,1fr) !important; grid-template-areas:'ic tit' 'ic desc' !important;
+  column-gap:14px !important; row-gap:3px !important; align-items:start !important;
+  padding:16px 40px 16px 16px !important; min-height:84px !important;
+  border:1px solid var(--line) !important; border-radius:var(--r-lg) !important;
+  background:var(--surface) !important; color:var(--ink) !important; box-shadow:var(--sh) !important;
+  cursor:pointer; text-align:left !important; transition:border-color .15s, box-shadow .15s, transform .15s;
+}
+#pde-painel .md-card:hover,#pde-painel .orient-card:hover{border-color:var(--line-2) !important; box-shadow:var(--sh-lift) !important; transform:translateY(-2px)}
+#pde-painel .md-card.on,#pde-painel .md-card[aria-pressed="true"],#pde-painel .orient-card.on{border-color:var(--navy) !important; box-shadow:0 0 0 1px var(--navy), var(--sh-lift) !important; background:var(--surface) !important}
+#pde-painel .md-card.on::after,#pde-painel .md-card[aria-pressed="true"]::after,#pde-painel .orient-card.on::after{
+  content:''; position:absolute; top:14px; right:14px; width:20px; height:20px; border-radius:50%;
+  background:var(--cyan) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230F2C4A' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/11px no-repeat;
+}
+#pde-painel .md-ic,#pde-painel .orient-card .oc-ic{grid-area:ic; width:40px; height:40px; border-radius:10px; background:var(--tile); display:flex; align-items:center; justify-content:center; font-size:18px; line-height:1; filter:grayscale(1) opacity(.7); transition:filter .15s}
+#pde-painel .md-card.on .md-ic,#pde-painel .md-card[aria-pressed="true"] .md-ic,#pde-painel .orient-card.on .oc-ic{filter:none; background:var(--cyan-soft)}
+#pde-painel .md-card > span:not(.md-ic){display:contents}
+#pde-painel .orient-card .oc-tx{display:contents}
+#pde-painel .md-n,#pde-painel .orient-card b{grid-area:tit; display:block; font-family:var(--display) !important; font-size:15px; font-weight:700; color:var(--ink); line-height:1.3; letter-spacing:-.01em !important}
+#pde-painel .md-t,#pde-painel .orient-card small{grid-area:desc; display:block; font-size:13px; font-weight:400; color:var(--ink-2); line-height:1.45}
+
+/* ── destinos: cada IA com a sua cor ─────────────────────────────────── */
+#pde-painel [data-action^="abrir-"],#pde-painel [data-ia]{
+  color:#fff !important; border:1px solid var(--dest-b) !important;
+  background:linear-gradient(180deg,var(--dest-1) 0%,var(--dest-2) 100%) !important;
+  box-shadow:0 1px 0 rgba(255,255,255,.18) inset, 0 4px 12px var(--dest-sh) !important;
+}
+#pde-painel [data-action^="abrir-"]:hover,#pde-painel [data-ia]:hover{
+  border-color:var(--dest-b) !important; transform:translateY(-1px);
+  box-shadow:0 1px 0 rgba(255,255,255,.18) inset, 0 8px 18px var(--dest-sh) !important;
+}
+#pde-painel .go-btn.gpt,#pde-painel .go-btn.gem,#pde-painel .go-btn.claude,#pde-painel .go-btn.gamma{
+  color:#fff !important; border:1px solid var(--dest-b) !important;
+  background:linear-gradient(180deg,var(--dest-1) 0%,var(--dest-2) 100%) !important;
+  box-shadow:0 1px 0 rgba(255,255,255,.18) inset, 0 4px 12px var(--dest-sh) !important;
+}
+#pde-painel .go-btn.gpt{--dest-1:#12B08A; --dest-2:#0E8C6E; --dest-b:#0B7A5E; --dest-sh:rgba(14,140,110,.30)}
+#pde-painel .go-btn.gem{--dest-1:#4A90F7; --dest-2:#1A73E8; --dest-b:#1557B0; --dest-sh:rgba(26,115,232,.30)}
+#pde-painel .go-btn.claude{--dest-1:#E08A67; --dest-2:#CE6A46; --dest-b:#B15535; --dest-sh:rgba(206,106,70,.30)}
+#pde-painel .go-btn.gamma{--dest-1:#8B5CF6; --dest-2:#7130E0; --dest-b:#5B22B8; --dest-sh:rgba(113,48,224,.30)}
+#pde-painel [data-action="abrir-chatgpt"],#pde-painel [data-ia="chatgpt"]{--dest-1:#12B08A; --dest-2:#0E8C6E; --dest-b:#0B7A5E; --dest-sh:rgba(14,140,110,.30)}
+#pde-painel [data-action="abrir-gemini"],#pde-painel [data-ia="gemini"]{--dest-1:#4A90F7; --dest-2:#1A73E8; --dest-b:#1557B0; --dest-sh:rgba(26,115,232,.30)}
+#pde-painel [data-action="abrir-claude"],#pde-painel [data-ia="claude"]{--dest-1:#E08A67; --dest-2:#CE6A46; --dest-b:#B15535; --dest-sh:rgba(206,106,70,.30)}
+#pde-painel [data-action="abrir-gamma"],#pde-painel [data-ia="gamma"]{--dest-1:#8B5CF6; --dest-2:#7130E0; --dest-b:#5B22B8; --dest-sh:rgba(113,48,224,.30)}
+#pde-painel [data-ia="copilot"]{--dest-1:#8B6AD0; --dest-2:#6E4BB2; --dest-b:#5A3A96; --dest-sh:rgba(110,75,178,.30)}
+#pde-painel [data-ia="canva"],#pde-painel [data-ia="nano"]{--dest-1:#EFB93A; --dest-2:#D99A00; --dest-b:#B87F00; --dest-sh:rgba(217,154,0,.30)}
+
+/* ── resumo e saída ──────────────────────────────────────────────────── */
+#pde-painel .res-box{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:18px 20px; margin-bottom:18px; box-shadow:var(--sh)}
+#pde-painel .res-box .rt{font-size:11px; font-weight:600; letter-spacing:.1em !important; text-transform:uppercase !important; color:var(--ink-3); margin-bottom:10px}
+#pde-painel .res-box .rg{display:grid; grid-template-columns:1fr 1fr; gap:6px 18px; font-size:13.5px; color:var(--ink)}
+#pde-painel .pde-out{display:none; margin-top:14px}
+#pde-painel .pde-out.show{display:block; animation:pdeRise .25s ease}
+#pde-painel .pde-out.show{display:grid; grid-template-columns:1fr 1fr; gap:10px 12px; align-items:stretch}
+/* as ferramentas embrulham os botões num div com flex inline: o embrulho some e
+   os botões entram direto na grade, todos do mesmo tamanho */
+#pde-painel .pde-out > div:not(.pde-reveal):not(.ca-saida){display:contents !important}
+#pde-painel .go-btn{width:100%; justify-content:center; text-align:center !important; line-height:1; padding:0 18px}
+#pde-painel .go-btn[data-action="copiar"]{grid-column:1/-1; border-color:var(--navy) !important; color:var(--navy)}
+#pde-painel .go-btn .gi{display:none}
+#pde-painel .go-btn > span:last-child{display:contents}
+#pde-painel .go-btn b{font-size:14.5px; font-weight:700}
+#pde-painel .go-btn small{display:none}
+#pde-painel .go-status{grid-column:1/-1; display:block; text-align:center !important; font-size:13px; font-weight:500; color:var(--ok); margin:0; min-height:18px}
+#pde-painel .go-status:empty{display:none}
+#pde-painel .go-status.err{color:var(--warn)}
+#pde-painel .pde-out .linha-ias{display:contents}
+#pde-painel .pde-out .linha-ias button{width:100%}
+#pde-painel .pde-out button[data-action="variacao"]{width:100%; margin:0}
+#pde-painel .pde-out .go-see{width:100%}
+#pde-painel .pde-reveal{grid-column:1/-1; display:none; margin:4px 0 0}
+#pde-painel .pde-reveal.show{display:block}
+#pde-painel .pde-prompt{font-family:var(--mono) !important; font-size:12px; line-height:1.6; background:var(--navy-deep); color:#D6E1EC; border-radius:var(--r-lg); padding:18px 20px; white-space:pre-wrap; word-break:break-word; max-height:380px; overflow:auto; box-shadow:0 12px 30px rgba(10,29,51,.25)}
+
+#pde-painel .ex-aviso,#pde-painel #cc-aviso,#pde-painel #ca-aviso{display:none; margin-bottom:18px; padding:11px 14px; border-radius:var(--r); background:var(--warn-bg) !important; border:1px solid var(--warn-line) !important; color:var(--warn) !important; font-size:13px !important; font-weight:500 !important; line-height:1.45}
+#pde-painel .ex-aviso.on{display:block}
+
+/* ── responsivo ──────────────────────────────────────────────────────── */
+@media (max-width:980px){
+  #pde-painel .pde-lateral-wrap{grid-template-columns:1fr; min-height:0}
+  #pde-painel.pdeq-on .pde-lateral-wrap{min-height:0}
+  #pde-painel .pde-lateral,#pde-painel.pdeq-on .pde-lateral{position:static; min-height:0; padding:22px 20px 18px; gap:14px}
+  #pde-painel .pde-lateral .pde-head p{display:none}
+  #pde-painel .pde-lateral .pdel-marca{width:38px !important; height:38px !important; margin-bottom:10px !important}
+  #pde-painel .pde-lateral h1{font-size:20px}
+  #pde-painel .pde-lateral-tit{display:none}
+  #pde-painel .pde-lateral .wz-steps{flex-direction:row !important; overflow-x:auto; gap:6px; padding-bottom:2px !important}
+  #pde-painel .wz-step{flex:none; padding:6px 12px 6px 6px; border:1px solid rgba(255,255,255,.14); border-radius:999px}
+  #pde-painel .wz-step::before{display:none !important}
+  #pde-painel .wz-step .nm{white-space:nowrap; font-size:13px}
+  /* com 8 etapas o nome de todas não cabe na faixa: o nome fica só na etapa atual */
+  #pde-painel .pde-lateral .wz-step .nm{display:none}
+  #pde-painel .pde-lateral .wz-step.on .nm{display:block}
+  #pde-painel .pde-lateral .wz-step{padding:6px; gap:8px}
+  #pde-painel .pde-lateral .wz-step.on{padding:6px 12px 6px 6px}
+  #pde-painel .pde-lateral .pde-aviso-valida{display:none}
+  #pde-painel .pde-lateral-conteudo{padding:26px 20px 36px}
+  #pde-painel .wz-phase-title{font-size:24px}
+}
+@media (max-width:600px){
+  #pde-painel .pde-grid2,#pde-painel .md-grid,#pde-painel .orient-cards,#pde-painel .res-box .rg{grid-template-columns:1fr}
+  #pde-painel .wz-nav{flex-direction:column-reverse}
+  #pde-painel .wz-nav button,#pde-painel .wz-nav .wz-next{width:100%; min-width:0}
+  #pde-painel .pde-out.show{grid-template-columns:1fr}
+  #pde-painel .wz-nav .wz-back,#pde-painel .wz-nav .wz-next{min-width:0}
+  #pde-painel .linha-sorteio{flex-direction:column; align-items:stretch}
+  #pde-painel .linha-sorteio .pde-f{margin-bottom:8px}
+  #pde-painel .pde-lateral-conteudo{padding:22px 16px 32px}
+}
+@media (prefers-reduced-motion:reduce){#pde-painel *{animation:none !important; transition:none !important}}
+
+/* ── celular: a trilha vira indicador de progresso ───────────────────── */
+@media (max-width:600px){
+  #pde-painel .pde-lateral .wz-steps{gap:6px !important; align-items:center}
+  #pde-painel .pde-lateral .wz-step{border:none !important; background:none !important; padding:0 !important}
+  #pde-painel .pde-lateral .wz-step .dot{width:8px; height:8px; font-size:0; border:none; background:rgba(255,255,255,.28); background-image:none}
+  #pde-painel .pde-lateral .wz-step.done .dot{background:var(--cyan); background-image:none}
+  #pde-painel .pde-lateral .wz-step.on{padding:4px 12px 4px 4px !important; border:1px solid rgba(255,255,255,.2) !important; border-radius:999px; background:rgba(255,255,255,.08) !important}
+  #pde-painel .pde-lateral .wz-step.on .dot{width:24px; height:24px; font-size:11px; background:#fff; color:var(--navy)}
+}
+
+/* tela de toque: chip também é alvo de dedo */
+@media (pointer:coarse){
+  #pde-painel .pde-chip{min-height:44px; padding:10px 16px}
+  #pde-painel #g-incl .pde-chip,#pde-painel [data-group="incl"] .pde-chip{min-height:48px}
+}
+
+
+/* seção dentro da fase (fases fundidas no fluxo): título curto e subtítulo */
+#pde-painel .pde-secao{margin-top:6px}
+#pde-painel .pde-secao-sub{font-size:13.5px; color:var(--ink-2); line-height:1.5; margin:-4px 0 14px}
+#pde-painel .pde-soltos{margin-bottom:18px}
+
+/* sugestões e extras: pílulas de largura natural, letra legível. As ferramentas
+   trazem uma regra própria por id (grade de 150px, 12px, largura total) que vencia
+   a folha; aqui a especificidade é a mesma e a ordem decide. */
+#pde-painel #g-sugestoes .pde-chip,#pde-painel #g-extras .pde-chip{
+  width:auto; font-size:14px; padding:9px 16px; min-height:40px; line-height:1.2; text-align:left}
+@media (pointer:coarse){
+  #pde-painel #g-sugestoes .pde-chip,#pde-painel #g-extras .pde-chip{min-height:44px; padding:10px 16px}
+}
+
+/* ── formato com cor própria: imprimir (verde-petróleo) e projetar (violeta).
+   A escolha define o material inteiro; com cor, o professor não gera no formato
+   errado e não gasta cota da IA à toa. O cartão nasce no script PDE-ORIENTACAO-V1
+   com data-i 0 (imprimir) e 1 (projetar). ── */
+#pde-painel .orient-card[data-i="0"]{--oc:#0F766E; --oc-soft:#E6F4F1; --oc-line:#9AD5CB}
+#pde-painel .orient-card[data-i="1"]{--oc:#6D28D9; --oc-soft:#F1EAFE; --oc-line:#C9B3F5}
+#pde-painel .orient-card .oc-ic{background:var(--oc-soft); filter:none; box-shadow:inset 0 0 0 1px var(--oc-line)}
+#pde-painel .orient-card b{color:var(--oc)}
+#pde-painel .orient-card:hover{border-color:var(--oc-line) !important}
+#pde-painel .orient-card.on{border-color:var(--oc) !important; box-shadow:0 0 0 1px var(--oc), var(--sh-lift) !important; background:var(--oc-soft) !important}
+#pde-painel .orient-card.on .oc-ic{background:var(--oc); box-shadow:none}
+#pde-painel .orient-card.on::after{background-color:var(--oc) !important}
+#pde-painel .orient-card.on small{color:var(--ink)}
+
+/* ── tela de resultado: depois de gerar, a coluna de conteúdo mostra só o
+   comando pronto e os botões de destino. O formulário continua no lugar,
+   apenas escondido, e volta pelo botão "Voltar e ajustar". ── */
+#pde-painel .pde-res-cab{display:none}
+#pde-painel.pde-resultado .pde-res-cab{display:block; margin-bottom:18px}
+#pde-painel.pde-resultado .pde-res-cab .pde-res-tit{font-family:var(--display) !important; font-size:30px; font-weight:800; letter-spacing:-.02em !important; line-height:1.15; color:var(--ink)}
+#pde-painel.pde-resultado .pde-res-cab .pde-res-sub{font-size:15px; color:var(--ink-2); margin-top:8px; line-height:1.5}
+#pde-painel.pde-resultado .pde-res-cab .pde-res-formato{display:inline-flex; align-items:center; gap:8px; margin-top:14px; padding:8px 14px; border-radius:999px; font-size:13px; font-weight:600; background:var(--tile); color:var(--ink)}
+#pde-painel.pde-resultado .pde-res-cab .pde-res-formato i{width:8px; height:8px; border-radius:50%; background:var(--oc,var(--navy)); display:inline-block}
+#pde-painel.pde-resultado [data-pde-res-oculto]{display:none !important}
+#pde-painel.pde-resultado .wz-nav{display:none !important}
+#pde-painel.pde-resultado .pde-out.show{margin-top:0}
+#pde-painel .pde-res-voltar{display:none}
+#pde-painel.pde-resultado .pde-res-voltar{display:inline-flex; align-items:center; justify-content:center; gap:8px; height:44px; padding:0 18px; margin-top:22px; border:1px solid #C9D2DD; border-radius:var(--r); background:var(--surface); color:var(--ink); font-weight:600; font-size:14px; cursor:pointer}
+#pde-painel .wz-step.pde-res-step{display:none !important}
+#pde-painel.pde-resultado .wz-step.pde-res-step{display:flex !important}
+#pde-painel.pde-resultado .wz-step.pde-res-step .dot{background:var(--cyan); border-color:var(--cyan); color:var(--navy-deep)}
+#pde-painel.pde-resultado .wz-step.pde-res-step .nm{color:#fff; font-weight:600}
+
+/* identificação dentro da fase Gerar: escola, município e destino numa linha só (menos rolagem).
+   O select de destino é inserido em tempo de execução dentro dessa mesma grade. */
+#pde-painel .pde-secao-ident > .pde-grid2{grid-template-columns:repeat(3,minmax(0,1fr)); gap:0 14px}
+#pde-painel .pde-secao-ident .pde-f{margin-bottom:14px}
+@media (max-width:900px){ #pde-painel .pde-secao-ident > .pde-grid2{grid-template-columns:1fr} }
+
+/* cartões de formato próprios (PDE-FORMATO-CARTOES-V1): cor por semântica */
+#pde-painel .orient-card[data-cor="petroleo"]{--oc:#0F766E; --oc-soft:#E6F4F1; --oc-line:#9AD5CB}
+#pde-painel .orient-card[data-cor="violeta"]{--oc:#6D28D9; --oc-soft:#F1EAFE; --oc-line:#C9B3F5}
+#pde-painel .orient-card[data-cor="ambar"]{--oc:#B45309; --oc-soft:#FEF3E2; --oc-line:#F3C98B}
+
+/* identificação nativa na fase Gerar: escola, município e destino numa linha (o destino é
+   inserido em tempo de execução nessa grade) */
+#pde-painel .pde-grid2:has(#pde-id-escola):has(#pde-ia-usada){grid-template-columns:repeat(3,minmax(0,1fr)); gap:0 14px}
+@media (max-width:900px){ #pde-painel .pde-grid2:has(#pde-id-escola):has(#pde-ia-usada){grid-template-columns:1fr} }
+
+/* ordem única do bloco de saída em todas: Copiar · estado · ChatGPT · Gemini · Variação · Ver o comando.
+   As ferramentas escrevem esses botões em ordens diferentes; a grade reordena. */
+#pde-painel .pde-out .go-btn[data-action="copiar"]{order:-30}
+#pde-painel .pde-out .go-status{order:-20}
+#pde-painel .pde-out [data-action="abrir-chatgpt"]{order:-12}
+#pde-painel .pde-out [data-action="abrir-gemini"]{order:-11}
+#pde-painel .pde-out [data-action^="abrir-"]{order:-10}
+#pde-painel .pde-out [data-action="variacao"]{order:-5}
+#pde-painel .pde-out .go-see,#pde-painel .pde-out [data-action="vp"]{order:-4}
+#pde-painel .pde-out .pde-reveal{order:99}
+
+#pde-painel .pde-out button[data-action="txt"],#pde-painel .pde-out button[data-action="nova"]{order:10; width:100%; font-size:14.5px !important; font-weight:600}
+
+/* cartões de formato nativos de algumas ferramentas (data-orient) recebem a mesma cor por destino */
+#pde-painel .orient-card[data-orient="imprimir"]{--oc:#0F766E; --oc-soft:#E6F4F1; --oc-line:#9AD5CB}
+#pde-painel .orient-card[data-orient="tela"]{--oc:#6D28D9; --oc-soft:#F1EAFE; --oc-line:#C9B3F5}
+/* saída com dois comandos (Atividades Criativas): os botões de destino ganham a cor da IA */
+#pde-painel .pde-out .go-btn[data-go="gpt"]{--dest-1:#12B08A; --dest-2:#0E8C6E; --dest-b:#0B7A5E; order:-12}
+#pde-painel .pde-out .go-btn[data-go="gem"]{--dest-1:#4A90F7; --dest-2:#1A73E8; --dest-b:#1557B0; order:-11}
+#pde-painel .pde-out .go-btn[data-go]{background:linear-gradient(180deg,var(--dest-1),var(--dest-2)) !important; border-color:var(--dest-b) !important; color:#fff !important; box-shadow:var(--sh)}
+#pde-painel .pde-out .go-btn[data-go] b{color:#fff}
+#pde-painel .pde-out .go-btn[data-go]::before{content:''; width:17px; height:17px; flex:none; background-color:currentColor; -webkit-mask:var(--ico) center/contain no-repeat; mask:var(--ico) center/contain no-repeat}
+#pde-painel .pde-out .go-foot{display:contents}
+#pde-painel .pde-out .rv-block{grid-column:1/-1}
+#pde-painel .pde-out .rv-h{display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:600; color:var(--ink-2); margin:10px 0 6px}
+#pde-painel .pde-out .rv-h .pde-copy{height:36px; min-height:36px; padding:0 12px; font-size:13px; border:1px solid #C9D2DD !important; background:var(--surface); color:var(--ink); border-radius:8px}
+/* toque: o botão compacto do cabeçalho de cada bloco sobe ao alvo de 44 px */
+@media (pointer:coarse){#pde-painel .pde-out .rv-h .pde-copy{height:auto; min-height:44px}}
+#pde-painel .go-btn .go-ic{display:none}
+#pde-painel .go-btn .go-tx{display:contents}
+#pde-painel .go-btn .go-tx small{display:none}
+#pde-painel .go-btn .go-tx b{font-size:14.5px; font-weight:700; display:inline}
+
+/* identificação com um quarto campo (ex.: turma): grade 2x2 em vez de uma linha de 3 mais um órfão */
+#pde-painel .pde-secao-ident > .pde-grid2:has(> .pde-f:nth-child(4)){grid-template-columns:repeat(2,minmax(0,1fr))}
+
+</style>
+<style id="pde-ajuste-css">
+/* PDE-AJUSTE-INDIVIDUAL */
+#pde-painel .pde-panel .lib-bar button{height:auto;min-height:44px}
+</style>
+<script>
+/* PDE-PREMIUM-LAYOUT-V1 · leva a marca, o título e a nota de responsabilidade
+   para dentro da coluna escura, marca os campos largos e devolve a leitura ao
+   topo quando o professor troca de etapa. Só move e marca: não cria texto nem
+   toca no comando. */
+(function(){
+  var P=document.getElementById('pde-painel')||document.getElementById('peg');
+  if(!P) return;
+  /* o quiosque move o painel para o fim do body, e os estilos que a ferramenta
+     tem DENTRO dele passariam na frente da folha nova. Devolvendo a folha para
+     dentro do painel ela volta a ser a última da cascata. */
+  function folhaPorUltimo(){
+    var pr=document.getElementById('pde-proprias');
+    if(pr && pr.parentNode!==P) P.appendChild(pr);
+    var f=document.getElementById('pde-premium-folha');
+    if(f && f.parentNode!==P) P.appendChild(f);
+    var aj=document.getElementById('pde-ajuste-css');
+    if(aj && (aj.parentNode!==P || aj.previousElementSibling!==f)) P.appendChild(aj);
+  }
+  /* blocos globais da ferramenta (seletor de modo, avisos, biblioteca) ficavam
+     soltos acima da casca, sem moldura. Vão para o topo da coluna de conteúdo,
+     na mesma ordem em que o autor os escreveu. Só muda de lugar. */
+  var CASCA=['pde-pular','pdeq-barra','pde-lateral-wrap','pde-logo','pde-rodape','pde-foot','pde-head','pde-aviso-valida'];
+  function recolherSoltos(){
+    var alvo=P.querySelector('.pde-panel'); if(!alvo) return;
+    var soltos=[];
+    for(var i=0;i<P.children.length;i++){
+      var e=P.children[i], tg=e.tagName;
+      if(tg==='SCRIPT'||tg==='STYLE'||tg==='TEMPLATE'||tg==='LINK') continue;
+      var c=(e.className||'')+''; var casa=false;
+      for(var k=0;k<CASCA.length;k++) if(c.indexOf(CASCA[k])>=0) casa=true;
+      if(!casa) soltos.push(e);
+    }
+    if(!soltos.length) return;
+    var caixa=P.querySelector('.pde-soltos');
+    if(!caixa){ caixa=document.createElement('div'); caixa.className='pde-soltos';
+      alvo.insertBefore(caixa, alvo.firstChild); }
+    soltos.forEach(function(e){ caixa.appendChild(e); });
+  }
+  function arrumar(){
+    folhaPorUltimo();
+    var lado=P.querySelector('.pde-lateral'); if(!lado) return false;
+    recolherSoltos();
+    var cab=P.querySelector('.pde-head');
+    if(cab && cab.parentNode!==lado) lado.insertBefore(cab, lado.firstChild);
+    var nota=P.querySelector('.pde-aviso-valida');
+    if(nota && nota.parentNode!==lado) lado.appendChild(nota);
+    P.querySelectorAll('.pde-grid2 > .pde-f').forEach(function(f){
+      if(f.querySelector('.orient-cards, .md-grid, #g-incl, .chips')) f.setAttribute('data-pde-largo','1');
+    });
+    /* ajustes individuais: blocos que a análise mandou para outra fase
+       (ex.: os chips de inclusão para a fase da turma). Só muda de lugar. */
+    var AJ=window.PDE_AJUSTES||{};
+    (AJ.mover||[]).forEach(function(m){
+      var el=P.querySelector(m.sel); if(!el) return;
+      var bloco=el.closest('.pde-f, .pde-campo')||el;
+      var alvo=P.querySelector('.wz-phase[data-phase="'+m.fase+'"]'); if(!alvo) return;
+      if(!m.dentro && !m.antes && bloco.parentNode===alvo) return;
+      if(m.dentro){ var cx=alvo.querySelector(m.dentro); if(cx && bloco.parentNode!==cx) cx.appendChild(bloco); return; }
+      var tit=bloco.previousElementSibling;
+      var ref=m.antes?alvo.querySelector(m.antes):null;
+      if(tit && tit.classList.contains('sec-t')){ if(ref) alvo.insertBefore(tit,ref); else alvo.appendChild(tit); }
+      if(ref) alvo.insertBefore(bloco,ref); else alvo.appendChild(bloco);
+    });
+    return true;
+  }
+  /* ── tela de resultado: depois de gerar, só o comando pronto e os botões de
+     destino ficam à vista. O formulário continua no DOM, escondido; "Voltar e
+     ajustar" devolve tudo. Nada do comando é tocado. ── */
+  function entrarResultado(){
+    var out=P.querySelector('.pde-out.show'); if(!out) return false;
+    var fase=out.closest('.wz-phase')||out.parentNode;
+    var el=out;
+    while(el && el!==fase){
+      var pai=el.parentNode;
+      for(var i=0;i<pai.children.length;i++){
+        var s=pai.children[i];
+        if(s!==el && !s.classList.contains('pde-res-cab') && !s.classList.contains('pde-res-voltar')) s.setAttribute('data-pde-res-oculto','1');
+      }
+      el=pai;
+    }
+    var cab=fase.querySelector('.pde-res-cab');
+    if(!cab){
+      cab=document.createElement('div'); cab.className='pde-res-cab';
+      cab.innerHTML='<div class="pde-res-tit">Seu comando está pronto</div><div class="pde-res-sub">Já está copiado. Escolha onde vai gerar e cole com Ctrl+V.</div>';
+      out.parentNode.insertBefore(cab,out);
+    }
+    var oc=P.querySelector('.orient-card.on'); var chip=cab.querySelector('.pde-res-formato');
+    var fixo=(window.PDE_AJUSTES||{}).formatoFixo;
+    if((oc && oc.querySelector('b')) || fixo){
+      if(!chip){ chip=document.createElement('div'); chip.className='pde-res-formato'; cab.appendChild(chip); }
+      chip.style.setProperty('--oc', oc?getComputedStyle(oc).getPropertyValue('--oc'):'#0F766E');
+      chip.innerHTML='<i></i>'+((window.PDE_AJUSTES||{}).formatoRotulo||'Formato')+': '+(oc?oc.querySelector('b').textContent:fixo);
+    }
+    if(!fase.querySelector('.pde-res-voltar')){
+      var volt=document.createElement('button'); volt.type='button'; volt.className='pde-res-voltar';
+      volt.setAttribute('data-action','pde-res-voltar'); volt.textContent='Voltar e ajustar';
+      out.parentNode.insertBefore(volt, out.nextSibling);
+    }
+    var steps=P.querySelector('.wz-steps');
+    if(steps && !steps.querySelector('.pde-res-step')){
+      var st=document.createElement('div'); st.className='wz-step pde-res-step'; st.setAttribute('aria-current','step');
+      st.innerHTML='<span class="dot">✓</span><span class="nm">Pronto</span>'; steps.appendChild(st);
+    }
+    var atual=P.querySelector('.wz-step.on:not(.pde-res-step)');
+    if(atual){ atual.classList.remove('on'); atual.classList.add('done','pde-res-era-on'); }
+    P.classList.add('pde-resultado'); aoTopo(); return true;
+  }
+  var resTimers=[];
+  function sairResultado(viaStep){
+    resTimers.forEach(clearTimeout); resTimers=[];
+    if(!P.classList.contains('pde-resultado')) return;
+    P.querySelectorAll('[data-pde-res-oculto]').forEach(function(e){ e.removeAttribute('data-pde-res-oculto'); });
+    var era=P.querySelector('.wz-step.pde-res-era-on');
+    if(era){
+      era.classList.remove('pde-res-era-on');
+      var restaurar=function(){ era.classList.remove('done'); era.classList.add('on'); };
+      /* saída pela trilha, por outra etapa: quem decide a etapa ativa é o motor da ferramenta;
+         só se ele ignorar o clique a etapa de antes volta a ficar ativa */
+      if(viaStep && viaStep!==era){ setTimeout(function(){ if(!P.querySelector('.wz-step.on:not(.pde-res-step)')) restaurar(); },0); }
+      else restaurar();
+    }
+    P.classList.remove('pde-resultado');
+  }
+  P.addEventListener('click',function(e){
+    if(e.target.closest('[data-action="gerar"],[data-action="gerar-rapido"],[data-action="gerar-serie"]')){
+      resTimers.forEach(clearTimeout);
+      resTimers=[80,400,1200].map(function(ms){ return setTimeout(function(){ if(!P.classList.contains('pde-resultado')) entrarResultado(); },ms); });
+    }
+    var stSaida=e.target.closest('.wz-step:not(.pde-res-step)');
+    if(stSaida || e.target.closest('[data-action="pde-res-voltar"],.wz-back')) sairResultado(stSaida);
+    /* saída com dois comandos: o script da ferramenta copia; aqui abre a IA, no mesmo clique, como as demais */
+    var dup=(window.PDE_AJUSTES||{}).abrirDuplo; var go=dup && e.target.closest('[data-go]');
+    if(go && dup[go.dataset.go]){
+      /* copia por conta própria, de forma síncrona e dentro do gesto do clique (não depende
+         da ordem dos ouvintes nem do foco), e só depois abre a IA, ainda dentro da janela
+         de ativação do usuário */
+      try{
+        var alvo=P.querySelector('#p-'+go.dataset.go); var txt=alvo?alvo.textContent:'';
+        if(txt){ var ta=document.createElement('textarea'); ta.value=txt; ta.setAttribute('readonly','');
+          ta.style.cssText='position:fixed;left:-9999px;top:0;font-size:16px'; document.body.appendChild(ta);
+          ta.focus(); ta.select(); ta.setSelectionRange(0,txt.length); document.execCommand('copy'); document.body.removeChild(ta);
+          if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).catch(function(){}); } }
+      }catch(x){}
+      var url=dup[go.dataset.go];
+      setTimeout(function(){ try{ window.open(url,'_blank'); }catch(x){} },250);
+    }
+  });
+  function aoTopo(){
+    try{
+      if(P.classList.contains('pdeq-on')){ P.scrollTop=0; return; }
+      var alvo=P.querySelector('.wz-phase.on')||P;
+      alvo.scrollIntoView({block:'start',behavior:'auto'});
+      parent.postMessage({tipo:'pde-scroll-top'},'*');
+    }catch(e){}
+  }
+  P.addEventListener('click',function(e){
+    if(e.target.closest('.wz-next,.wz-back,.wz-step,[data-action^="next"],[data-action="anterior"],[data-action="card"],[data-action="fase"],[data-action="proxima"]')){
+      [0,60,180,360,650,1000].forEach(function(ms){ setTimeout(aoTopo,ms); });
+    }
+    if(e.target.closest('[data-action]')) setTimeout(limparAviso,140);
+  });
+  /* a mensagem de sucesso vem com emoji em algumas ferramentas: aqui ela fica
+     na mesma voz das demais. Texto de tela, nunca do comando. */
+  var ICONES=/[🌀-🫿☀-➿️✅✔]/gu;
+  function limparAviso(){
+    P.querySelectorAll('.go-status').forEach(function(s){
+      var t=s.textContent||''; if(!ICONES.test(t)) return;
+      s.textContent=t.replace(ICONES,'').replace(/s{2,}/g,' ').trim();
+    });
+  }
+  function tentar(){ if(arrumar()) return; setTimeout(function(){ if(arrumar()) return; setTimeout(arrumar,900); },350); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',tentar); else tentar();
+  setTimeout(arrumar,1500); setTimeout(arrumar,2500);
+})();
+</script>
+
+</body>
+</html>
