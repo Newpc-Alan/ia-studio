@@ -26,7 +26,7 @@
 #pde-painel > *{visibility:hidden}
 </style>
 <!--
-  Atividades Criativas IA, versão PDF 4.4 (07/10/2026: PNG complementar desligado por padrão; aviso de uso de IA opcional, desligado; barra do PDF só em texto; folha aproveitada; alternativas no tamanho do enunciado).
+  Atividades Criativas IA, versão PDF 4.4 (07/10/2026: PNG complementar desligado por padrão; aviso de uso de IA opcional, desligado; barra do PDF só em texto; folha aproveitada; alternativas no tamanho do enunciado; aviso de que o PDF sai no ChatGPT e no Gemini).
   Comando único: conteúdo próprio ou IA, revisão, diagramação e PDF completo.
   Texto selecionável, fontes incorporadas, PNG opcional e paginação real.
   Motor síncrono compartilhado por ChatGPT, Gemini e múltiplas páginas.
@@ -232,6 +232,7 @@ D) 2/4
     <div id="fila-wrap" hidden></div>
 
     <div class="go-grid" id="go-grid">
+      <div class="pde-ias-aviso" style="order:-30;grid-column:1/-1;font-size:13.5px;line-height:1.45;color:#0F2C4A;background:#E6F4F1;border:1px solid #99D5C9;border-radius:8px;padding:10px 12px;margin-bottom:4px"><b>Use o ChatGPT ou o Gemini.</b> São as IAs que entregam o PDF pronto, inclusive nas contas gratuitas. Claude e Copilot devolvem só o texto, mesmo nos planos pagos.</div>
       <button class="go-btn gpt" data-go="gpt"><span class="go-ic">⧉</span><span class="go-tx"><b>Copiar e abrir ChatGPT</b><small>Cole o comando para solicitar o PDF completo</small></span>
       </button>
       <button class="go-btn gem" data-go="gem"><span class="go-ic">⧉</span><span class="go-tx"><b>Copiar e abrir Gemini</b><small>Cole o comando para solicitar o PDF completo</small></span>
