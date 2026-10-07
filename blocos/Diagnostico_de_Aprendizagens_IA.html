@@ -95,7 +95,7 @@
       var obs=new MutationObserver(function(){
         var t=el.textContent;
         if(typeof t!=='string'||t.length<400) return;
-        if(t.indexOf('DECLARAÇÃO DE USO DE IA')>=0) return;
+        if(t.indexOf('DECLARAÇÃO DE USO DE IA')>=0 || window.__pdeAvisoIA!==true) return;
         obs.disconnect();
         el.textContent=t+'\n\n'+window.declaraIA()+
           '\nEscreva essa declaração no rodapé do material, em fonte pequena, logo abaixo do quadro IA RESPONSÁVEL, sem alterar o texto.';
@@ -433,7 +433,7 @@ var REGRAS_INCLUSAO_PDE = '\n\nACESSIBILIDADE DO MATERIAL (regras práticas, sem
 
     var REGRAS_DIAG='\n\nREGRAS DO DIAGNÓSTICO (inegociáveis)\nDIAGNÓSTICO NÃO É PROVA: nunca vale nota, nunca vira ranking, nunca é divulgado individualmente; é a foto do ponto de partida e pertence ao professor.\nHABILIDADE REAL: toda habilidade citada usa código REAL da BNCC (formato EF0XLP0X ou EF0XMA0X) do ano correto; na dúvida, nomeie apenas o eixo, JAMAIS invente código.\nDISTRATORES QUE DIAGNOSTICAM: em itens de múltipla escolha, cada alternativa errada representa uma hipótese de erro típica de aluno (troca de operação, leitura literal, hipótese de escrita), e o gabarito pedagógico explica o que cada erro revela.\nPROGRESSÃO SERENA: os itens vão do mais simples ao mais desafiador, e o PRIMEIRO item é acessível a praticamente todos (todo aluno começa com uma vitória).\nAPLICAÇÃO ACOLHEDORA: sem cronômetro ostensivo e sem clima de prova; o material orienta o professor a apresentar como "uma atividade para eu conhecer melhor a turma".\nGABARITO PEDAGÓGICO: apenas na seção "PARA O PROFESSOR (não imprimir)", com a habilidade de cada item, o que cada alternativa errada revela e o encaminhamento "E AGORA?" de cada resultado (incluindo a ponte com atividades de recomposição de aprendizagens).\nNINGUÉM EXPOSTO: resultados individuais só na folha do professor; qualquer síntese para fora da sala usa números agregados, sem nomes de alunos.\nEJA: trate por Estudante, com contextos adultos e dignos (trabalho, casa, documentos, feira).';
 
-    var COMUM_VISUAL='\n\nÁREA DO PROFESSOR (obrigatória e compacta)\nLogo abaixo do título ou do cabeçalho, inclua uma faixa discreta de fundo claro intitulada "ÁREA DO PROFESSOR", em fonte pequena e 3 colunas compactas: 🎯 Objetivo: 1 frase objetiva do que o diagnóstico fotografa | ⏱ Tempo estimado: em minutos ou aulas | ✂️ Materiais necessários: lista mínima. A faixa ocupa o mínimo de espaço e não rouba o foco do conteúdo.\n\nCABEÇALHO ESCOLAR (obrigatório em tudo que o aluno responde)\nTodo caderno ou folha que o aluno responde traz no topo o CABEÇALHO ESCOLAR COMPLETO com linhas para preencher: Escola, Professor(a), Aluno(a), Turma e Data. ATENÇÃO: no diagnóstico NÃO existe quadrinho de nota ou conceito, porque diagnóstico não pontua, fotografa o ponto de partida (em turmas de EJA escreva Estudante no lugar de Aluno(a)).\n\nRODAPÉ OBRIGATÓRIO (PRIORIDADE MÁXIMA: se faltar espaço na folha, REDUZA O CONTEÚDO do material, nunca o rodapé; é PROIBIDO entregar o material sem ele, e é PROIBIDO encolher a ponto de ficar ilegível), em TRÊS partes discretas que ocupam o MÍNIMO de espaço:\n1) QUADRO "IA RESPONSÁVEL": retângulo fino de borda discreta, com um pequeno ícone de robô à esquerda, o título pequeno "IA RESPONSÁVEL" e o texto: "Material elaborado com apoio de Inteligência Artificial para fins educacionais. Recomenda-se revisão pelo professor antes da aplicação." Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: '+(window.declaraIA?window.declaraIA():"")+' Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: '+(window.declaraIA?window.declaraIA():"")+' Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: [[PDE_DECLARACAO_IA]]  \n2) LINHA DE CONFORMIDADE, em fonte bem pequena, tudo em uma única linha (quebre em duas apenas se faltar espaço): ✓ Alinhado à BNCC · ✓ Uso educacional · ✓ Revisão docente recomendada · ID: {{ID_MAT}} · Versão: 1.0 · Gerado em: {{DATA_GER}}\n3) Barra final em azul-marinho #0F2C4A, com os três canais em UMA única linha horizontal separados por barras verticais: 🌐 portaldoeducador.com.br | ▶️ YouTube: @PortaldoEducador | 📷 Instagram: @portal._do_educador\nIMPORTANTE: o rodapé é somente texto (mais o pequeno ícone de robô). NÃO crie logotipo, símbolo, brasão ou qualquer marca gráfica para o Portal do Educador. Reproduza o ID, a versão e a data EXATAMENTE como informados acima, sem inventar outros números.\n\nESTILO DE ESCRITA\nEscreva como um redator humano profissional. PROIBIDO usar travessão (—) ou hífen (-) como conector de frase ou para criar pausas (marca típica de texto gerado por IA): use vírgula, dois-pontos, parênteses ou reescreva. Hífen apenas em palavras compostas legítimas.\n\nACABAMENTO EDITORIAL\nProduza o material com acabamento editorial comercial de alto padrão: composição equilibrada, excelente hierarquia visual, tipografia moderna, ícones consistentes, paleta harmoniosa, excelente aproveitamento do espaço e aparência de material vendido por grandes editoras educacionais, preparado para impressão em alta resolução.\n\nPROTOCOLO DE CHECAGEM FINAL (obrigatório antes de entregar)\nAntes de gerar a imagem final, faça esta auto-auditoria e corrija o que falhar: 1) Toda habilidade citada é REAL da BNCC (formato EF0XLP0X ou EF0XMA0X) e do ano certo, nunca inventada (na dúvida, apenas o eixo)? 2) Cada alternativa errada revela uma hipótese de erro real de aluno, registrada no gabarito pedagógico? 3) Os itens estão em progressão de dificuldade e o primeiro é acessível a todos? 4) NADA no material transforma o diagnóstico em nota, ranking ou exposição de aluno? 5) A ortografia foi revisada DUAS vezes e toda conta foi recalculada DUAS vezes? 6) O rodapé institucional está completo e sem logotipo inventado? 7) O cabeçalho escolar está presente SEM campo de nota? 8) A ÁREA DO PROFESSOR está presente e o rodapé traz o quadro IA RESPONSÁVEL, o checklist de conformidade e o ID, a versão e a data EXATAMENTE como informados? Só entregue depois de aprovar os 8 itens.\n\nREGRAS CRÍTICAS\nTodo texto perfeitamente legível em português do Brasil; habilidades BNCC reais, nunca inventadas; revise a ortografia DUAS vezes; se faltar espaço, reduza a decoração, NUNCA o conteúdo.';
+    var COMUM_VISUAL='\n\nÁREA DO PROFESSOR (obrigatória e compacta)\nLogo abaixo do título ou do cabeçalho, inclua uma faixa discreta de fundo claro intitulada "ÁREA DO PROFESSOR", em fonte pequena e 3 colunas compactas: 🎯 Objetivo: 1 frase objetiva do que o diagnóstico fotografa | ⏱ Tempo estimado: em minutos ou aulas | ✂️ Materiais necessários: lista mínima. A faixa ocupa o mínimo de espaço e não rouba o foco do conteúdo.\n\nCABEÇALHO ESCOLAR (obrigatório em tudo que o aluno responde)\nTodo caderno ou folha que o aluno responde traz no topo o CABEÇALHO ESCOLAR COMPLETO com linhas para preencher: Escola, Professor(a), Aluno(a), Turma e Data. ATENÇÃO: no diagnóstico NÃO existe quadrinho de nota ou conceito, porque diagnóstico não pontua, fotografa o ponto de partida (em turmas de EJA escreva Estudante no lugar de Aluno(a)).\n\nRODAPÉ OBRIGATÓRIO (PRIORIDADE MÁXIMA: se faltar espaço na folha, REDUZA O CONTEÚDO do material, nunca o rodapé; é PROIBIDO entregar o material sem ele, e é PROIBIDO encolher a ponto de ficar ilegível), em TRÊS partes discretas que ocupam o MÍNIMO de espaço:\n1) QUADRO "IA RESPONSÁVEL": retângulo fino de borda discreta, com um pequeno ícone de robô à esquerda, o título pequeno "IA RESPONSÁVEL" e o texto: "Material elaborado com apoio de Inteligência Artificial para fins educacionais. Recomenda-se revisão pelo professor antes da aplicação." Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: '+(window.declaraIA?window.declaraIA():"")+'  \n2) LINHA DE CONFORMIDADE, em fonte bem pequena, tudo em uma única linha (quebre em duas apenas se faltar espaço): ✓ Alinhado à BNCC · ✓ Uso educacional · ✓ Revisão docente recomendada · ID: {{ID_MAT}} · Versão: 1.0 · Gerado em: {{DATA_GER}}\n3) Barra final em azul-marinho #0F2C4A, com os três canais em UMA única linha horizontal separados por barras verticais: 🌐 portaldoeducador.com.br | ▶️ YouTube: @PortaldoEducador | 📷 Instagram: @portal._do_educador\nIMPORTANTE: o rodapé é somente texto (mais o pequeno ícone de robô). NÃO crie logotipo, símbolo, brasão ou qualquer marca gráfica para o Portal do Educador. Reproduza o ID, a versão e a data EXATAMENTE como informados acima, sem inventar outros números.\n\nESTILO DE ESCRITA\nEscreva como um redator humano profissional. PROIBIDO usar travessão (—) ou hífen (-) como conector de frase ou para criar pausas (marca típica de texto gerado por IA): use vírgula, dois-pontos, parênteses ou reescreva. Hífen apenas em palavras compostas legítimas.\n\nACABAMENTO EDITORIAL\nProduza o material com acabamento editorial comercial de alto padrão: composição equilibrada, excelente hierarquia visual, tipografia moderna, ícones consistentes, paleta harmoniosa, excelente aproveitamento do espaço e aparência de material vendido por grandes editoras educacionais, preparado para impressão em alta resolução.\n\nPROTOCOLO DE CHECAGEM FINAL (obrigatório antes de entregar)\nAntes de gerar a imagem final, faça esta auto-auditoria e corrija o que falhar: 1) Toda habilidade citada é REAL da BNCC (formato EF0XLP0X ou EF0XMA0X) e do ano certo, nunca inventada (na dúvida, apenas o eixo)? 2) Cada alternativa errada revela uma hipótese de erro real de aluno, registrada no gabarito pedagógico? 3) Os itens estão em progressão de dificuldade e o primeiro é acessível a todos? 4) NADA no material transforma o diagnóstico em nota, ranking ou exposição de aluno? 5) A ortografia foi revisada DUAS vezes e toda conta foi recalculada DUAS vezes? 6) O rodapé institucional está completo e sem logotipo inventado? 7) O cabeçalho escolar está presente SEM campo de nota? 8) A ÁREA DO PROFESSOR está presente e o rodapé traz o quadro IA RESPONSÁVEL, o checklist de conformidade e o ID, a versão e a data EXATAMENTE como informados? Só entregue depois de aprovar os 8 itens.\n\nREGRAS CRÍTICAS\nTodo texto perfeitamente legível em português do Brasil; habilidades BNCC reais, nunca inventadas; revise a ortografia DUAS vezes; se faltar espaço, reduza a decoração, NUNCA o conteúdo.';
 
     function cvDin(){
       var ag=new Date(),gdd=('0'+ag.getDate()).slice(-2),gmm=('0'+(ag.getMonth()+1)).slice(-2),gaa=ag.getFullYear();
@@ -2217,3 +2217,328 @@ body [data-pdeq-oculto]{ display:none !important; }
   setTimeout(arrumar,1500); setTimeout(arrumar,2500);
 })();
 </script>
+<style id="pde-aviso-ia-css">
+/* PDE-RODAPE-IA-OPCIONAL-V1 · interface */
+#pde-painel .pde-aviso-ia{margin:18px 0 14px;border:1px solid #C9D2DD;border-radius:8px;background:#fff;padding:14px 16px}
+#pde-painel .pde-aviso-ia .pai-linha{display:flex;align-items:center;gap:14px;min-height:48px;cursor:pointer;margin:0}
+#pde-painel .pde-aviso-ia .pai-sw{position:relative;flex:none;width:46px;height:26px;border-radius:13px;background:#CBD5E1;transition:background .2s}
+#pde-painel .pde-aviso-ia .pai-sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(15,44,74,.3);transition:transform .2s}
+#pde-painel .pde-aviso-ia input.pai-chk{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+#pde-painel .pde-aviso-ia input.pai-chk:checked + .pai-sw{background:#0F2C4A}
+#pde-painel .pde-aviso-ia input.pai-chk:checked + .pai-sw::after{transform:translateX(20px)}
+#pde-painel .pde-aviso-ia input.pai-chk:focus-visible + .pai-sw{outline:3px solid #37B1DA;outline-offset:2px}
+#pde-painel .pde-aviso-ia .pai-txt{display:flex;flex-direction:column;gap:2px;line-height:1.35}
+#pde-painel .pde-aviso-ia .pai-tit{font-weight:700;color:#0F2C4A;font-size:15px}
+#pde-painel .pde-aviso-ia .pai-est{font-size:13px;color:#475569}
+#pde-painel .pde-aviso-ia .pai-mais{margin-top:12px;padding-top:12px;border-top:1px solid #E2E8F0}
+#pde-painel .pde-aviso-ia .pai-mais[hidden]{display:none}
+#pde-painel .pde-aviso-ia .pai-nota{font-size:13px;color:#475569;line-height:1.45;margin:0 0 10px}
+</style>
+<script>
+/* PDE-RODAPE-IA-OPCIONAL-V1
+   Decisão do Alan (07/10/2026): a barra do Portal do Educador (site, YouTube,
+   Instagram) sai SEMPRE no material. O aviso de uso de IA (quadro IA RESPONSÁVEL,
+   declaração e linha de conformidade com o ID) é OPCIONAL, começa DESLIGADO
+   e quem decide é o professor, na última fase, antes de gerar.
+   O filtro age nas duas saídas que importam: o texto mostrado na tela e
+   tudo o que vai para a área de transferência (copiar, abrir na IA). */
+(function(){
+  if(window.__pdeAvisoIAInstalado) return;
+  window.__pdeAvisoIAInstalado=true;
+  window.__pdeAvisoIA=false;
+
+  /* PDE-RODAPE-IA-OPCIONAL-V1 · filtro do comando
+   Desligado (padrão): o rodapé do material fica só com a barra dos três canais.
+   Ligado: mantém o aviso de IA, mas com UMA declaração e sem marcador cru. */
+function pdeFiltroRodape(t, ligado, declaracao){
+  if(typeof t!=='string' || t.indexOf('portaldoeducador.com.br')<0) return t;
+  var NL='\n';
+  declaracao = declaracao || '';
+
+  if(ligado){
+    if(!declaracao){
+      var dm=t.match(/DECLARAÇÃO DE USO DE IA: [^\n]*?(?:final: [^.\n]*\.|aplica o material\.)/);
+      if(dm) declaracao=dm[0];
+    }
+    if(declaracao) t=t.split('[[PDE_DECLARACAO_IA]]').join(declaracao);
+    var conf=(t.match(/✓ (Alinhado|Uso educacional)[^\n"]*/)||[])[0];
+    if(conf) t=t.split('[[PDE_LINHA_CONFORMIDADE]]').join(conf.trim());
+    /* a mesma instrução de declaração repetida em sequência vira uma só */
+    var frase=/( ?Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada(?: nos dados)?: [^\n]*?\.)(?=\s*Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO)/g;
+    var antes;
+    do{ antes=t; t=t.replace(frase,''); }while(t!==antes);
+    t=t.replace(/(Logo abaixo, em fonte menor, na MESMA caixa, escreva a DECLARAÇÃO DE USO exatamente como informada nos dados: )\[\[PDE_DECLARACAO_IA\]\]/g, '$1'+declaracao);
+    return t.split('[[PDE_DECLARACAO_IA]]').join('').split('[[PDE_LINHA_CONFORMIDADE]]').join('');
+  }
+
+  /* ---------- DESLIGADO ---------- */
+  /* 1. blocos do contrato do topo: "O RODAPÉ TEM EXATAMENTE 3 PARTES" ... até a PARTE 3 */
+  t=t.replace(/O RODAPÉ (?:TEM|DEVE TER) EXATAMENTE (?:ESTAS )?3 PARTES[^\n]*\n[\s\S]*?\nPARTE 3[^\n]*/g,
+    'O RODAPÉ TEM UMA ÚNICA PARTE, VISÍVEL NA MESMA IMAGEM: A BARRA FINAL');
+  t=t.replace(/[Ss]e as 3 partes( acima)? não estiverem integralmente visíveis/g,
+    function(m){ return (m.charAt(0)==='S'?'S':'s')+'e a barra final não estiver integralmente visível'; });
+  t=t.replace(/o rodapé institucional em TRÊS partes, nesta ordem:/g,'o rodapé institucional, que é apenas a barra final:');
+  t=t.replace(/\nPARTE 1, quadro IA RESPONSÁVEL[\s\S]*?\n(?=PARTE 3,)/g,'\n');
+  t=t.replace(/\nPARTE 3, barra final/g,'\nBarra final');
+
+  /* 2. rodapé numerado: remove o quadro IA e a linha de conformidade e renumera */
+  var linhas=t.split(NL), out=[], i=0;
+  var ehIA=function(l){ return /^\s*\d\)\s*(QUADRO\s*"?IA RESPONSÁVEL|LINHA DE CONFORMIDADE)/i.test(l); };
+  var ultimoCheio=function(){ for(var k=out.length-1;k>=0;k--){ if(out[k].trim()) return k; } return -1; };
+  while(i<linhas.length){
+    var l=linhas[i], uc=ultimoCheio();
+    if(/^\s*\d\)\s/.test(l) && !/\?\s+\d+\)/.test(l) && uc>=0 && /RODAPÉ|rodapé/.test(out[uc]) && /:\s*$/.test(out[uc])){
+      /* grupo de itens numerados logo depois do título do rodapé (linhas em branco entre eles são aceitas) */
+      var grupo=[], brancos=0;
+      while(i<linhas.length){
+        if(/^\s*\d\)\s/.test(linhas[i])){ grupo.push(linhas[i]); i++; brancos=0; continue; }
+        if(!linhas[i].trim() && i+1<linhas.length && /^\s*\d\)\s/.test(linhas[i+1])){ i++; brancos++; continue; }
+        break;
+      }
+      var restam=grupo.filter(function(g){ return !ehIA(g); });
+      var sep=brancos?['']:[];
+      if(restam.length===grupo.length){ grupo.forEach(function(g,k){ if(k&&brancos) out.push(''); out.push(g); }); continue; }
+      var cab=uc;
+      if(restam.length===1){ out.push(restam[0].replace(/^\s*\d\)\s*/,'').replace(/^./,function(c){return c.toUpperCase();})); }
+      else { restam.forEach(function(g,k){ if(k&&brancos) out.push(''); out.push(g.replace(/^\s*\d\)/, (k+1)+')')); }); }
+      var um=restam.length===1;
+      out[cab]=out[cab]
+        .replace(/em (TRÊS|QUATRO) partes discretas que ocupam/, um?'em UMA parte discreta que ocupa':'em '+(restam.length===2?'DUAS':'TRÊS')+' partes discretas que ocupam')
+        .replace(/em (TRÊS|QUATRO) partes discretas/, um?'em UMA parte discreta':'em '+(restam.length===2?'DUAS':'TRÊS')+' partes discretas');
+      continue;
+    }
+    out.push(l); i++;
+  }
+  t=out.join(NL);
+
+  /* 2b. rodapé de documento de texto (Literatura Popular): fica só a linha dos canais */
+  t=t.replace(/RODAPÉ DE CONFORMIDADE\nEncerre o documento com estas duas linhas, exatamente assim:\n"IA RESPONSÁVEL:[^\n]*\n"✓[^\n]*/g,
+    'RODAPÉ\nEncerre o documento com esta linha, exatamente assim:\n"🌐 portaldoeducador.com.br | ▶️ YouTube: @PortaldoEducador | 📷 Instagram: @portal._do_educador"');
+
+  /* 2c. rodapé de documento em três linhas (Planejador Pedagógico) */
+  t=t.replace(/Encerre o documento com estas TRÊS linhas, exatamente assim:\n1\) "IA RESPONSÁVEL[^\n]*\n2\) "✓[^\n]*\n3\) ("🌐[^\n]*)/g,
+    'Encerre o documento com esta linha, exatamente assim:\n$1');
+  t=t.replace(/Reproduza o ID, a versão, a data e a identificação EXATAMENTE como informados, e não invente logotipo nem marca gráfica\./g,'Não invente logotipo nem marca gráfica.');
+
+  /* 3. linhas inteiras que só existem por causa do aviso de IA */
+  var fora=[
+    /^\s*DECLARAÇÃO DE USO DE IA:.*$/,
+    /^\s*"?DECLARAÇÃO DE USO DE IA:.*$/,
+    /^\s*Escreva essa declaração no rodapé.*$/,
+    /^\s*Logo abaixo, dentro da MESMA caixa.*DECLARAÇÃO.*$/,
+    /^\s*"?✓ (Alinhado|Uso educacional).*$/,
+    /^\s*ID: PDE-.*$/,
+    /^\s*É PROIBIDO alterar, encurtar, traduzir, reformatar ou RECRIAR o código.*$/,
+    /^\s*O ID começa com PDE-.*$/,
+    /^\s*NUNCA reaproveite um ID.*$/,
+    /^\s*Reproduza o ID, a versão e a data exatamente como estão acima.*$/,
+    /^\s*"?IA RESPONSÁVEL: material elaborado.*$/,
+    /^\s*"Material produzido com apoio de Inteligência Artificial.*$/
+  ];
+  t=t.split(NL).filter(function(l){ return !fora.some(function(r){ return r.test(l); }); }).join(NL);
+
+  /* 4. frases dentro das checagens e das regras */
+  var troca=[
+    [/([Oo] rodapé traz )(a mensagem motivacional, )?o quadro IA RESPONSÁVEL, (?:a linha|o checklist) de conformidade e o ID, a versão e a data EXATAMENTE como informados/g,
+      function(m,a,b){ return a+(b?'a mensagem motivacional e ':'')+'a barra final com os três canais'; }],
+    [/rodapé com o quadro IA RESPONSÁVEL e o ID, a versão e a data exatos/g,'rodapé com a barra final dos três canais'],
+    [/o quadro IA RESPONSÁVEL, a linha de conformidade e a barra azul-marinho estão completamente visíveis/g,'a barra azul-marinho está completamente visível'],
+    [/Não entregue a imagem se faltar IA RESPONSÁVEL, linha de conformidade ou barra[^.\n]*/g,'Não entregue a imagem se faltar a barra final'],
+    [/o RODAPÉ DE CONFORMIDADE encerra com o ID, a versão e a data EXATAMENTE como informados/g,'o rodapé encerra com os três canais do Portal do Educador'],
+    [/RODAPÉ ALTERADO: o ID, a versão, a data e a identificação saem EXATAMENTE como informados/g,'RODAPÉ ALTERADO: a barra final com os três canais sai EXATAMENTE como informada'],
+    [/rodapé completo nas três partes/g,'rodapé completo'],
+    [/,? (?:e )?com ID, versão(?:, data)?(?: e data)?(?: e identificação)? exatos/g,''],
+    [/ e a declaração de uso de IA aparece uma única vez em toda a apresentação/g,''],
+    [/ \(mais o pequeno ícone de robô\)/g,''],
+    [/, mais o pequeno ícone de robô\./g,'.'],
+    [/Somente texto \(mais o ícone de robô\), sem logotipo ou marca gráfica inventada, e reproduzindo o ID, a versão e a data EXATAMENTE como informados\./g,'Somente texto, sem logotipo ou marca gráfica inventada.'],
+    [/ Reproduza o ID, a versão(?:, a data)?(?: e a data)?(?: e a identificação)? EXATAMENTE como informad[oa]s[^\n]*/g,''],
+    [/NO RODAPÉ, ao lado da linha de conformidade, escreva/g,'NO RODAPÉ, logo acima da barra final, escreva']
+  ];
+  troca.forEach(function(p){ t=t.replace(p[0],p[1]); });
+
+  /* 5. bloco textual da Literatura Popular: "RODAPÉ DE CONFORMIDADE" */
+  t=t.replace(/RODAPÉ DE CONFORMIDADE\n(?:\s*\n)*/g,'RODAPÉ\n');
+
+  t=t.split('[[PDE_DECLARACAO_IA]]').join('').split('[[PDE_LINHA_CONFORMIDADE]]').join('');
+  return t.replace(/\n{3,}/g,'\n\n');
+}
+
+  function declaracao(){
+    try{ if(typeof window.declaraIA==='function') return window.declaraIA(); }catch(e){}
+    return '';
+  }
+  function filtrar(t){ return pdeFiltroRodape(t, window.__pdeAvisoIA===true, declaracao()); }
+  window.pdeFiltrarComando=filtrar;
+
+  /* 1. saída para a área de transferência: vale para qualquer botão */
+  try{
+    var clip=navigator.clipboard;
+    if(clip && typeof clip.writeText==='function' && !clip.__pdeAviso){
+      var orig=clip.writeText.bind(clip);
+      clip.writeText=function(t){ return orig(filtrar(String(t))); };
+      clip.__pdeAviso=1;
+    }
+  }catch(e){}
+  try{
+    var execOrig=document.execCommand;
+    if(execOrig && !document.__pdeAvisoExec){
+      document.__pdeAvisoExec=1;
+      document.execCommand=function(cmd){
+        if(String(cmd).toLowerCase()==='copy'){
+          var a=document.activeElement;
+          if(a && (a.tagName==='TEXTAREA' || a.tagName==='INPUT') && typeof a.value==='string'){
+            var novo=filtrar(a.value);
+            if(novo!==a.value){ a.value=novo; try{ a.select(); a.setSelectionRange(0,novo.length); }catch(e){} }
+          }
+        }
+        return execOrig.apply(document, arguments);
+      };
+    }
+  }catch(e){}
+
+  /* 2. texto mostrado na tela */
+  var escrevendo=false;
+  function caixaDoComando(n){
+    var el=n && (n.nodeType===1?n:n.parentElement);
+    while(el && el.id!=='pde-painel' && el!==document.body){
+      var t=el.textContent||'';
+      if(t.length>600 && t.indexOf('portaldoeducador.com.br')>=0){
+        if(el.tagName==='SCRIPT'||el.tagName==='STYLE'||el.tagName==='TEMPLATE') return null;
+        /* só caixa de texto puro: um comando não tem botões nem campos dentro */
+        if(el.querySelector('button,input,select,textarea,.pde-aviso-ia')) return null;
+        return el;
+      }
+      el=el.parentElement;
+    }
+    return null;
+  }
+  /* quando o comando chega dentro de um cartão com botões, procura a caixa de texto por dentro */
+  function ehCaixa(x){
+    var t=x.textContent||'';
+    if(t.length<=600 || t.indexOf('portaldoeducador.com.br')<0) return false;
+    if(/^(SCRIPT|STYLE|TEMPLATE|BUTTON)$/.test(x.tagName)) return false;
+    return !x.querySelector('button,input,select,textarea,.pde-aviso-ia');
+  }
+  function caixasDentro(n){
+    var el=n && (n.nodeType===1?n:n.parentElement);
+    if(!el || (el.textContent||'').indexOf('portaldoeducador.com.br')<0) return [];
+    return [].slice.call(el.querySelectorAll('*')).filter(function(x){
+      if(!ehCaixa(x)) return false;
+      /* a mais interna: nenhum filho também é caixa */
+      return ![].some.call(x.children, ehCaixa);
+    });
+  }
+  function aplicar(el){
+    if(!el || escrevendo) return;
+    var atual=el.textContent;
+    if(atual===el.__pdeEscrito) return;
+    var novo=filtrar(atual);
+    el.__pdeOriginal=atual;
+    if(novo!==atual){ escrevendo=true; el.textContent=novo; escrevendo=false; }
+    el.__pdeEscrito=novo;
+  }
+  function reaplicarTudo(){
+    var P=document.getElementById('pde-painel'); if(!P) return;
+    [].slice.call(P.querySelectorAll('*')).forEach(function(el){
+      if(el.__pdeOriginal!==undefined && el.textContent===el.__pdeEscrito){
+        var novo=filtrar(el.__pdeOriginal);
+        escrevendo=true; el.textContent=novo; escrevendo=false;
+        el.__pdeEscrito=novo;
+      }
+    });
+    [].slice.call(P.querySelectorAll('textarea')).forEach(function(ta){
+      if(ta.value && ta.value.indexOf('portaldoeducador.com.br')>=0) ta.value=filtrar(ta.value);
+    });
+  }
+  function vigiar(){
+    var P=document.getElementById('pde-painel'); if(!P || P.__pdeAvisoObs) return;
+    P.__pdeAvisoObs=1;
+    var obs=new MutationObserver(function(regs){
+      if(escrevendo) return;
+      if(!P.querySelector('.pde-aviso-ia')) montar();
+      ajustarResumo(P);
+      var vistos=[];
+      regs.forEach(function(r){
+        var c=caixaDoComando(r.target);
+        if(c){ if(vistos.indexOf(c)<0) vistos.push(c); return; }
+        caixasDentro(r.target).forEach(function(x){ if(vistos.indexOf(x)<0) vistos.push(x); });
+      });
+      vistos.forEach(aplicar);
+    });
+    obs.observe(P,{childList:true,characterData:true,subtree:true});
+  }
+
+  /* 3. o interruptor, na última fase, logo depois da identificação */
+  function montar(){
+    var P=document.getElementById('pde-painel'); if(!P) return;
+    if(P.querySelector('.pde-aviso-ia')){ moverSeletor(P); return; }
+    var gerar=P.querySelector('[data-action="gerar"]') ||
+      [].slice.call(P.querySelectorAll('button')).filter(function(b){ return /Gerar (Ficha|os comandos|comando|o comando|prompt)/i.test(b.textContent); })[0];
+    var ident=P.querySelector('.pde-secao-ident');
+    var fase=function(el){ return el && el.closest('.wz-phase,[data-phase],.peg-card,.pde-fase'); };
+    if(ident && gerar && fase(ident)!==fase(gerar)) ident=null;
+    var ancora=null, antes=true;
+    if(ident){ ancora=ident; antes=false; }
+    else if(gerar){
+      ancora=gerar;
+      while(ancora.parentElement && ancora.parentElement!==P && !/(^|\s)(wz-phase|pde-fase|pde-panel)(\s|$)/.test(ancora.parentElement.className||'') && ancora.parentElement.children.length<3) ancora=ancora.parentElement;
+    }
+    if(!ancora || !ancora.parentNode) return;
+
+    var box=document.createElement('div');
+    box.className='pde-aviso-ia';
+    box.innerHTML=
+      '<label class="pai-linha">'+
+        '<input type="checkbox" class="pai-chk" id="pde-aviso-ia" role="switch" aria-describedby="pde-aviso-ia-est">'+
+        '<span class="pai-sw" aria-hidden="true"></span>'+
+        '<span class="pai-txt"><span class="pai-tit">Incluir aviso de uso de IA no material</span>'+
+        '<span class="pai-est" id="pde-aviso-ia-est">Desligado: o rodapé traz só a barra do Portal do Educador.</span></span>'+
+      '</label>'+
+      '<div class="pai-mais" hidden>'+
+        '<p class="pai-nota">O rodapé vai trazer o quadro IA Responsável, a declaração de uso de IA com o seu nome e o código do material, acima da barra do Portal do Educador.</p>'+
+      '</div>';
+    if(antes) ancora.parentNode.insertBefore(box, ancora);
+    else ancora.parentNode.insertBefore(box, ancora.nextSibling);
+
+    var chk=box.querySelector('#pde-aviso-ia');
+    chk.checked=false;
+    chk.addEventListener('change',function(){
+      window.__pdeAvisoIA=chk.checked;
+      atualizar(P);
+      reaplicarTudo();
+    });
+    moverSeletor(P);
+    atualizar(P);
+  }
+  /* o "Onde você vai gerar" só faz sentido com o aviso ligado: vai para dentro do quadro */
+  function moverSeletor(P){
+    var sel=P.querySelector('#pde-ia-usada'), mais=P.querySelector('.pde-aviso-ia .pai-mais');
+    if(!sel||!mais) return;
+    var cx=sel.closest('.pde-f, .pde-campo, div');
+    if(cx && cx.parentNode!==mais && !cx.querySelector('.pde-aviso-ia')) mais.appendChild(cx);
+  }
+  /* o resumo "Seu painel terá" não pode prometer o selo de IA com o aviso desligado */
+  function ajustarResumo(P){
+    var on=window.__pdeAvisoIA===true;
+    [].slice.call(P.querySelectorAll('.res-box *, .rg *')).forEach(function(el){
+      if(el.children.length || !/Selo IA Respons/i.test(el.textContent||'')) return;
+      var alvo=el.style.display!==(on?'':'none');
+      if(alvo){ escrevendo=true; el.style.display=on?'':'none'; escrevendo=false; }
+    });
+  }
+  function atualizar(P){
+    ajustarResumo(P);
+    var on=window.__pdeAvisoIA===true, box=P.querySelector('.pde-aviso-ia'); if(!box) return;
+    box.querySelector('.pai-mais').hidden=!on;
+    box.querySelector('.pai-est').textContent= on
+      ? 'Ligado: o rodapé traz o aviso de IA e a barra do Portal do Educador.'
+      : 'Desligado: o rodapé traz só a barra do Portal do Educador.';
+  }
+
+  function iniciar(){ montar(); vigiar(); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',iniciar); else iniciar();
+  setTimeout(iniciar,500); setTimeout(iniciar,1500); setTimeout(iniciar,2600);
+})();
+</script>
+
