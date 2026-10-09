@@ -26,13 +26,13 @@
 #pde-painel > *{visibility:hidden}
 </style>
 <!--
-  Atividades Criativas IA, versão PDF 4.4 (07/10/2026: PNG complementar desligado por padrão; aviso de uso de IA opcional, desligado; barra do PDF só em texto; folha aproveitada; alternativas no tamanho do enunciado; aviso de que o PDF sai no ChatGPT e no Gemini).
+  Atividades Criativas IA, versão PDF 4.6 (09/10/2026: comando compacto no modelo do Alan, com estrutura obrigatória dos formatos, roteiro opcional do professor ou planejado pela IA, assinatura visual do Portal e conferência por página). Versão 4.5 (08/10/2026: comando reescrito no modelo do Alan, com qualidade pedagógica, questões visuais com propósito, paginação inteligente e material do professor separado; botões Material do professor e Impressão econômica). Versão 4.4 (07/10/2026: PNG complementar desligado por padrão; aviso de uso de IA opcional, desligado; barra do PDF só em texto; folha aproveitada; alternativas no tamanho do enunciado; aviso de que o PDF sai no ChatGPT e no Gemini).
   Comando único: conteúdo próprio ou IA, revisão, diagramação e PDF completo.
   Texto selecionável, fontes incorporadas, PNG opcional e paginação real.
   Motor síncrono compartilhado por ChatGPT, Gemini e múltiplas páginas.
   Arquivo autocontido, compatível com o painel #pde-painel do Portal do Educador.
 -->
-<div id="pde-painel" data-pde-pdf-version="4.4">
+<div id="pde-painel" data-pde-pdf-version="4.6">
 
 
   
@@ -170,6 +170,13 @@ D) 2/4
           <label>Foco / habilidade específica (opcional)</label>
           <input id="ai-foco" placeholder="Ex.: problemas com denominadores diferentes">
         </div>
+        <div class="pde-f full">
+          <label for="ai-roteiro">Roteiro das questões (opcional)</label>
+          <textarea id="ai-roteiro" rows="4" placeholder="Uma linha por questão, se quiser definir o que cada uma cobre. Ex.:
+1. Comparar paisagens do Cerrado, com ilustração de três paisagens.
+2. Analisar as estações seca e chuvosa."></textarea>
+          <p class="pde-help">Vazio: a IA planeja sozinha o roteiro antes de criar as questões. Preenchido: ela segue o seu roteiro, na ordem.</p>
+        </div>
         <div class="toggles" style="margin-top:4px">
           <div class="tg" data-tg="ai-texto"><div class="sw"></div><div class="tl">Incluir texto-base<span>Pequeno texto antes das questões</span></div></div>
           <div class="tg" data-tg="ai-bncc"><div class="sw"></div><div class="tl">Relacionar à BNCC<span>Habilidades verificadas na nota ao professor</span></div></div>
@@ -198,6 +205,8 @@ D) 2/4
         <div class="tg" data-tg="dicas"><div class="sw"></div><div class="tl">Caixa "Dicas para o aluno"<span>Box de orientação</span></div></div>
         <div class="tg" data-tg="marca"><div class="sw"></div><div class="tl">Marca d'água temática<span>Fundo suave</span></div></div>
         <div class="tg" data-tg="icones"><div class="sw"></div><div class="tl">Ícones educacionais<span>Detalhes discretos</span></div></div>
+        <div class="tg on" data-tg="prof"><div class="sw"></div><div class="tl">Material do professor<span>Gabarito, justificativas e objetivos em página separada</span></div></div>
+        <div class="tg on" data-tg="economia"><div class="sw"></div><div class="tl">Impressão econômica<span>Fundo branco e pouca tinta, legível em preto e branco</span></div></div>
         <div class="tg" data-tg="png"><div class="sw"></div><div class="tl">PNG complementar<span>Imagem de cada página, além do PDF</span></div></div>
       </div>
     </div>
@@ -216,7 +225,7 @@ D) 2/4
           <input type="text" id="pde-id-municipio" placeholder="ex.: Campo Grande/MS" autocomplete="off"></div>
       </div>
       <div style="font-size:11px;color:var(--muted,#64748b);margin:-4px 0 14px;line-height:1.4">Escola e professor entram no cabeçalho. As informações de autoria ficam na nota ao professor. Os campos preenchidos são lembrados neste navegador.</div>
-      <div class="tg" data-tg="aviso-ia" role="switch" aria-pressed="false" style="margin:0 0 14px"><div class="sw"></div><div class="tl">Incluir aviso de uso de IA no material<span>Desligado: o rodapé traz só a barra do Portal do Educador. Ligado: uma linha discreta de autoria e uso de IA acima da barra.</span></div></div>
+      <div class="tg" data-tg="aviso-ia" role="switch" aria-pressed="false" style="margin:0 0 14px"><div class="sw"></div><div class="tl">Incluir aviso de uso de IA no material<span>Desligado: a declaração de uso de IA aparece só na conversa com a IA, fora do PDF. Ligado: ela entra uma vez no material do professor, nunca nas folhas do aluno.</span></div></div>
       <button type="button" class="pde-btn" data-action="gerar">Gerar prompt para PDF</button>
     </div>
 
@@ -297,6 +306,12 @@ D) 2/4
     if (/sistema solar|planetas?|sol[, ]+terra|terra[, ]+lua|astronomia/.test(value)) {
       return 'Sol, Terra, Lua e planetas, com aparência amigável e coerência com o tema estudado; detalhes decorativos não devem sugerir tamanhos ou distâncias em escala';
     }
+    if (/cerrado/.test(value)) {
+      return 'paisagens com campos, árvores de troncos retorcidos e mata junto a um córrego; fauna coerente com o Cerrado, sem sugerir que toda a paisagem é igual';
+    }
+    if (/pantanal/.test(value)) {
+      return 'planície alagável, corixos e baías, vegetação de campo e de mata ciliar e fauna típica do Pantanal, mostrando a diferença entre a cheia e a seca quando for pertinente';
+    }
     if (/fracoes|fracao/.test(value)) {
       return 'partes de um todo, formas divididas em partes iguais e situações concretas relacionadas a frações';
     }
@@ -340,184 +355,220 @@ D) 2/4
     return list.indexOf(value) >= 0;
   }
 
+  /* v4.6 · modelo compacto do Alan (09/10/2026): estrutura obrigatória, roteiro (do professor ou planejado pela IA),
+     assinatura visual do Portal e conferência por página. Tudo preenchido pelas escolhas do professor. */
+  var DIF_TXT = {
+    'fácil': 'fácil, adequado ao ano escolar',
+    'média': 'médio, adequado ao ano escolar',
+    'difícil': 'difícil, adequado ao ano escolar',
+    'progressiva (fácil ao difícil)': 'progressivo, da questão mais fácil à mais difícil, adequado ao ano escolar'
+  };
+  var TIPO_KEY = {
+    'múltipla escolha (a, b, c, d)': 'me',
+    'verdadeiro ou falso': 'vf',
+    'complete as lacunas': 'lac',
+    'dissertativas (resposta aberta)': 'ab',
+    'mistas': 'mix'
+  };
+  var TIPO_NOME = { me: 'Múltipla escolha', vf: 'Verdadeiro ou falso', lac: 'Complete as lacunas', ab: 'Aberta' };
+  var TIPO_PLURAL = { me: 'múltipla escolha', vf: 'verdadeiro ou falso', lac: 'complete as lacunas', ab: 'questões abertas' };
+  var TIPO_REGRA = {
+    me: 'Múltipla escolha: quatro alternativas A, B, C e D, completas e plausíveis, com uma única correta.',
+    vf: 'Verdadeiro ou falso: quatro afirmações numeradas de I a IV, cada uma com campo (   ); o conjunto conta como uma questão.',
+    lac: 'Complete as lacunas: trecho com lacunas bem visíveis, com banco de palavras quando ajudar a idade; cada lacuna aceita uma única resposta adequada.',
+    ab: 'Abertas: comando delimitado e espaço proporcional à resposta esperada.'
+  };
+  var ADAPTA = {
+    tea: 'TEA / Autismo: organização previsível, uma instrução por vez, linguagem literal, sem ironia ou ambiguidade, e nenhuma imagem sem função pedagógica.',
+    tdah: 'TDAH: questões em blocos bem separados, comando principal destacado, menos blocos por página e instruções curtas, sem omitir informação necessária.',
+    dislexia: 'Dislexia: fonte simples sem serifa, alinhamento à esquerda, entrelinha de cerca de 1,5 e espaço confortável entre palavras e alternativas. Sem itálico em blocos, sublinhados longos ou frases inteiras em maiúsculas.',
+    di: 'Deficiência intelectual: uma tarefa por bloco, vocabulário concreto e apoio visual quando ajudar. Um exemplo de resposta pode usar dados diferentes dos itens avaliados. Apresentação respeitosa e adequada à idade.',
+    baixavisao: 'Baixa visão: todo texto de leitura do aluno com pelo menos 18 pontos (24 na projeção), texto escuro sobre branco, contornos nítidos e figuras simples e ampliadas, sem marca d’água nem texto sobre fundo colorido.',
+    auditiva: 'Deficiência auditiva / Surdez: todas as instruções por escrito, com apoio visual; nenhuma resposta depende de áudio. Para quem usa Libras, reserve um espaço vazio de 3,5 × 3,5 cm com a legenda "Vídeo em Libras". Não desenhe sinais de Libras nem invente QR codes.',
+    motora: 'Deficiência motora: campos de marcação de pelo menos 1 × 1 cm, bem separados, espaços amplos de escrita e, quando necessário, um campo para o professor registrar a resposta oral. Nada que dependa de recorte ou traço fino.'
+  };
+
+  /* Distribui os formatos de uma atividade mista: começa em múltipla escolha, termina em aberta
+     e nunca repete o mesmo formato em sequência. Ex.: 8 questões = ME, VF, AB, ME, AB, VF, ME, AB. */
+  function mixPlan(n) {
+    if (n <= 1) return ['me'];
+    if (n === 2) return ['me', 'ab'];
+    var ab = Math.max(1, Math.round(n * 0.375)), vf = Math.max(1, Math.round(n * 0.25)), me = n - ab - vf;
+    if (me < 1) { me = 1; ab = n - vf - 1; }
+    var left = { me: me - 1, vf: vf, ab: ab - 1 }, seq = ['me'], last = { me: 0, vf: -1, ab: -1 }, steps = 0;
+    function walk(pos) {
+      if (pos === n - 1) return seq[pos - 1] !== 'ab';
+      if (++steps > 5000) return false;
+      var opts = ['vf', 'ab', 'me'].filter(function (k) { return left[k] > 0 && k !== seq[pos - 1]; });
+      opts.sort(function (a, b) { return (left[b] - left[a]) || (last[a] - last[b]); });
+      for (var i = 0; i < opts.length; i++) {
+        var k = opts[i], keep = last[k];
+        left[k]--; seq.push(k); last[k] = pos;
+        if (walk(pos + 1)) return true;
+        left[k]++; seq.pop(); last[k] = keep;
+      }
+      return false;
+    }
+    if (!walk(1)) {
+      seq = ['me'];
+      for (var i = 1; i < n - 1; i++) seq.push(['vf', 'ab', 'me'][(i - 1) % 3]);
+    }
+    seq.push('ab');
+    return seq;
+  }
+
   function build(config, toolName) {
     config = config || {};
     var sections = Array.isArray(config.sections) ? config.sections : [];
     if (!sections.length) return '';
-    var elements = config.elements || {};
-    var identity = config.identity || {};
+    var el = config.elements || {};
+    var id = config.identity || {};
     var profiles = selectedProfiles(config.profiles);
     var screen = config.format === 'tela';
     var own = config.mode === 'own';
-    var target = text(toolName) || 'ChatGPT';
     var grade = text(config.grade) || 'ano escolar informado';
-    var quantity = Number(config.questionCount);
-    quantity = isFinite(quantity) && quantity > 0 ? Math.round(quantity) : 4;
-    quantity = Math.max(1, quantity);
+    var qtd = Math.max(1, Math.round(Number(config.questionCount) || 4));
+    var total = qtd * sections.length;
+    var prof = config.teacherMaterial !== false;
+    var eco = config.economy !== false;
+    var tk = TIPO_KEY[text(config.questionType).toLowerCase()] || 'mix';
+    var dif = DIF_TXT[text(config.difficulty).toLowerCase()] || DIF_TXT['média'];
+    var roteiro = text(config.roadmap);
     var quiet = has(profiles, 'tea') || has(profiles, 'tdah') || has(profiles, 'baixavisao');
+    var big = has(profiles, 'baixavisao');
+    var teacher = text(id.teacher);
+    var plan = tk === 'mix' ? mixPlan(qtd) : Array.apply(null, Array(qtd)).map(function () { return tk; });
+    /* Roteiro do professor: quando a linha indica o formato ou as linhas de resposta, a estrutura segue o roteiro. */
+    var linhasRot = {};
+    if (roteiro && !own) {
+      var NUM = { duas: 2, dois: 2, tres: 3, 'três': 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, dez: 10 };
+      roteiro.split(/\n+/).forEach(function (ln) {
+        var mm = ln.match(/^\s*(\d+)\s*[.)\-:]/); if (!mm) return;
+        var i = Number(mm[1]) - 1; if (i < 0 || i >= qtd) return;
+        var low = ln.toLowerCase(), t = null;
+        if (/v\s*\/\s*f|verdadeiro ou falso/.test(low)) t = 'vf';
+        else if (/lacuna/.test(low)) t = 'lac';
+        else if (/linhas? para|resposta aberta|dissertativ/.test(low)) t = 'ab';
+        else if (/alternativa|múltipla escolha/.test(low)) t = 'me';
+        if (t && tk === 'mix') plan[i] = t;
+        var ln2 = low.match(/(\d+|duas|dois|tr[eê]s|quatro|cinco|seis|sete|oito|dez)\s+linhas/);
+        if (ln2) linhasRot[i] = /\d/.test(ln2[1]) ? Number(ln2[1]) : NUM[ln2[1]];
+      });
+    }
+    var used = own ? [] : plan.filter(function (k, i, a) { return a.indexOf(k) === i; });
+    var lines = function (k, i) { return k !== 'ab' || screen ? '' : ' (' + (linhasRot[i] || (i === qtd - 1 && qtd >= 5 ? 6 : 4)) + ' linhas)'; };
+    var apoios = own ? 0 : (total >= 5 ? Math.max(1, Math.round(total / 3)) : (total >= 3 ? 1 : 0));
     var out = [];
 
-    out.push('Você é um designer editorial e autor de materiais educacionais. Produza uma avaliação ou ficha de exercícios COMPLETA, pronta para uso, com o texto e a diagramação no mesmo arquivo.');
+    out.push('TAREFA\nVocê é professor e designer editorial do Portal do Educador. ' +
+      (own ? 'Diagrame a avaliação com as questões fornecidas abaixo, sem alterar seu conteúdo. ' : 'Crie a avaliação descrita abaixo. ') +
+      'Entregue UM PDF completo' + (screen ? ' para projeção' : '') + ', com ' + (screen ? 'as telas da atividade' : 'páginas do aluno') + (prof ? ' seguidas do material do professor' : '') +
+      '. Faça preparação, revisão e diagramação na mesma execução, sem pedir confirmação ou esperar o pedido da próxima página.');
 
-    out.push('ENTREGA OBRIGATÓRIA\n' +
-      'Entregue diretamente UM arquivo PDF completo para baixar, com todas as seções e todas as páginas necessárias, na ordem informada. ' +
-      (screen ? 'O PDF será usado em projetor, televisão ou lousa digital.' : 'O PDF será impresso em papel A4.') + '\n' +
-      (elements.png ? (screen
-        ? 'Entregue também um PNG de CADA página completa, com exatamente 1920 × 1080 pixels.\n'
-        : 'Entregue também um PNG de CADA página completa, com exatamente 2480 × 3508 pixels e resolução registrada de 300 DPI.\n') : '') +
-      'Faça a preparação do conteúdo, as duas revisões e a diagramação como etapas internas da mesma execução. Conclua todas as seções sem pedir confirmação para desenhar ou esperar que o usuário solicite a página seguinte. Não encerre após um plano, o texto das questões ou uma ilustração isolada.\n' +
-      'O PDF deve conter texto real, selecionável, com fontes incorporadas e caracteres portugueses corretos. Quando houver ferramentas de composição de arquivos, use-as para diagramar o texto programaticamente. Use geração de imagens apenas para ilustrações de apoio ou decoração. Não transforme o texto da avaliação em um desenho nem use uma imagem da folha inteira como substituto do PDF tipográfico.\n' +
-      'A entrega é a folha completa, com cabeçalho, questões, alternativas, figuras necessárias, espaços de resposta quando aplicáveis e rodapé. Não entregue mockup, fotografia de uma folha ou apenas o código que poderia criar o material.');
-
-    if (screen) {
-      out.push('FORMATO PARA PROJEÇÃO\n' +
-        'PDF horizontal em proporção 16:9, com páginas de exatamente 320 × 180 mm. Reserve uma área livre de 10 mm em todos os lados, equivalente a 60 pixels em uma tela de 1920 × 1080 pixels. Considere também a espessura dos contornos: nenhum elemento pode ultrapassar a área útil.\n' +
-        'Use texto didático grande, com corpo de pelo menos 24 pontos, alto contraste e poucas questões por tela, para leitura a distância. Se faltar espaço, acrescente telas; não corte questões ou alternativas nem diminua a letra para forçar o encaixe.\n' +
-        'Não inclua campos de Nome, Turma, Data ou Nota, linhas para preencher à mão ou quadradinhos de avaliação manuscrita. Nas questões abertas, apresente o comando para uma resposta oral ou registrada fora da tela, mantendo integralmente o conteúdo fornecido.');
-    } else {
-      out.push('FORMATO PARA IMPRESSÃO\n' +
-        'PDF A4 retrato, com páginas de exatamente 210 × 297 mm. Reserve, no mínimo, 15 mm de margem totalmente branca em TODOS os lados. Posicione os contornos com folga para que sua espessura também permaneça dentro da área útil. Nenhum texto, figura, fundo colorido, quadro ou rodapé pode invadir as margens.\n' +
-        'Enunciados e alternativas usam o MESMO tamanho de letra, no mínimo 12 pontos; alternativa menor que o enunciado é erro. O rodapé administrativo deve ter pelo menos 9 pontos. Use fontes legíveis disponíveis no ambiente e incorpore-as ao PDF; não simule fontes indisponíveis nem reduza a escala da página para caber conteúdo.\n' +
-        'Reserve espaço real para responder à mão: linhas com aproximadamente 7 a 8 mm entre si e quantidade proporcional à resposta esperada. Respostas abertas precisam de mais espaço do que itens de marcação. Não preencha os espaços de resposta do aluno.');
+    var d = ['DADOS', 'Ano: ' + grade + '.'];
+    sections.forEach(function (s, i) { d.push('Seção ' + (i + 1) + ': ' + (text(s.subject) || 'disciplina informada') + '; tema: ' + (text(s.topic) || 'tema informado') + '.'); });
+    if (own) d.push('Questões: as fornecidas pelo professor, sem acrescentar nem retirar nenhuma. Preserve a numeração.');
+    else {
+      d.push('Quantidade: exatamente ' + (sections.length > 1 ? qtd + ' questões por seção, ' + total + ' no total. Numeração contínua dentro de cada seção.' : qtd + ' questões. Numeração contínua.'));
+      d.push('Desafio: ' + dif + '. Formato: ' + (tk === 'mix' ? 'misto, combinando ' + used.map(function (k) { return TIPO_PLURAL[k]; }).join(', ').replace(/, ([^,]*)$/, ' e $1') : TIPO_PLURAL[tk]) + '.');
+      if (text(config.focus)) d.push('Foco: ' + text(config.focus) + '.');
+      d.push(config.includeBaseText ? 'Inclua um texto-base curto antes das questões, com tudo o que elas exigirem.' : 'Sem texto-base separado. Contextos necessários entram no próprio enunciado.');
     }
+    if (text(id.school)) d.push('Escola: ' + text(id.school) + '.');
+    if (teacher) d.push('Professor(a): ' + teacher + '.');
+    if (text(id.city)) d.push('Município: ' + text(id.city) + '.');
+    d.push('Material do professor: ' + (prof ? 'sim' : 'não') + '. Adaptações: ' + (profiles.length ? profiles.map(function (k) { return PROFILE_NAMES[k]; }).join(', ') : 'nenhuma específica') + '.');
+    d.push('Não invente identificação ausente.' + (text(id.city) ? (prof ? ' Município fica somente no material do professor.' : ' Município não aparece nas páginas do aluno.') : ''));
+    out.push(d.join('\n'));
 
-    out.push('ORGANIZAÇÃO E PAGINAÇÃO\n' +
-      'A quantidade de seções informada organiza o conteúdo; ela não limita a quantidade final de páginas. Preserve todas as questões, subitens, alternativas e dados. Acrescente páginas sempre que necessário para respeitar a leitura, o espaço de resposta e as adaptações.\n' +
-      (screen
-        ? 'APROVEITE CADA TELA: coloque 1 ou 2 questões por tela, conforme o tamanho, sem deixar a tela com uma questão pequena e o resto vazio.\n'
-        : 'APROVEITE CADA FOLHA, porque a escola paga a impressão: preencha pelo menos 70% da área útil antes de abrir uma nova página. Em geral cabem de 3 a 4 questões por folha A4, mais quando forem curtas. Somente a última página pode ficar com mais espaço livre. Só reduza a quantidade por folha quando uma adaptação selecionada exigir.\n') +
-      'Mantenha cada enunciado junto de suas alternativas e de sua figura de apoio. Evite dividir uma questão entre páginas; quando uma questão extensa exigir continuação, identifique-a com clareza e mantenha o espaço de resposta correspondente.\n' +
-      'Numere as páginas conforme o total REAL do PDF concluído, de "Página 1 de M" até "Página M de M", substituindo M pelo total calculado. Coloque a paginação em uma posição discreta do cabeçalho, dentro da área útil, sem acrescentá-la à barra de canais.');
-
-    var sourceNumber = Number(config.sourceSectionNumber);
-    var sourceTotal = Number(config.sourceSectionTotal);
-    if (sourceNumber > 0 && sourceTotal >= sourceNumber) {
-      out.push('CONTEXTO DESTE ARQUIVO\n' +
-        'O conteúdo selecionado corresponde à seção ' + sourceNumber + ' de um planejamento de ' + sourceTotal + ' seções. Esse dado serve apenas para identificar a origem. Entregue o PDF completo desta seleção e numere suas páginas a partir de 1, usando o total real deste arquivo. Não use o total de seções como total de páginas.');
-    }
-
-    var header = 'CABEÇALHO\n' +
-      'Título com o tema da seção, subtítulo com a disciplina e ' + grade + '. Use hierarquia clara e uma faixa discreta, sem ocupar o espaço necessário às questões.\n' +
-      'Escola: ' + (text(identity.school) || (screen ? 'não informada; omita essa informação' : 'campo em branco para preencher')) + '.\n' +
-      'Professor(a): ' + (text(identity.teacher) || (screen ? 'não informado(a); omita essa informação' : 'campo em branco para preencher')) + '.';
-    if (text(identity.city)) header += '\nMunicípio e UF informados: ' + text(identity.city) + '. Registre essa identificação na nota ao professor, sem sobrecarregar a folha.';
-    if (!screen) {
-      header += '\nInclua uma linha longa para Nome e ' + (elements.fields
-        ? 'espaços para Turma, Data e Nota.'
-        : 'um espaço para Data. A opção de campos adicionais está desativada; não acrescente Turma ou Nota.');
-    }
-    out.push(header);
+    var sn = Number(config.sourceSectionNumber), st = Number(config.sourceSectionTotal);
+    if (sn > 0 && st >= sn) out.push('CONTEXTO DESTE ARQUIVO\nEste conteúdo é a seção ' + sn + ' de um planejamento de ' + st + ' seções; o dado serve só para identificar a origem. Numere as páginas a partir de 1, com o total real deste arquivo.');
 
     if (own) {
-      out.push('PREPARAÇÃO DO CONTEÚDO FORNECIDO\n' +
-        'Use integralmente as questões fornecidas em cada seção. Corrija apenas erros de ortografia, acentuação e pontuação, sem alterar o sentido. Não invente, resuma, acrescente ou omita questões, alternativas, respostas fornecidas, nomes, datas, números, unidades ou dados. Preserve a numeração das questões dentro de cada seção.\n' +
-        'A quantidade válida é a de questões efetivamente fornecidas, mesmo que o formulário tenha uma quantidade sugerida diferente. Não crie questões para completar uma quantidade nem remova questões para reduzi-la.\n' +
-        'Defina o texto revisado antes de diagramar. Faça duas revisões independentes de ortografia e clareza, sem reescrever o conteúdo por preferência estilística. Reproduza integralmente essa versão na composição final.\n' +
-        'Se identificar uma possível inconsistência de conteúdo, preserve os dados fornecidos e registre a observação na nota ao professor; não invente uma correção factual.');
+      out.push('CONTEÚDO FORNECIDO PELO PROFESSOR\n' + sections.map(function (s, i) {
+        return (sections.length > 1 ? 'SEÇÃO ' + (i + 1) + ' · ' + text(s.subject) + ' · ' + text(s.topic) + '\n' : '') + 'INÍCIO DO CONTEÚDO\n' + text(s.questions) + '\nFIM DO CONTEÚDO';
+      }).join('\n\n') + '\n\nUse integralmente as questões. Corrija apenas ortografia, acentuação e pontuação, sem alterar o sentido. Não invente, resuma, acrescente ou omita questões, alternativas, nomes, datas, números ou dados. Se uma questão depender de figura, tabela ou esquema, construa esse apoio junto dela. Se notar possível inconsistência de conteúdo, preserve o texto e registre a observação ' + (prof ? 'no material do professor' : 'no chat') + '.');
     } else {
-      out.push('CRIAÇÃO DO CONTEÚDO\n' +
-        'Crie exatamente ' + quantity + ' questões originais por seção, adequadas a ' + grade + ', em português do Brasil correto. A quantidade total solicitada é ' + (quantity * sections.length) + ' questões.\n' +
-        'Dificuldade: ' + (text(config.difficulty) || 'Média') + '.\n' +
-        'Tipo de questão: ' + (text(config.questionType) || 'Mistas') + '.\n' +
-        (text(config.focus) ? 'Foco ou habilidade específica: ' + text(config.focus) + '.\n' : '') +
-        (config.includeBaseText ? 'Inclua um texto-base curto e relevante antes das questões de cada seção, com todas as informações necessárias para os itens que dependam dele.\n' : 'Não acrescente texto-base decorativo. Se uma questão depender de um pequeno contexto, inclua-o no próprio enunciado.\n') +
-        'Use enunciados completos, claros e compatíveis com a idade. Para questões mistas, varie os formatos de resposta conforme o tema; para múltipla escolha, mantenha alternativas completas e uma única resposta correta quando o enunciado assim determinar.\n' +
-        'Numere as questões de forma contínua dentro de cada seção, sem repetições ou saltos. Defina o texto final e revise ortografia e clareza duas vezes antes da diagramação. Depois preserve cada palavra dessa versão, sem cortar questões ou alternativas para acomodar o layout.');
+      out.push('ESTRUTURA OBRIGATÓRIA\n' + (sections.length > 1 ? 'Em cada seção: ' : '') +
+        plan.map(function (k, i) { return (i + 1) + '. ' + TIPO_NOME[k] + lines(k, i); }).join('; ') + '.\n' +
+        used.map(function (k) { return TIPO_REGRA[k]; }).join(' ') + ' Use somente os formatos escolhidos.');
+
+      if (roteiro) {
+        out.push('ROTEIRO DE CONTEÚDO DEFINIDO PELO PROFESSOR\n' + roteiro + '\n\nSiga este roteiro na ordem indicada. Quando ele indicar o formato de uma questão, o roteiro prevalece sobre a estrutura obrigatória. Os apoios visuais pedidos nele substituem a contagem automática de figuras.');
+      } else {
+        out.push('ROTEIRO DE CONTEÚDO\nAntes de escrever, planeje internamente um roteiro, sem mostrá-lo: para cada questão, defina o objetivo, o aspecto do conteúdo e se terá apoio visual. Cubra aspectos diferentes do tema, do reconhecimento à aplicação, e reserve as últimas questões para analisar, comparar ou propor. ' +
+          (apoios ? 'Distribua ' + (apoios === 1 ? '1 apoio visual' : apoios + ' apoios visuais') + (sections.length > 1 ? ' no total' : '') + ' (ilustração comparativa, tabela, esquema, sequência ou cena) em questões que dependam deles para ser respondidas.' : 'Use apoio visual só se uma questão realmente depender dele.'));
+      }
+
+      out.push('QUALIDADE PEDAGÓGICA\nDefina um objetivo por questão e resolva todos os itens antes de diagramar. Confira a exatidão do conteúdo. A dificuldade deve vir de interpretar, comparar e aplicar conhecimentos, sem pegadinhas ou vocabulário artificialmente difícil. Evite distratores absurdos e pistas pela extensão das alternativas. Distribua as respostas corretas entre as letras. Revise linguagem e consistência duas vezes. Não mostre respostas, justificativas nem marcas corretas nas páginas do aluno.');
     }
 
-    var sectionBlocks = sections.map(function (section, index) {
-      section = section || {};
-      var block = 'SEÇÃO ' + (index + 1) + '\n' +
-        'Disciplina: ' + text(section.subject) + '\n' +
-        'Tema: ' + text(section.topic) + '\n' +
-        'Ano escolar: ' + grade;
-      if (own) {
-        block += '\nINÍCIO DO CONTEÚDO FORNECIDO\n' + text(section.questions) + '\nFIM DO CONTEÚDO FORNECIDO';
-      }
-      if (elements.themeImage && !quiet) block += '\nReferência para a ilustração decorativa: ' + theme(section.subject, section.topic) + '.';
-      return block;
-    });
-    out.push('SEÇÕES A PRODUZIR, NESTA ORDEM\n\n' + sectionBlocks.join('\n\n'));
+    var visual = 'PADRÃO VISUAL\nTexto de enunciados, alternativas, instruções, rótulos e respostas do professor em preto #000000, sobre branco. Título principal em azul-marinho #0F2C4A. Número de cada questão em azul-marinho, dentro de uma pequena caixa arredondada com contorno azul-ciano #37B1DA e interior branco. Não envolva cada questão inteira em molduras.\n';
+    visual += (text(config.styleDescription) ? 'Estilo: ' + text(config.styleDescription) + '. ' : '') + 'Use cenas expressivas e reconhecíveis, coerentes entre si, adequadas à idade; o estilo escolhido precisa aparecer nas ilustrações, além do título. ';
+    visual += eco ? 'Economia de tinta: fundo branco, linhas finas, ilustrações localizadas e sem grandes fundos preenchidos. ' : 'Visual colorido: use as cores da identidade (#0F2C4A, #37B1DA, cinza #E9EEF2) com equilíbrio, sem fundos chapados atrás de texto. ';
+    visual += 'Preserve os apoios visuais necessários. Tudo deve continuar compreensível em preto e branco.';
+    var ex = [];
+    if (el.tips) ex.push('uma caixa curta "Dicas para o aluno", sem revelar respostas');
+    if (el.watermark && !quiet) ex.push('marca d’água temática muito suave, apenas em área decorativa, nunca atrás de texto ou de espaço de resposta');
+    if (el.icons) ex.push('ícones educacionais discretos apenas onde ajudarem a localizar informações');
+    if (ex.length) visual += '\nInclua também: ' + ex.join('; ') + '.';
+    out.push(visual);
 
-    out.push('DESIGN E ILUSTRAÇÕES\n' +
-      'Estilo: ' + (text(config.styleDescription) || 'editorial escolar organizado, com acabamento profissional e alta legibilidade') + '.\n' +
-      'Paleta: azul-marinho #0F2C4A, azul-ciano #37B1DA, cinza claro #E9EEF2 e branco predominante. Use texto escuro sobre fundo claro, contraste alto e espaços em branco confortáveis. Cada questão deve ter numeração destacada, alternativas alinhadas e organização previsível.\n' +
-      'Use texto didático alinhado à esquerda e fontes simples sem serifa. Não faça o significado depender somente da cor: acrescente palavras, números, símbolos conhecidos ou padrões de traço quando necessário. Não escreva questões sobre fotos, texturas ou ilustrações.\n' +
-      (elements.themeImage && !quiet
-        ? 'A decoração temática pode ocupar até 10% da área útil de cada página. Escolha elementos ligados ao tema específico da seção. Reduza a decoração primeiro se for necessário ampliar o espaço de leitura e resposta.\n'
-        : 'Não acrescente ilustrações meramente decorativas. Reserve as imagens para apoio pedagógico necessário.\n') +
-      'Quando uma questão exigir uma cena, figura, gráfico, tabela, mapa ou outra referência visual, inclua esse apoio DENTRO do bloco da questão e em tamanho suficiente para interpretá-lo. O limite de 10% da decoração não se aplica às figuras necessárias para responder. Não adicione figuras em questões puramente textuais, salvo apoio visual previsto na adaptação selecionada.\n' +
-      'Gráficos, tabelas, esquemas científicos e figuras com medidas ou relações exatas devem ser construídos ou conferidos com recursos precisos de diagramação. Rótulos e números devem ser compostos como texto legível. As imagens nunca substituem os enunciados, alternativas ou dados fornecidos.');
+    var headIll = el.themeImage && !quiet;
+    var cab = 'CABEÇALHO BEM DIVIDIDO\nOrganize em faixas separadas por espaço ou linhas finas: (1) título do tema, disciplina e ano' + (headIll ? ', com uma ilustração temática lateral' : '');
+    var n = 2;
+    if (text(id.school) || teacher) cab += '; (' + (n++) + ') ' + (text(id.school) && teacher ? 'escola e professor informados' : text(id.school) ? 'escola informada' : 'professor informado');
+    if (!screen) {
+      cab += '; (' + (n++) + ') linha longa para Nome';
+      cab += '; (' + (n++) + ') ' + (el.fields === false ? 'Data' : 'Turma, Data e Nota');
+    }
+    cab += '.' + (headIll ? ' Nunca escreva por cima da ilustração.' : '') + (screen ? ' Nas telas seguintes use um título compacto com o tema.' : ' Nas páginas seguintes use cabeçalho compacto com tema, Nome e Turma.') + '\n';
+    cab += 'Abaixo do primeiro cabeçalho, destaque “LEIA COM ATENÇÃO” em negrito preto, numa caixa com contorno azul e fundo branco. Inclua instruções curtas compatíveis com os formatos efetivamente usados, sem dicas sobre respostas.';
+    out.push(cab);
 
-    var extras = [];
-    if (elements.tips) extras.push('Inclua uma caixa curta "Dicas para o aluno" com uma orientação de organização ou leitura, sem revelar respostas.');
-    if (elements.watermark && !quiet) extras.push('A marca d’água temática, se usada, deve ficar apenas em área decorativa, nunca atrás do texto ou dos campos de resposta e nunca dentro das margens. Ela faz parte do limite de decoração.');
-    if (elements.icons) extras.push('Use ícones educacionais discretos apenas quando ajudarem a localizar informações, sem substituir palavras ou criar marcas gráficas.');
-    if (extras.length) out.push('ELEMENTOS SELECIONADOS\n' + extras.join('\n'));
+    out.push('ILUSTRAÇÕES E FIGURAS\n' +
+      (own ? 'Inclua apenas os apoios de que as questões fornecidas dependem.' : roteiro ? 'Inclua no corpo da atividade os apoios pedidos no roteiro, cada um na sua questão.' : apoios ? 'Inclua no corpo da atividade exatamente ' + (apoios === 1 ? '1 apoio visual planejado' : apoios + ' apoios visuais planejados') + ' no roteiro, cada um na sua questão.' : 'Use figuras só quando uma questão depender delas.') +
+      (headIll ? ' No cabeçalho use uma composição temática pequena, sem repetir a mesma imagem em todos os blocos. Referência: ' + theme(sections[0].subject, sections[0].topic) + '.' : ' Sem ilustrações meramente decorativas.') + '\n' +
+      'Cenas contextuais podem usar geração de imagens, se disponível; sem esse recurso, construa ilustrações vetoriais claras e reconhecíveis. Não substitua uma cena solicitada por formas genéricas sem significado. A resposta não pode depender de detalhes imprecisos de imagem gerada. Dados, quantidades, gráficos, mapas e relações exatas exigem construção ou fonte precisa, com rótulos em texto real. Não desenhe um contorno inventado como mapa. Use legendas, padrões ou letras além das cores. Mantenha cada figura junto da questão. Indique “Representação esquemática, sem escala” quando pertinente. Dados fictícios devem ser identificados como exemplo didático.\n' +
+      'As figuras complementam o texto. Nunca gere uma imagem da folha inteira. Se uma figura necessária não puder ser construída com fidelidade, informe a limitação; não entregue um bloco vazio como se estivesse completo.');
+
+    var minPt = screen ? (big ? 32 : 24) : (big ? 18 : 12);
+    out.push('COMPOSIÇÃO E PAGINAÇÃO\n' +
+      (screen ? 'PDF horizontal 16:9, páginas de exatamente 320 × 180 mm. Reserve pelo menos 10 mm livres em TODOS os lados, incluindo contornos e rodapé. Sem campos de Nome, Turma, Data ou Nota e sem linhas para escrever; nas questões abertas, oriente resposta oral ou no caderno.\n'
+              : 'PDF A4 retrato, exatamente 210 × 297 mm. Reserve pelo menos 15 mm totalmente brancos em TODOS os lados, incluindo a espessura de contornos e o rodapé. Espaços de resposta com linhas a cada 7 a 8 mm.\n') +
+      'Texto real e selecionável, caracteres portugueses corretos e fontes incorporadas. Fonte sem serifa; enunciados e alternativas com o MESMO tamanho, mínimo ' + minPt + ' pontos. Alinhamento à esquerda e entrelinhas confortáveis. Não comprima letras nem reduza a escala para caber.\n' +
+      'Mantenha enunciado, alternativas, figura e espaço de resposta juntos. Use o menor número de ' + (screen ? 'telas' : 'páginas') + ' compatível com leitura e respostas; acrescente ' + (screen ? 'telas' : 'páginas') + ' em vez de cortar conteúdo. Não deixe grandes vazios por decoração ou por uma quantidade fixa de questões por ' + (screen ? 'tela' : 'folha') + '. Numere TODAS as páginas no cabeçalho, “Página X de Y”, com o total real do arquivo' + (prof ? ', incluindo as do professor' : '') + '.' +
+      (el.png ? '\nEntregue também um PNG de cada página, ' + (screen ? '1920 × 1080' : '2480 × 3508') + ' pixels, além do PDF.' : ''));
 
     if (profiles.length) {
-      var adaptations = [
-        'ADAPTAÇÕES SELECIONADAS\n' + profiles.map(function (key) { return PROFILE_NAMES[key]; }).join(' · '),
-        'Aplique apenas as adaptações pertinentes ao material e às opções selecionadas, sem presumir que todos os estudantes de um grupo têm as mesmas necessidades. Preserve o conteúdo ensinado, todas as questões, todos os dados e todas as alternativas. Use páginas adicionais para acomodar o apoio necessário. Em conteúdo próprio, mantenha o texto revisado; os apoios devem complementar sua apresentação.'
-      ];
-      if (has(profiles, 'tea')) adaptations.push('TEA / Autismo: organização previsível, uma instrução por vez, comandos visíveis e sequência clara. Use linguagem literal nas questões criadas, sem ironia ou ambiguidades. Evite enfeites, excesso de estímulos e imagens sem função pedagógica.');
-      if (has(profiles, 'tdah')) adaptations.push('TDAH: distribua as questões em blocos bem separados e destaque visualmente o comando principal. Reduza a quantidade de blocos por página, mantendo o total de questões nas páginas seguintes. Use instruções curtas nas questões criadas, sem omitir informações necessárias.');
-      if (has(profiles, 'dislexia')) adaptations.push('Dislexia: fonte simples sem serifa, alinhamento à esquerda, entrelinha ampliada, aproximadamente 1,5, e espaçamento confortável entre palavras e alternativas. Evite blocos longos em itálico, sublinhados extensos e frases inteiras em maiúsculas. Não dependa de uma fonte específica nem prometa um efeito terapêutico.');
-      if (has(profiles, 'di')) adaptations.push('Deficiência intelectual: uma tarefa por bloco, vocabulário concreto nas questões criadas e apoio visual quando ele ajudar a compreensão. Um exemplo de como responder pode usar dados diferentes dos itens avaliados. Não remova alternativas nem resolva a própria questão como exemplo. Mantenha apresentação respeitosa e adequada à idade.');
-      if (has(profiles, 'baixavisao')) adaptations.push('Baixa visão: todos os textos de leitura didática do aluno, inclusive enunciados, alternativas, rótulos de figuras, instruções e dicas, devem ter pelo menos ' + (screen ? '24' : '18') + ' pontos. Use texto escuro sobre branco, contornos nítidos e figuras simples e ampliadas. Não use marca d’água ou texto sobre fundos coloridos nos blocos didáticos. A barra de canais contém apenas metadados administrativos e pode manter 9 pontos para caber em uma linha, dentro das margens; ela não substitui nenhuma instrução de leitura do aluno.');
-      if (has(profiles, 'auditiva')) adaptations.push('Deficiência auditiva / Surdez: apresente por escrito todas as instruções e use apoio visual quando necessário; nenhuma resposta pode depender exclusivamente de áudio. Para alunos que utilizam Libras, reserve espaço vazio de 3,5 × 3,5 cm, com a legenda "Vídeo em Libras", para o professor inserir posteriormente uma referência de vídeo validada. Não invente QR codes ou desenhe sinais de Libras.');
-      if (has(profiles, 'motora')) adaptations.push(screen
-        ? 'Deficiência motora: apresente alternativas bem separadas, permita indicação oral ou por recurso de acesso do aluno e evite tarefas que dependam de precisão motora fina. A tela não deve conter campos para escrita manual.'
-        : 'Deficiência motora: use campos de marcação de pelo menos 1 × 1 cm, bem separados, e espaços amplos de escrita. Quando necessário, acrescente um campo para o professor registrar a resposta oral ou indicada pelo aluno. Não crie tarefas que dependam de recorte, traço fino ou escrita em áreas pequenas.');
-      adaptations.push('Não desenhe Braille como se pudesse ser lido de forma tátil em uma folha comum. Qualquer adaptação que dependa de material especializado deve ser indicada ao professor, sem simular que foi executada.');
-      out.push(adaptations.join('\n'));
+      out.push('ADAPTAÇÕES SELECIONADAS\nAplique só o que for pertinente, sem presumir que todos os estudantes de um grupo têm as mesmas necessidades. Preserve o conteúdo, todas as questões, dados e alternativas; use páginas adicionais para acomodar o apoio.\n' +
+        profiles.map(function (k) { return '• ' + ADAPTA[k]; }).join('\n') + '\nNão simule recursos que dependam de material especializado (como Braille impresso em folha comum); indique-os ao professor.');
     }
 
-    if (config.avisoIA) {
-      out.push('AVISO DE USO DE IA NO MATERIAL (pedido pelo professor)\n' +
-        'Em CADA página, logo acima da barra do rodapé e dentro da área útil, escreva uma única linha discreta, centralizada, em cinza, com 8 pontos:\n' +
-        '"Material elaborado com apoio de IA (' + target + '). Revisão e responsabilidade pedagógica: ' + (text(identity.teacher) || 'professor(a) que aplica o material') + '."\n' +
-        'Essa linha fica fora da barra e não substitui nenhuma das regras do rodapé.');
+    out.push('RODAPÉ EM TODAS AS PÁGINAS\nUma única barra discreta azul-marinho #0F2C4A, dentro da área útil. Texto branco, em UMA linha, com pelo menos 9 pontos, sem comprimir as letras. Preserve exatamente:\n' + CHANNELS + '\nSomente esse texto na barra, sem ícones, logos, paginação ou informações extras.');
+
+    var declara = '“Material elaborado com apoio de inteligência artificial para ' + (own ? 'revisão ortográfica, organização e diagramação do conteúdo fornecido' : 'criação de questões, organização e diagramação') + '. Revisão e validação pedagógica antes da aplicação: ' + (teacher || 'professor responsável') + '.”';
+    var naPdf = prof && config.avisoIA;
+    if (prof) {
+      var m = 'MATERIAL DO PROFESSOR\nInicie em nova página, após todas as ' + (screen ? 'telas' : 'páginas do aluno') + '. Inclua identificação informada, gabarito de TODAS as questões, justificativas breves e um objetivo por questão. ';
+      if (own || has(used, 'ab') || has(used, 'lac')) m += 'Nas abertas, apresente respostas possíveis e critérios de correção. ';
+      if (own || has(used, 'vf')) m += 'Em V/F, forneça a sequência completa e explique brevemente as afirmações falsas. ';
+      m += 'Acrescente páginas se necessário; nenhum item pode ficar cortado.\n';
+      m += config.alignBncc
+        ? 'Consulte a BNCC oficial antes de citar códigos: cada código deve existir, pertencer ao ano correto e sustentar o que a questão avalia; indique quando a correspondência for parcial. Se não conseguir consultar ou confirmar, descreva o objetivo com suas palavras, sem inventar código. Registre a fonte apenas se de fato a consultou. Sem selos de conformidade.'
+        : 'Descreva os objetivos com suas palavras, sem códigos da BNCC.';
+      if (config.includeLegalNote && profiles.length) m += '\nInclua uma observação breve sobre as adaptações aplicadas e sobre a Lei Brasileira de Inclusão, o AEE e o Desenho Universal para a Aprendizagem, distinguindo legislação, atendimento e princípios de planejamento. Verifique fontes oficiais antes de citar dispositivo legal; sem verificação, descreva só as adaptações aplicadas.';
+      if (naPdf) m += '\nNo final do material do professor, inclua uma única vez:\n' + declara + '\nNunca a repita nas páginas do aluno.';
+      out.push(m);
     }
-    out.push('RODAPÉ OBRIGATÓRIO\n' +
-      'Em CADA página, desenhe uma única barra discreta em azul-marinho #0F2C4A, inteiramente dentro da área útil. Dentro dela, componha o texto abaixo em branco e em UMA única linha horizontal, com pelo menos 9 pontos, SOMENTE TEXTO, sem emojis, ícones ou símbolos gráficos:\n' + CHANNELS + '\n' +
-      'Preserve exatamente os três canais, seus caracteres, os espaços e os separadores verticais. Use uma fonte legível que comporte a linha na largura útil, sem comprimir horizontalmente as letras. Não acrescente emojis nem ícones antes dos canais: eles não existem na fonte do PDF e caem por cima do texto.\n' +
-      'O rodapé contém somente esse texto e a cor de fundo da barra. Não invente logotipo, brasão, selo, robô ou marca gráfica. Não acrescente declaração de IA, códigos da BNCC, nota legal, ID, versão, data de geração ou assinatura à barra. Essas informações, quando solicitadas, pertencem à nota ao professor no chat. Não repita o rodapé como uma imagem ou como outro bloco.');
 
-    out.push('ESCRITA E PRESERVAÇÃO DO TEXTO\n' +
-      'Use português do Brasil correto e linguagem natural. Não use travessão ou hífen como conector de frases ou para criar pausas; use vírgulas, dois-pontos, parênteses ou reescreva. Hífen somente em palavras compostas legítimas. Essa regra de redação não permite modificar números negativos, expressões matemáticas ou dados fornecidos.\n' +
-      'Não acrescente gabarito, respostas preenchidas ou explicações que entreguem a solução das questões. Preserve respostas que tenham sido explicitamente fornecidas como parte do conteúdo próprio. O texto, as figuras pedagógicas e o espaço de resposta têm prioridade sobre a decoração.');
-
-    var note = 'NOTA AO PROFESSOR, NO CHAT E FORA DA FOLHA\n' +
-      'Depois dos arquivos, apresente uma nota breve com UMA única declaração de uso de IA, sem repeti-la no PDF:\n' +
-      '"Material elaborado com apoio de ' + target + ' para ' + (own
-        ? 'revisão ortográfica, organização e diagramação do conteúdo fornecido'
-        : 'criação de questões, organização e diagramação') +
-      '. Revisão e validação pedagógica antes da aplicação: ' + (text(identity.teacher) || 'professor(a) responsável pela aplicação') + '."\n' +
-      'Essa declaração indica uma revisão necessária; não afirme que uma pessoa já revisou ou aprovou o material.';
-    if (text(identity.city)) note += '\nIdentificação complementar: ' + text(identity.city) + '.';
-    if (config.alignBncc) {
-      note += '\nRelacione CADA questão a um objetivo de aprendizagem adequado a ' + grade + ', identificando sua seção e seu número. Confira a correspondência na BNCC oficial antes de citar qualquer código: o código deve existir, corresponder ao ano correto e sustentar o que a questão avalia. Inclua a fonte consultada na nota. Se não puder confirmar a correspondência, descreva o objetivo com suas próprias palavras, SEM inventar código ou apresentá-lo como citação literal da BNCC. Não force correspondência a uma habilidade de outro ano. Essa relação fica apenas na nota ao professor, nunca como selo de conformidade na folha.';
-    }
-    if (config.includeLegalNote && profiles.length) {
-      note += '\nInclua uma observação breve sobre as adaptações selecionadas e sobre referências à Lei Brasileira de Inclusão, ao Atendimento Educacional Especializado e ao Desenho Universal para a Aprendizagem, com distinção entre legislação, atendimento educacional e princípios de planejamento. Verifique fontes oficiais antes de informar dispositivo legal ou apresentar obrigação normativa. Se não houver verificação, descreva apenas as adaptações efetivamente aplicadas. Não declare conformidade legal ou acessibilidade integral não verificadas; não coloque essa observação no rodapé.';
-    }
-    note += '\nNão acrescente relatório extenso nem outros documentos que não foram solicitados.';
-    out.push(note);
-
-    out.push('CHECAGEM FINAL DO ARQUIVO\n' +
-      'Antes de entregar, abra ou renderize o PDF e confira visualmente todas as páginas. Corrija o arquivo até aprovar os oito itens:\n' +
-      '1. Todas as seções, questões, subitens, alternativas e dados estão presentes, na ordem correta, sem cortes de conteúdo.\n' +
-      '2. O texto coincide integralmente com a versão revisada e a ortografia foi conferida duas vezes.\n' +
-      '3. Nenhum texto está sobreposto, cortado ou ilegível; os tamanhos mínimos e as fontes incorporadas foram verificados; as alternativas têm o mesmo tamanho de letra do enunciado.\n' +
-      '4. Os apoios visuais estão corretos e legíveis; ' + (screen ? 'os comandos funcionam em projeção, sem campos manuscritos.' : 'os espaços de resposta são suficientes para a escrita manual.') + '\n' +
-      '5. As páginas do PDF têm ' + (screen ? '320 × 180 mm em 16:9, com área segura de 10 mm.' : '210 × 297 mm em A4 retrato, com margens brancas de pelo menos 15 mm.') + (elements.png ? (screen ? ' Cada PNG tem exatamente 1920 × 1080 pixels.' : ' Cada PNG tem exatamente 2480 × 3508 pixels e metadados de 300 DPI.') : '') + '\n' +
-      '6. O cabeçalho contém a identificação solicitada e a paginação usa o total real de páginas deste arquivo' + (screen ? '.' : '; nenhuma folha, exceto a última, ficou com mais de 30% da área útil em branco.') + '\n' +
-      '7. O rodapé está completo, legível e em uma única linha em cada página, sem logos inventados nem informações extras' + (config.avisoIA ? ', e a linha do aviso de IA aparece logo acima da barra em todas as páginas.' : '.') + '\n' +
-      '8. As adaptações selecionadas foram aplicadas sem remover conteúdo; nenhuma referência de BNCC, declaração de revisão concluída ou conformidade foi inventada.\n' +
-      'Não afirme que executou verificações ou renderizações que não realizou. Entregue links reais para os arquivos criados' + (screen ? '.' : ' e informe: imprimir em papel A4, orientação retrato e escala de 100% ou tamanho real.'));
-
-    out.push('Se este ambiente não permitir criar ou anexar arquivos, informe essa limitação de forma objetiva; não invente anexos, links de download ou uma entrega de PDF que não existe.');
+    out.push('CONFERÊNCIA E ENTREGA\nAntes de entregar, abra ou renderize todas as páginas e corrija cortes, sobreposições e texto ilegível. Confira ' +
+      (own ? 'se todas as questões fornecidas estão presentes, com todas as alternativas e sem mudança de sentido' : 'quantidade de questões' + (has(used, 'me') ? ', quatro alternativas em cada múltipla escolha' : '') + (has(used, 'vf') ? ', todas as afirmações V/F' : '')) +
+      ', espaços de resposta, ' + (prof ? 'correspondência com o gabarito, ' : 'ausência de qualquer gabarito no PDF, ') + 'fontes, margens, figuras, rodapé e paginação. Verifique o último item de cada página' + (prof ? ' e o final do material do professor' : '') + '. Não declare verificações que não executou.\n' +
+      'Entregue o link real do PDF. Informe as ' + (screen ? 'telas da atividade' : 'páginas do aluno') + (prof ? ' e as do professor' : '') + ' e ' + (screen ? '“Projetar em tela cheia, ajustado à largura.”' : '“Imprimir em papel A4, orientação retrato e escala de 100% ou tamanho real.”') + '\n' +
+      (naPdf ? '' : 'Somente no chat, após o link, inclua uma única vez:\n' + declara + '\n') +
+      'Essa declaração indica uma revisão necessária, não uma aprovação já realizada.\n' +
+      'Se este ambiente não puder criar o PDF, diga isso e entregue na mesma resposta todo o conteúdo organizado' + (prof ? ', inclusive o material do professor' : '') + '. Não invente arquivo, link ou revisão concluída.');
 
     return out.join('\n\n');
   }
@@ -589,7 +640,7 @@ D) 2/4
     ['pde-id-escola', 'pde_escola'],
     ['pde-id-municipio', 'pde_municipio']
   ];
-  var FIELD_IDS = ['i-disc', 'i-serie', 'i-tema', 'i-qtd', 'i-pags', 'i-quest', 'ai-dif', 'ai-tipo', 'ai-foco', 'pde-id-prof', 'pde-id-escola', 'pde-id-municipio'];
+  var FIELD_IDS = ['i-disc', 'i-serie', 'i-tema', 'i-qtd', 'i-pags', 'i-quest', 'ai-dif', 'ai-tipo', 'ai-foco', 'ai-roteiro', 'pde-id-prof', 'pde-id-escola', 'pde-id-municipio'];
   var mode = $('#mode-sw .on') ? $('#mode-sw .on').dataset.mode : 'own';
   var curPhase = 1;
   var totalPhases = 4;
@@ -882,6 +933,7 @@ D) 2/4
       difficulty: value('ai-dif'),
       questionType: value('ai-tipo'),
       focus: value('ai-foco'),
+      roadmap: mode === 'ai' ? value('ai-roteiro') : '',
       includeBaseText: toggleOn('ai-texto'),
       alignBncc: toggleOn('ai-bncc'),
       styleDescription: STYLES[styleKey()],
@@ -889,6 +941,8 @@ D) 2/4
         fields: toggleOn('campos'), themeImage: toggleOn('imagem'), tips: toggleOn('dicas'),
         watermark: toggleOn('marca'), icons: toggleOn('icones'), png: toggleOn('png')
       },
+      teacherMaterial: toggleOn('prof'),
+      economy: toggleOn('economia'),
       profiles: selectedProfiles(),
       includeLegalNote: Boolean($('#incl-legal') && $('#incl-legal').checked),
       avisoIA: toggleOn('aviso-ia'),
@@ -1165,7 +1219,8 @@ D) 2/4
     updateProfileNote();
     $$('.tg[data-tg]').forEach(function (el) {
       var key = el.dataset.tg;
-      var enabled = state.toggles && Object.prototype.hasOwnProperty.call(state.toggles, key) ? Boolean(state.toggles[key]) : key === 'png';
+      if (el.dataset.def === undefined) el.dataset.def = el.classList.contains('on') ? '1' : '0';
+      var enabled = state.toggles && Object.prototype.hasOwnProperty.call(state.toggles, key) ? Boolean(state.toggles[key]) : el.dataset.def === '1';
       el.classList.toggle('on', enabled);
       el.setAttribute('aria-pressed', enabled ? 'true' : 'false');
     });
