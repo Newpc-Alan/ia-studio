@@ -1022,7 +1022,7 @@ D) 2/4
     $('#p-gpt').textContent = prompts.gpt;
     $('#p-gem').textContent = prompts.gem;
     renderQueue();
-    setPromptVisible(true);
+    setPromptVisible(false); /* 09/10: o prompt fica oculto; o professor abre se quiser conferir */
     $('#out').classList.add('show');
     if (status) status.textContent = 'Comandos prontos. Escolha a IA para copiar e abrir.';
     P.dispatchEvent(new CustomEvent('pde:prompt-ready', {
@@ -2595,7 +2595,7 @@ body [data-pdeq-oculto]{ display:none !important; }
     var cab=fase.querySelector('.pde-res-cab');
     if(!cab){
       cab=document.createElement('div'); cab.className='pde-res-cab';
-      cab.innerHTML='<div class="pde-res-tit">Seu prompt está pronto</div><div class="pde-res-sub">Confira o prompt abaixo. Para solicitar o PDF, copie e envie para a IA escolhida.</div>';
+      cab.innerHTML='<div class="pde-res-tit">Seu prompt está pronto</div><div class="pde-res-sub">Clique em Copiar e abrir, cole na conversa e a IA entrega o PDF. Para conferir o texto, use Mostrar prompt completo.</div>';
       out.parentNode.insertBefore(cab,out);
     }
     var tipo=cab.querySelector('.pde-prompt-kind');
